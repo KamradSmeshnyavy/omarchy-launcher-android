@@ -98,6 +98,7 @@ class CustomizerActivity : LookActivity() {
             page == WALLPAPERS -> wallpapers()
             page == WEATHER -> weather()
             page == BAR -> barPage()
+            page == LOCK -> lockPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
             page.startsWith(ADD) -> addWidget(page.removePrefix(ADD).toIntOrNull() ?: 0)
             page.startsWith(APP_WIDGETS) -> appWidgets(page.removePrefix(APP_WIDGETS).toIntOrNull() ?: 0)
@@ -164,6 +165,7 @@ class CustomizerActivity : LookActivity() {
             listOf(
                 Triple(R.string.cz_themes, R.string.cz_themes_sub, THEMES),
                 Triple(R.string.cz_walls, R.string.cz_walls_sub, WALLPAPERS),
+                Triple(R.string.cz_lock, R.string.cz_lock_sub, LOCK),
                 Triple(R.string.cz_weather, R.string.cz_weather_sub, WEATHER),
                 Triple(R.string.cz_widgets, R.string.cz_widgets_sub, TABLE + "WIDGET_TWEAKS"),
                 Triple(R.string.cz_dotify, R.string.cz_dotify_sub, TABLE + "DOTIFY_TWEAKS"),
@@ -634,6 +636,144 @@ class CustomizerActivity : LookActivity() {
         }
     }
 
+    // --- Блокировка ---------------------------------------------------------------------------------
+
+    private fun lockPage() {
+        val art = io.github.kamradsmeshnyavy.launcher.core.LockArt
+        val sp = Look.prefs(this)
+        column.addView(heading(getString(R.string.cz_lock), getString(R.string.cz_lock_page_sub)))
+        val current = art.current(this)
+        val screenW = resources.displayMetrics.widthPixels
+        val screenH = resources.displayMetrics.heightPixels
+        val status = mono("", 11f, Nihil.DIM)
+
+        // Подложка.
+        val sources = listOf("theme", "photo", "plain")
+        column.addView(settingRow(getString(R.string.cz_lock_source), getString(R.string.cz_lock_source_sub), null, rule = false, onClick = null))
+        column.addView(Choice(this, listOf(getString(R.string.cz_lock_from_theme), getString(R.string.cz_lock_from_photo), getString(R.string.cz_lock_plain)),
+            sources.indexOf(sp.getString(art.SOURCE, "theme")).coerceAtLeast(0)) { i ->
+            sp.edit().putString(art.SOURCE, sources[i]).apply()
+            when (sources[i]) {
+                "photo" -> {
+                    @Suppress("DEPRECATION")
+                    runCatching { startActivityForResult(Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*"), REQUEST_LOCK_PHOTO) }
+                }
+                "theme" -> fetchThemeBase(status)
+                else -> restart()
+            }
+        }, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+        column.addView(rule(), llp(MATCH, dp(1)))
+        // Размытие и затемнение (LOCK_TWEAKS).
+        listOf(Triple("wallpaperBlur", R.string.cz_lock_blur, 0.0 to 1.0), Triple("wallpaperDim", R.string.cz_lock_dim, 0.0 to 0.9)).forEach { (key, title, range) ->
+            column.addView(settingRow(getString(title), null, null, rule = false, onClick = null))
+            column.addView(LedSlider(this, range.first, range.second, 0.05, Look.current(this).num(key, if (key == "wallpaperDim") 0.25 else 0.4)) {
+                io.github.kamradsmeshnyavy.launcher.core.LookEdit.set(this, key, it)
+                restart()
+            }, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+            column.addView(rule(), llp(MATCH, dp(1)))
+        }
+        column.addView(KeyButton(this, getString(R.string.cz_lock_apply), accent = true).apply {
+            setOnClickListener {
+                status.text = getString(R.string.studio_rendering)
+                pool.execute {
+                    val ok = runCatching {
+                        val bmp = art.wallpaper(context, art.current(context), screenW, screenH)
+                        android.app.WallpaperManager.getInstance(context).setBitmap(bmp, null, true, android.app.WallpaperManager.FLAG_LOCK)
+                    }.isSuccess
+                    runOnUiThread { status.text = getString(if (ok) R.string.studio_done else R.string.studio_failed) }
+                }
+            }
+        }, llp(WRAP, WRAP).apply { topMargin = dp(16) })
+        column.addView(KeyButton(this, getString(R.string.cz_lock_dream)).apply {
+            setOnClickListener { runCatching { startActivity(Intent(android.provider.Settings.ACTION_DREAM_SETTINGS)) } }
+        }, llp(WRAP, WRAP).apply { topMargin = dp(10) })
+        column.addView(status, llp(MATCH, WRAP).apply { topMargin = dp(10) })
+        column.addView(body(getString(R.string.cz_lock_dream_sub)), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+
+        // Галерея дизайнов: превью — как заставка (с часами), в цветах темы.
+        column.addView(heading(getString(R.string.cz_lock_designs), getString(R.string.cz_lock_designs_sub)))
+        val tileW = (screenW - dp(62)) / 2
+        val tileH = (tileW * screenH.toFloat() / screenW).toInt()
+        val add = grid(2)
+        val base = art.base(this, tileW, tileH)
+        val sample = io.github.kamradsmeshnyavy.launcher.core.LockArt.Live(87, false, "", "4°")
+        val choices = listOfNotNull(
+            if (sp.getString(Look.PC_SNAPSHOT, null)?.contains("\"lock\"") == true) "pc" else null,
+        ) + art.all(this).map { it.id }
+        choices.forEach { id ->
+            val design = if (id == "pc") art.current(this) else id
+            val on = (sp.getString(art.DESIGN, null) ?: "dotmatrix") == id
+            val image = android.widget.ImageView(this).apply {
+                scaleType = android.widget.ImageView.ScaleType.FIT_XY
+                clipToOutline = true
+                outlineProvider = object : android.view.ViewOutlineProvider() {
+                    override fun getOutline(view: View, outline: android.graphics.Outline) = outline.setRoundRect(0, 0, view.width, view.height, dp(14f))
+                }
+            }
+            pool.execute {
+                val bmp = runCatching {
+                    android.graphics.Bitmap.createBitmap(tileW, tileH, android.graphics.Bitmap.Config.ARGB_8888).also {
+                        art.draw(android.graphics.Canvas(it), this, design, tileW, tileH, base, sample)
+                    }
+                }.getOrNull()
+                runOnUiThread { image.setImageBitmap(bmp) }
+            }
+            val info = art.all(this).firstOrNull { it.id == id }
+            add(LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, 0, 0, dp(16))
+                addView(image, llp(MATCH, tileH))
+                addView(text((if (id == "pc") getString(R.string.cz_bar_from_pc) else info?.name ?: id) + if (on) "  ●" else "", 13f, if (on) Nihil.SIGNAL else Nihil.INK, Nihil.fonts(context).sans), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                setOnClickListener {
+                    sp.edit().putString(art.DESIGN, id).apply()
+                    restart()
+                }
+                setOnLongClickListener {
+                    toast((if (ru) info?.descriptionRu else info?.description).orEmpty())
+                    true
+                }
+            })
+        }
+        if (current.isEmpty()) Unit
+    }
+
+    /** Подложка «обои темы»: первые обои текущей темы с компьютера → filesDir/lock-base.jpg. */
+    private fun fetchThemeBase(status: android.widget.TextView) {
+        val walls = io.github.kamradsmeshnyavy.launcher.core.ThemeWalls
+        val theme = Look.current(this).theme?.id ?: return
+        if (!walls.paired(this)) {
+            status.text = getString(R.string.cz_walls_unpaired)
+            return
+        }
+        status.text = getString(R.string.cz_walls_loading)
+        val w = resources.displayMetrics.widthPixels
+        val h = resources.displayMetrics.heightPixels
+        pool.execute {
+            val ok = runCatching {
+                val name = walls.list(this, theme)?.firstOrNull() ?: error("none")
+                val bmp = walls.image(this, theme, name, w, h) ?: error("none")
+                io.github.kamradsmeshnyavy.launcher.core.LockArt.baseFile(this).outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, it) }
+            }.isSuccess
+            runOnUiThread { if (ok) restart() else status.text = getString(R.string.cz_walls_offline) }
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_LOCK_PHOTO && resultCode == RESULT_OK) {
+            val uri = data?.data ?: return
+            pool.execute {
+                runCatching {
+                    contentResolver.openInputStream(uri)?.use { input ->
+                        io.github.kamradsmeshnyavy.launcher.core.LockArt.baseFile(this).outputStream().use { input.copyTo(it) }
+                    }
+                }
+                runOnUiThread { restart() }
+            }
+        }
+    }
+
     // --- Бар ----------------------------------------------------------------------------------------
 
     private fun barPage() {
@@ -1018,10 +1158,12 @@ class CustomizerActivity : LookActivity() {
         const val WALLPAPERS = "wallpapers"
         const val WEATHER = "weather"
         const val BAR = "bar"
+        const val LOCK = "lock"
         const val ADD = "add:"
         const val APP_WIDGETS = "appwidgets:"
         const val ITEM = "item:"
         const val TABLE = "table:"
+        const val REQUEST_LOCK_PHOTO = 51
         const val ACTION_PICK_APP_WIDGET = "io.github.kamradsmeshnyavy.launcher.PICK_APP_WIDGET"
 
         fun intent(context: Context, page: String = HOME): Intent =

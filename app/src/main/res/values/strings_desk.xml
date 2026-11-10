@@ -78,4 +78,20 @@
     <string name="wv_none">As drawn</string>
     <string name="wv_theme">Theme colours</string>
     <string name="wv_mono">Mono</string>
+    <string name="cz_lock">Lock screen</string>
+    <string name="cz_lock_sub">Omarchy lock designs as the lock wallpaper and the screensaver</string>
+    <string name="cz_lock_page_sub">Android doesn’t let an app replace its lock screen. The design goes on as the lock-screen wallpaper (without its own clock: Android draws one) and as the screensaver, with a live clock.</string>
+    <string name="cz_lock_source">Background</string>
+    <string name="cz_lock_source_sub">The theme’s wallpaper from the computer, a photo of your own or the theme’s colours</string>
+    <string name="cz_lock_from_theme">Theme</string>
+    <string name="cz_lock_from_photo">Photo</string>
+    <string name="cz_lock_plain">Colours</string>
+    <string name="cz_lock_blur">Wallpaper: blur</string>
+    <string name="cz_lock_dim">Wallpaper: dim</string>
+    <string name="cz_lock_apply">Put on the lock screen</string>
+    <string name="cz_lock_dream">Screensaver settings</string>
+    <string name="cz_lock_dream_sub">Screensaver: Settings → Display → Screen saver → DOT-MATRIX; it shows while charging or docked.</string>
+    <string name="cz_lock_designs">Designs</string>
+    <string name="cz_lock_designs_sub">Tap to choose, long press to read about it. Previews show the screensaver.</string>
+    <string name="dream_label">DOT-MATRIX lock screen</string>
 </resources>

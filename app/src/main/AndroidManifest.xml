@@ -175,6 +175,18 @@
             </intent-filter>
         </activity>
 
+        <!-- Заставка в дизайне экрана блокировки Omarchy -->
+        <service
+            android:name=".system.LockDream"
+            android:exported="true"
+            android:label="@string/dream_label"
+            android:permission="android.permission.BIND_DREAM_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.dreams.DreamService" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
         <!-- «Следовать компьютеру»: проверка оформления ПК раз в 15 минут -->
         <service
             android:name=".core.PcLook$Job"

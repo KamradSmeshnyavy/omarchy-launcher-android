@@ -78,4 +78,20 @@
     <string name="wv_none">Как нарисовано</string>
     <string name="wv_theme">Цвета темы</string>
     <string name="wv_mono">Монохром</string>
+    <string name="cz_lock">Блокировка</string>
+    <string name="cz_lock_sub">Дизайны экрана блокировки Omarchy — обоями блокировки и заставкой</string>
+    <string name="cz_lock_page_sub">Android не даёт приложению заменить экран блокировки. Дизайн ставится обоями экрана блокировки (без своих часов — их рисует Android) и заставкой — с живыми часами.</string>
+    <string name="cz_lock_source">Подложка</string>
+    <string name="cz_lock_source_sub">Обои темы с компьютера, своё фото или цвета темы</string>
+    <string name="cz_lock_from_theme">Тема</string>
+    <string name="cz_lock_from_photo">Фото</string>
+    <string name="cz_lock_plain">Цвета</string>
+    <string name="cz_lock_blur">Обои: размытие</string>
+    <string name="cz_lock_dim">Обои: затемнение</string>
+    <string name="cz_lock_apply">Поставить на экран блокировки</string>
+    <string name="cz_lock_dream">Настройки заставки</string>
+    <string name="cz_lock_dream_sub">Заставка: Настройки → Экран → Заставка → DOT-MATRIX; показывается при зарядке или в доке.</string>
+    <string name="cz_lock_designs">Дизайны</string>
+    <string name="cz_lock_designs_sub">Нажатие — выбрать, долгое — описание. Превью — как заставка.</string>
+    <string name="dream_label">Блокировка DOT-MATRIX</string>
 </resources>
