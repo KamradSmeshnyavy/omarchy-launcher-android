@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Customizer на телефоне: те же группы и настройки, что в оверлее Omarchy. -->
+<resources>
+    <string name="cz_open">Customizer</string>
+    <string name="cz_open_sub">Тема, стиль, Glyph, звуки, шрифты и виджеты — те же настройки, что в Omarchy Customizer</string>
+    <string name="cz_search">Поиск по всем настройкам</string>
+    <string name="cz_nothing_found">Ничего не найдено</string>
+    <string name="cz_settings">Настройки</string>
+    <string name="cz_table_sub">Долгое нажатие возвращает значение стиля. Красная точка — значение своё.</string>
+
+    <string name="cz_presets">Пресеты</string>
+    <string name="cz_presets_sub">Оформление целиком: стиль на любой теме или свои снимки</string>
+    <string name="cz_styles">Стиль</string>
+    <string name="cz_styles_sub">Flat, Стекло, Fluent, DOT-MATRIX, Брутализм, Неон, Неоморфизм, Бумага, Ретро</string>
+    <string name="cz_styles_page_sub">Форма всего на любой теме: материал, тени, скругления, движение, шрифты, Glyph и звуки. Нажатие — применить, долгое — описание.</string>
+    <string name="cz_styles_hint">Что именно применяет стиль, выбирается в «Применять из стиля».</string>
+    <string name="cz_style_applied">Стиль: %1$s</string>
+    <string name="cz_style_apply">Применять из стиля</string>
+    <string name="cz_style_apply_sub">Какие разделы меняет стиль и его светлая или тёмная тема</string>
+    <string name="cz_my_presets">Свои пресеты</string>
+    <string name="cz_my_presets_sub">Сохранить то, что стоит сейчас, и вернуться к нему</string>
+    <string name="cz_presets_page_sub">Пресет хранит стиль, тему, шрифты и все свои значения настроек.</string>
+    <string name="cz_preset_name">Имя пресета</string>
+    <string name="cz_preset_save">Сохранить</string>
+    <string name="cz_preset_apply">Применять из пресета</string>
+    <string name="cz_no_presets">Пресетов пока нет</string>
+    <string name="cz_delete">Удалить</string>
+
+    <string name="cz_desktop">Рабочий стол</string>
+    <string name="cz_desktop_sub">Цвета, домашний экран и обои</string>
+    <string name="cz_themes">Тема</string>
+    <string name="cz_themes_sub">Все темы Omarchy с их палитрой</string>
+    <string name="cz_themes_page_sub">Нажатие — поставить тему, долгое — в избранное (★ идут первыми).</string>
+    <string name="cz_dark">тёмная</string>
+    <string name="cz_light">светлая</string>
+    <string name="cz_starred">В избранном</string>
+    <string name="cz_unstarred">Убрано из избранного</string>
+    <string name="cz_widgets">Виджеты</string>
+    <string name="cz_widgets_sub">Часы, «сейчас играет» и список дел на домашнем экране</string>
+    <string name="cz_dotify">Dotify</string>
+    <string name="cz_dotify_sub">Генератор матричных LED-обоев</string>
+    <string name="cz_dotmatrix">Палитра DOT-MATRIX</string>
+    <string name="cz_dotmatrix_sub">Цвета темы или оригинальные чёрный, белый и красный; каждую роль можно задать свою</string>
+
+    <string name="cz_light_sound">Свет и звук</string>
+    <string name="cz_light_sound_sub">Как телефон отзывается</string>
+    <string name="cz_glyph">Glyph</string>
+    <string name="cz_glyph_sub">Свет по краю экрана на уведомления, звонки и зарядку</string>
+    <string name="cz_sounds">Звуки</string>
+    <string name="cz_sounds_sub">Звуковой пакет стиля на открытие, закрытие и переключение</string>
+
+    <string name="cz_type_launcher">Шрифты и лаунчер</string>
+    <string name="cz_type_launcher_sub">Профили шрифтов и ящик приложений</string>
+    <string name="cz_fonts">Шрифты</string>
+    <string name="cz_fonts_sub">Профили шрифтов, как на десктопе</string>
+    <string name="cz_fonts_page_sub">Дисплейный голос (точки), текст и метаданные каждого профиля.</string>
+    <string name="cz_fonts_locked">У этого стиля свой шрифт; профиль действует в стилях, где шрифт следует профилю.</string>
+    <string name="cz_font_from_style">Как у стиля</string>
+    <string name="cz_launcher">Лаунчер</string>
+    <string name="cz_launcher_sub">Скин ящика приложений и затемнение под ним</string>
+
+    <string name="cz_pc">Телефон и компьютер</string>
+    <string name="cz_pc_sub">Сопряжённый компьютер может одолжить своё оформление</string>
+    <string name="cz_follow_pc">Следовать компьютеру</string>
+    <string name="cz_follow_pc_sub">Тема, стиль, Glyph, звуки и обои — как на сопряжённом Omarchy, стоит их там поменять</string>
+    <string name="cz_follow_system">Светлая и тёмная за системой</string>
+    <string name="cz_follow_system_sub">Светлая и тёмная темы стиля переключаются вместе с тёмным режимом Android</string>
+    <string name="cz_reset_done">Снова как у стиля</string>
+
+    <string name="font_stock">stock — Doto, Space Grotesk, Space Mono</string>
+    <string name="font_nothing">nothing — DotMatrix Dot, Geist, DotMatrix Mono</string>
+    <string name="font_pixel">pixel — DotMatrix Pixel для метаданных</string>
+    <string name="font_lumen">lumen — точки 5×7 для мелкого текста</string>
+    <string name="font_dots_all">dots-all — каждая буква точками</string>
+    <string name="font_paper">paper — рукописный (Pangolin, Caveat)</string>
+    <string name="font_retro">retro — Pixelify Sans</string>
+</resources>

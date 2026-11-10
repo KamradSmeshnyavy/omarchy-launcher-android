@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Customizer on the phone: the same groups and settings as the Omarchy overlay. -->
+<resources>
+    <string name="cz_open">Customizer</string>
+    <string name="cz_open_sub">Theme, style, Glyph, sounds, fonts and widgets — the same settings as Omarchy Customizer</string>
+    <string name="cz_search">Search all settings</string>
+    <string name="cz_nothing_found">Nothing found</string>
+    <string name="cz_settings">Settings</string>
+    <string name="cz_table_sub">Long press a setting to return it to the style’s value. A red dot marks your own.</string>
+
+    <string name="cz_presets">Presets</string>
+    <string name="cz_presets_sub">Whole looks at once: a style on any theme, or your own snapshots</string>
+    <string name="cz_styles">Style</string>
+    <string name="cz_styles_sub">Flat, Glass, Fluent, DOT-MATRIX, Brutalism, Neon, Neumorphism, Paper, Retro</string>
+    <string name="cz_styles_page_sub">The shape of everything on any theme: material, shadows, corners, motion, type, Glyph and sounds. Tap to apply, long press to read about it.</string>
+    <string name="cz_styles_hint">What a style applies is chosen in “Apply from styles”.</string>
+    <string name="cz_style_applied">Style: %1$s</string>
+    <string name="cz_style_apply">Apply from styles</string>
+    <string name="cz_style_apply_sub">Which parts a style changes, and its light or dark theme</string>
+    <string name="cz_my_presets">My presets</string>
+    <string name="cz_my_presets_sub">Save what is on now and come back to it</string>
+    <string name="cz_presets_page_sub">A preset keeps the style, the theme, the fonts and every setting of your own.</string>
+    <string name="cz_preset_name">Preset name</string>
+    <string name="cz_preset_save">Save</string>
+    <string name="cz_preset_apply">Apply from presets</string>
+    <string name="cz_no_presets">No presets yet</string>
+    <string name="cz_delete">Delete</string>
+
+    <string name="cz_desktop">Desktop</string>
+    <string name="cz_desktop_sub">Colours, home screen and wallpapers</string>
+    <string name="cz_themes">Theme</string>
+    <string name="cz_themes_sub">Every Omarchy theme, with its palette</string>
+    <string name="cz_themes_page_sub">Tap to put a theme on, long press to star it. Starred themes come first.</string>
+    <string name="cz_dark">dark</string>
+    <string name="cz_light">light</string>
+    <string name="cz_starred">Starred</string>
+    <string name="cz_unstarred">Unstarred</string>
+    <string name="cz_widgets">Widgets</string>
+    <string name="cz_widgets_sub">The clock, now playing and the to-do list on the home screen</string>
+    <string name="cz_dotify">Dotify</string>
+    <string name="cz_dotify_sub">The dot-matrix LED wallpaper generator</string>
+    <string name="cz_dotmatrix">DOT-MATRIX palette</string>
+    <string name="cz_dotmatrix_sub">Theme colours or the original black, white and red; each role can be your own</string>
+
+    <string name="cz_light_sound">Light and sound</string>
+    <string name="cz_light_sound_sub">How the phone answers</string>
+    <string name="cz_glyph">Glyph</string>
+    <string name="cz_glyph_sub">The light around the screen for notifications, calls and the charger</string>
+    <string name="cz_sounds">Sounds</string>
+    <string name="cz_sounds_sub">The style’s sound pack for opening, closing and switching</string>
+
+    <string name="cz_type_launcher">Type and launcher</string>
+    <string name="cz_type_launcher_sub">Fonts and the app drawer</string>
+    <string name="cz_fonts">Fonts</string>
+    <string name="cz_fonts_sub">Font profiles, as on the desktop</string>
+    <string name="cz_fonts_page_sub">The display voice (dots), the text and the metadata of each profile.</string>
+    <string name="cz_fonts_locked">This style sets its own typeface; the profile applies with styles whose typeface follows the profile.</string>
+    <string name="cz_font_from_style">As the style says</string>
+    <string name="cz_launcher">Launcher</string>
+    <string name="cz_launcher_sub">The app drawer’s skin and its backdrop</string>
+
+    <string name="cz_pc">Phone and computer</string>
+    <string name="cz_pc_sub">The paired computer can lend its look</string>
+    <string name="cz_follow_pc">Follow the computer</string>
+    <string name="cz_follow_pc_sub">Theme, style, Glyph, sounds and wallpaper as on the paired Omarchy, whenever they change there</string>
+    <string name="cz_follow_system">Light and dark with the system</string>
+    <string name="cz_follow_system_sub">A style’s light and dark themes follow Android’s dark mode</string>
+    <string name="cz_reset_done">Back to the style’s value</string>
+
+    <string name="font_stock">stock — Doto, Space Grotesk, Space Mono</string>
+    <string name="font_nothing">nothing — DotMatrix Dot, Geist, DotMatrix Mono</string>
+    <string name="font_pixel">pixel — DotMatrix Pixel for metadata</string>
+    <string name="font_lumen">lumen — 5×7 dots for small text</string>
+    <string name="font_dots_all">dots-all — every letter in dots</string>
+    <string name="font_paper">paper — handwritten (Pangolin, Caveat)</string>
+    <string name="font_retro">retro — Pixelify Sans</string>
+</resources>

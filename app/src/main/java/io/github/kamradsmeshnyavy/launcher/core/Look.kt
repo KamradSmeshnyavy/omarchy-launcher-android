@@ -246,7 +246,9 @@ object Look {
             }
         }
 
-        val look = JSONObject(style?.look?.toString() ?: "{}")
+        // «Стили: применять поверхности» выключено — материал и форма остаются от прежнего стиля.
+        val lookStyle = sp.getString(LookEdit.LOOK_FROM, null)?.let { cat.style(it) } ?: style
+        val look = JSONObject(lookStyle?.look?.toString() ?: "{}")
         pc?.optJSONObject("look")?.let { o -> o.keys().forEach { look.put(it, o.get(it)) } }
         val mono = (values["palette"] as? String) == "mono"
         val palette = palette(theme, mono, values)

@@ -112,6 +112,22 @@ class SettingsActivity : LookActivity() {
 
         // Look.
         section(R.string.section_look, R.string.section_look_sub)
+        // Customizer: тема, стиль и все настройки оверлея Omarchy.
+        column.addView(
+            row(getString(R.string.cz_open), body(getString(R.string.cz_open_sub)), chevron()) {
+                startActivity(CustomizerActivity.intent(this))
+            },
+        )
+        column.addView(
+            row(getString(R.string.cz_styles), body(io.github.kamradsmeshnyavy.launcher.core.Look.current(this).style?.let { if (java.util.Locale.getDefault().language == "ru") it.nameRu else it.name }.orEmpty()), chevron()) {
+                startActivity(CustomizerActivity.intent(this, CustomizerActivity.STYLES))
+            },
+        )
+        column.addView(
+            row(getString(R.string.cz_themes), body(io.github.kamradsmeshnyavy.launcher.core.Look.current(this).theme?.name.orEmpty()), chevron()) {
+                startActivity(CustomizerActivity.intent(this, CustomizerActivity.THEMES))
+            },
+        )
         val icons = Choice(
             this,
             listOf(getString(R.string.icons_mono), getString(R.string.icons_grey), getString(R.string.icons_color)),

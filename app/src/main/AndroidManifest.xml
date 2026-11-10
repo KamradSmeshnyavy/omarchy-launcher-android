@@ -89,6 +89,12 @@
         </activity>
 
         <activity
+            android:name=".CustomizerActivity"
+            android:exported="false"
+            android:label="Customizer"
+            android:taskAffinity="io.github.kamradsmeshnyavy.launcher.settings" />
+
+        <activity
             android:name=".WallpaperActivity"
             android:exported="false"
             android:label="@string/studio_title"

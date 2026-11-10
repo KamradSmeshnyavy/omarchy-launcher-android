@@ -1,0 +1,597 @@
+package io.github.kamradsmeshnyavy.launcher
+
+import android.content.Context
+import android.content.Intent
+import android.graphics.BitmapFactory
+import android.os.Bundle
+import android.text.Editable
+import android.text.InputType
+import android.text.TextWatcher
+import android.view.Gravity
+import android.view.View
+import android.view.WindowInsets
+import android.widget.EditText
+import android.widget.HorizontalScrollView
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.Toast
+import io.github.kamradsmeshnyavy.launcher.core.Look
+import io.github.kamradsmeshnyavy.launcher.core.LookEdit
+import io.github.kamradsmeshnyavy.launcher.system.Glyph
+import io.github.kamradsmeshnyavy.launcher.ui.Choice
+import io.github.kamradsmeshnyavy.launcher.ui.KeyButton
+import io.github.kamradsmeshnyavy.launcher.ui.LedSlider
+import io.github.kamradsmeshnyavy.launcher.ui.MATCH
+import io.github.kamradsmeshnyavy.launcher.ui.Nihil
+import io.github.kamradsmeshnyavy.launcher.ui.StylePreview
+import io.github.kamradsmeshnyavy.launcher.ui.Swatch
+import io.github.kamradsmeshnyavy.launcher.ui.ThemeSwatchView
+import io.github.kamradsmeshnyavy.launcher.ui.Toggle
+import io.github.kamradsmeshnyavy.launcher.ui.WRAP
+import io.github.kamradsmeshnyavy.launcher.ui.body
+import io.github.kamradsmeshnyavy.launcher.ui.chevron
+import io.github.kamradsmeshnyavy.launcher.ui.dp
+import io.github.kamradsmeshnyavy.launcher.ui.fontSample
+import io.github.kamradsmeshnyavy.launcher.ui.heading
+import io.github.kamradsmeshnyavy.launcher.ui.llp
+import io.github.kamradsmeshnyavy.launcher.ui.mono
+import io.github.kamradsmeshnyavy.launcher.ui.rounded
+import io.github.kamradsmeshnyavy.launcher.ui.rule
+import io.github.kamradsmeshnyavy.launcher.ui.settingRow
+import io.github.kamradsmeshnyavy.launcher.ui.text
+import org.json.JSONObject
+import java.util.Locale
+import java.util.concurrent.Executors
+
+/**
+ * Customizer на телефоне: те же группы и настройки, что в оверлее Omarchy (Super+Shift+T).
+ * Страницы — одна активити с [PAGE]: главная с поиском по всем настройкам, галереи стилей,
+ * тем и пресетов, профили шрифтов и страницы таблиц Customizer, построенные по его схеме
+ * (assets/looks/settings.json): bool — переключатель, enum — выбор, num — слайдер,
+ * color — образцы ролей темы. Долгое нажатие на строку возвращает значение стиля.
+ */
+class CustomizerActivity : LookActivity() {
+
+    private lateinit var column: LinearLayout
+    private lateinit var catalog: Look.Catalog
+    private val page by lazy { intent.getStringExtra(PAGE) ?: HOME }
+    private val ru by lazy { Locale.getDefault().language == "ru" }
+    private val pool = Executors.newFixedThreadPool(2)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        catalog = Look.catalog(this)
+        @Suppress("DEPRECATION")
+        window.setDecorFitsSystemWindows(false)
+        window.isNavigationBarContrastEnforced = false
+        column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val scroll = ScrollView(this).apply {
+            isVerticalScrollBarEnabled = false
+            setBackgroundColor(Nihil.VOID)
+            addView(column, llp(MATCH, WRAP))
+        }
+        setContentView(scroll)
+        scroll.setOnApplyWindowInsetsListener { _, insets ->
+            val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
+            column.setPadding(bars.left + dp(24), bars.top + dp(28), bars.right + dp(24), bars.bottom + dp(40))
+            insets
+        }
+        build()
+    }
+
+    override fun onDestroy() {
+        pool.shutdownNow()
+        super.onDestroy()
+    }
+
+    private fun tr(en: String): String = if (ru) catalog.ru[en] ?: en else en
+
+    private fun open(page: String) = startActivity(Intent(this, CustomizerActivity::class.java).putExtra(PAGE, page))
+
+    private fun build() {
+        when {
+            page == HOME -> home()
+            page == STYLES -> styles()
+            page == THEMES -> themes()
+            page == PRESETS -> presets()
+            page == FONTS -> fonts()
+            page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
+        }
+    }
+
+    // --- Главная ---------------------------------------------------------------------
+
+    private fun home() {
+        val look = Look.current(this)
+        column.addView(text("Customizer", 30f, Nihil.INK, Nihil.fonts(this).dot), llp(WRAP, WRAP))
+        val summary = listOfNotNull(
+            look.style?.let { if (ru) it.nameRu else it.name },
+            look.theme?.name,
+            look.fontProfile,
+        ).joinToString(" · ")
+        column.addView(mono(summary, 11f, Nihil.MUTED), llp(WRAP, WRAP).apply { topMargin = dp(6) })
+
+        // Поиск по всем настройкам: под полем — найденные строки, вместо групп.
+        val results = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val groups = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        val search = EditText(this).apply {
+            hint = getString(R.string.cz_search)
+            setHintTextColor(Nihil.MUTED)
+            setTextColor(Nihil.INK)
+            typeface = Nihil.fonts(context).sans
+            textSize = 15f
+            inputType = InputType.TYPE_CLASS_TEXT
+            setSingleLine()
+            background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+            setPadding(dp(14), dp(12), dp(14), dp(12))
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(s: Editable?) {
+                    val q = s?.toString()?.trim().orEmpty()
+                    groups.visibility = if (q.isEmpty()) View.VISIBLE else View.GONE
+                    results.removeAllViews()
+                    if (q.isNotEmpty()) searchInto(results, q)
+                }
+            })
+        }
+        column.addView(search, llp(MATCH, WRAP).apply { topMargin = dp(20) })
+        column.addView(results, llp(MATCH, WRAP))
+        column.addView(groups, llp(MATCH, WRAP))
+
+        fun group(title: Int, sub: Int, rows: List<Triple<Int, Int, String>>) {
+            groups.addView(heading(getString(title), getString(sub)))
+            rows.forEach { (t, s, target) ->
+                groups.addView(settingRow(getString(t), getString(s), chevron()) { open(target) })
+            }
+        }
+        group(
+            R.string.cz_presets, R.string.cz_presets_sub,
+            listOf(
+                Triple(R.string.cz_styles, R.string.cz_styles_sub, STYLES),
+                Triple(R.string.cz_my_presets, R.string.cz_my_presets_sub, PRESETS),
+                Triple(R.string.cz_style_apply, R.string.cz_style_apply_sub, TABLE + "STYLE_TWEAKS"),
+            ),
+        )
+        group(
+            R.string.cz_desktop, R.string.cz_desktop_sub,
+            listOf(
+                Triple(R.string.cz_themes, R.string.cz_themes_sub, THEMES),
+                Triple(R.string.cz_widgets, R.string.cz_widgets_sub, TABLE + "WIDGET_TWEAKS"),
+                Triple(R.string.cz_dotify, R.string.cz_dotify_sub, TABLE + "DOTIFY_TWEAKS"),
+                Triple(R.string.cz_dotmatrix, R.string.cz_dotmatrix_sub, TABLE + "DOTMATRIX_TWEAKS"),
+            ),
+        )
+        group(
+            R.string.cz_light_sound, R.string.cz_light_sound_sub,
+            listOf(
+                Triple(R.string.cz_glyph, R.string.cz_glyph_sub, TABLE + "GLYPH_TWEAKS"),
+                Triple(R.string.cz_sounds, R.string.cz_sounds_sub, TABLE + "SOUND_TWEAKS"),
+            ),
+        )
+        group(
+            R.string.cz_type_launcher, R.string.cz_type_launcher_sub,
+            listOf(
+                Triple(R.string.cz_fonts, R.string.cz_fonts_sub, FONTS),
+                Triple(R.string.cz_launcher, R.string.cz_launcher_sub, TABLE + "LAUNCHER_TWEAKS"),
+            ),
+        )
+        groups.addView(heading(getString(R.string.cz_pc), getString(R.string.cz_pc_sub)))
+        val sp = Look.prefs(this)
+        groups.addView(switchRow(getString(R.string.cz_follow_pc), getString(R.string.cz_follow_pc_sub), sp.getBoolean(Look.FOLLOW_PC, false)) { on ->
+            sp.edit().putBoolean(Look.FOLLOW_PC, on).apply()
+            applyLook()
+        })
+        groups.addView(switchRow(getString(R.string.cz_follow_system), getString(R.string.cz_follow_system_sub), sp.getBoolean(Look.FOLLOW_SYSTEM, true)) { on ->
+            sp.edit().putBoolean(Look.FOLLOW_SYSTEM, on).apply()
+            applyLook()
+        })
+    }
+
+    private fun searchInto(into: LinearLayout, query: String) {
+        val q = query.lowercase()
+        var found = 0
+        // Страницы.
+        val pages = listOf(
+            R.string.cz_styles to STYLES, R.string.cz_themes to THEMES, R.string.cz_my_presets to PRESETS, R.string.cz_fonts to FONTS,
+        )
+        pages.forEach { (title, target) ->
+            if (getString(title).lowercase().contains(q)) {
+                into.addView(settingRow(getString(title), null, chevron()) { open(target) })
+                found++
+            }
+        }
+        // Строки всех таблиц.
+        forEachTable { _, items ->
+            for (i in 0 until items.length()) {
+                val item = items.getJSONObject(i)
+                val key = item.optString("key")
+                if (key.isEmpty()) continue
+                val label = item.optString("label")
+                if (!tr(label).lowercase().contains(q) && !label.lowercase().contains(q) && !key.lowercase().contains(q)) continue
+                into.addView(control(item))
+                found++
+                if (found > 40) return@forEachTable
+            }
+        }
+        if (found == 0) into.addView(mono(getString(R.string.cz_nothing_found), 11f, Nihil.MUTED), llp(WRAP, WRAP).apply { topMargin = dp(16) })
+    }
+
+    private inline fun forEachTable(block: (String, org.json.JSONArray) -> Unit) {
+        val tables = catalog.settings.optJSONArray("tables") ?: return
+        for (t in 0 until tables.length()) {
+            val table = tables.getJSONObject(t)
+            block(table.getString("id"), table.getJSONArray("items"))
+        }
+    }
+
+    // --- Стили -----------------------------------------------------------------------------
+
+    private fun styles() {
+        column.addView(heading(getString(R.string.cz_styles), getString(R.string.cz_styles_page_sub)))
+        val current = Look.current(this).style?.id
+        val grid = grid(2)
+        catalog.styles.forEach { style ->
+            val theme = catalog.theme(if (Nihil.DARK) style.themeDark else style.themeLight ?: style.themeDark)
+            val cell = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(StylePreview(context, style, theme), llp(MATCH, WRAP))
+                val name = if (ru) style.nameRu else style.name
+                addView(text(name + if (style.id == current) "  ●" else "", 14f, if (style.id == current) Nihil.SIGNAL else Nihil.INK, Nihil.fonts(context).sans), llp(MATCH, WRAP).apply { topMargin = dp(8) })
+                addView(mono(style.look.optString("material") + " · ×" + style.look.optDouble("cornerScale", 1.0), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(2) })
+                setPadding(0, 0, 0, dp(18))
+                setOnClickListener {
+                    LookEdit.applyStyle(context, style.id)
+                    toast(getString(R.string.cz_style_applied, name))
+                    applyLook()
+                }
+                setOnLongClickListener {
+                    Toast.makeText(context, if (ru) style.noteRu else style.note, Toast.LENGTH_LONG).show()
+                    true
+                }
+            }
+            grid(cell)
+        }
+        column.addView(body(getString(R.string.cz_styles_hint)), llp(MATCH, WRAP).apply { topMargin = dp(8) })
+    }
+
+    // --- Темы ---------------------------------------------------------------------------------
+
+    private fun themes() {
+        column.addView(heading(getString(R.string.cz_themes), getString(R.string.cz_themes_page_sub)))
+        val current = Look.current(this).theme?.id
+        val favorites = LookEdit.favoriteThemes(this)
+        val list = catalog.themes.sortedWith(compareBy({ it.id !in favorites }, { it.name.lowercase() }))
+        val filter = EditText(this).apply {
+            hint = getString(R.string.cz_search)
+            setHintTextColor(Nihil.MUTED)
+            setTextColor(Nihil.INK)
+            typeface = Nihil.fonts(context).sans
+            textSize = 15f
+            setSingleLine()
+            background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+            setPadding(dp(14), dp(12), dp(14), dp(12))
+        }
+        column.addView(filter, llp(MATCH, WRAP).apply { bottomMargin = dp(16) })
+        val holder = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        column.addView(holder, llp(MATCH, WRAP))
+        val cells = ArrayList<Pair<Look.Theme, View>>()
+        fun fill(q: String) {
+            holder.removeAllViews()
+            val g = grid(2, holder)
+            cells.filter { q.isEmpty() || it.first.name.lowercase().contains(q) || it.first.id.contains(q) }.forEach { g(it.second) }
+        }
+        list.forEach { theme ->
+            val swatch = ThemeSwatchView(this, theme)
+            theme.thumb?.let { path ->
+                pool.execute {
+                    val bmp = runCatching {
+                        assets.open("looks/$path").use { BitmapFactory.decodeStream(it, null, BitmapFactory.Options().apply { inSampleSize = 2 }) }
+                    }.getOrNull()
+                    if (bmp != null) swatch.post { swatch.bitmap = bmp }
+                }
+            }
+            val star = if (theme.id in favorites) "★ " else ""
+            val on = theme.id == current
+            val cell = LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(swatch, llp(MATCH, WRAP))
+                addView(text(star + theme.name, 13f, if (on) Nihil.SIGNAL else Nihil.INK, Nihil.fonts(context).sans).apply { maxLines = 1 }, llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                addView(mono(if (theme.dark) getString(R.string.cz_dark) else getString(R.string.cz_light), 10f, Nihil.MUTED))
+                setPadding(0, 0, 0, dp(16))
+                setOnClickListener {
+                    LookEdit.setTheme(context, theme.id)
+                    applyLook()
+                }
+                setOnLongClickListener {
+                    LookEdit.toggleFavoriteTheme(context, theme.id)
+                    toast(if (theme.id in favorites) getString(R.string.cz_unstarred) else getString(R.string.cz_starred))
+                    recreate()
+                    true
+                }
+            }
+            cells += theme to cell
+        }
+        fill("")
+        filter.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+            override fun afterTextChanged(s: Editable?) = fill(s?.toString()?.trim()?.lowercase().orEmpty())
+        })
+    }
+
+    // --- Свои пресеты -----------------------------------------------------------------------
+
+    private fun presets() {
+        column.addView(heading(getString(R.string.cz_my_presets), getString(R.string.cz_presets_page_sub)))
+        val name = EditText(this).apply {
+            hint = getString(R.string.cz_preset_name)
+            setHintTextColor(Nihil.MUTED)
+            setTextColor(Nihil.INK)
+            typeface = Nihil.fonts(context).sans
+            setSingleLine()
+            background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+            setPadding(dp(14), dp(12), dp(14), dp(12))
+        }
+        val save = KeyButton(this, getString(R.string.cz_preset_save), accent = true).apply {
+            setOnClickListener {
+                val n = name.text.toString().trim()
+                if (n.isEmpty()) return@setOnClickListener
+                LookEdit.savePreset(context, n)
+                recreate()
+            }
+        }
+        column.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            addView(name, llp(0, WRAP, 1f))
+            addView(save, llp(WRAP, WRAP).apply { marginStart = dp(12) })
+        }, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+        val list = LookEdit.presets(this)
+        if (list.isEmpty()) column.addView(mono(getString(R.string.cz_no_presets), 11f, Nihil.MUTED), llp(WRAP, WRAP).apply { topMargin = dp(8) })
+        list.forEach { preset ->
+            val o = preset.json
+            val styleName = catalog.style(o.optString("style"))?.let { if (ru) it.nameRu else it.name } ?: o.optString("style")
+            val themeName = catalog.theme(o.optString("theme"))?.name ?: "—"
+            val delete = KeyButton(this, getString(R.string.cz_delete), danger = true).apply {
+                setOnClickListener {
+                    LookEdit.deletePreset(context, preset.name)
+                    recreate()
+                }
+            }
+            column.addView(settingRow("★ " + preset.name, "$styleName · $themeName", delete) {
+                LookEdit.applyPreset(this, preset)
+                applyLook()
+            })
+        }
+        column.addView(heading(getString(R.string.cz_preset_apply), null))
+        table("PRESET_TWEAKS", withHeading = false)
+    }
+
+    // --- Шрифты --------------------------------------------------------------------------------
+
+    private fun fonts() {
+        column.addView(heading(getString(R.string.cz_fonts), getString(R.string.cz_fonts_page_sub)))
+        val look = Look.current(this)
+        val own = Look.prefs(this).getString(Look.FONT_PROFILE, null)
+        val profiles = listOf(
+            "stock" to R.string.font_stock,
+            "nothing" to R.string.font_nothing,
+            "pixel" to R.string.font_pixel,
+            "lumen" to R.string.font_lumen,
+            "dots-all" to R.string.font_dots_all,
+            "paper-ui" to R.string.font_paper,
+            "retro" to R.string.font_retro,
+        )
+        if (look.typeface != "profile") column.addView(body(getString(R.string.cz_fonts_locked)), llp(MATCH, WRAP).apply { bottomMargin = dp(8) })
+        column.addView(settingRow(getString(R.string.cz_font_from_style), look.style?.fonts, null, marked = own == null) {
+            LookEdit.setFontProfile(this, null)
+            applyLook()
+        })
+        profiles.forEach { (id, label) ->
+            val on = look.fontProfile == id
+            column.addView(LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, dp(14), 0, dp(14))
+                addView(mono(getString(label) + if (on) "  ●" else "", 11f, if (on) Nihil.SIGNAL else Nihil.MUTED))
+                addView(fontSample(id), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                background = io.github.kamradsmeshnyavy.launcher.ui.ripple(dp(10f))
+                setOnClickListener {
+                    LookEdit.setFontProfile(context, id)
+                    applyLook()
+                }
+            })
+            column.addView(rule(), llp(MATCH, dp(1)))
+        }
+    }
+
+    // --- Таблица Customizer по схеме ------------------------------------------------------------
+
+    private fun table(id: String, withHeading: Boolean = true) {
+        forEachTable { table, items ->
+            if (table != id) return@forEachTable
+            if (withHeading) column.addView(heading(tableTitle(id), getString(R.string.cz_table_sub)))
+            for (i in 0 until items.length()) {
+                val item = items.getJSONObject(i)
+                if (item.has("section")) {
+                    column.addView(mono(tr(item.getString("section")).uppercase(), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply {
+                        topMargin = dp(24)
+                        bottomMargin = dp(4)
+                    })
+                    continue
+                }
+                column.addView(control(item))
+            }
+            if (id == "GLYPH_TWEAKS") {
+                column.addView(KeyButton(this, getString(R.string.glyph_try)).apply {
+                    setOnClickListener {
+                        finishAffinity()
+                        startActivity(Intent(context, LauncherActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                        android.os.Handler(mainLooper).postDelayed({ Glyph.pulse(Glyph.Pulse.NOTIFY) }, 700)
+                    }
+                }, llp(WRAP, WRAP).apply { topMargin = dp(16) })
+            }
+        }
+    }
+
+    private fun tableTitle(id: String): String = getString(
+        when (id) {
+            "GLYPH_TWEAKS" -> R.string.cz_glyph
+            "SOUND_TWEAKS" -> R.string.cz_sounds
+            "DOTIFY_TWEAKS" -> R.string.cz_dotify
+            "DOTMATRIX_TWEAKS" -> R.string.cz_dotmatrix
+            "LAUNCHER_TWEAKS" -> R.string.cz_launcher
+            "STYLE_TWEAKS" -> R.string.cz_style_apply
+            "PRESET_TWEAKS" -> R.string.cz_preset_apply
+            "WIDGET_TWEAKS" -> R.string.cz_widgets
+            else -> R.string.cz_settings
+        },
+    )
+
+    /** Одна строка схемы как контрол; значение — текущее (стиль, свои правки, ПК). */
+    private fun control(item: JSONObject): View {
+        val key = item.getString("key")
+        val label = tr(item.optString("label", key))
+        val look = Look.current(this)
+        val own = LookEdit.isOverridden(this, key)
+        val reset = {
+            LookEdit.reset(this, key)
+            toast(getString(R.string.cz_reset_done))
+            applyLook()
+        }
+        return when (item.optString("type")) {
+            "bool" -> {
+                val toggle = Toggle(this)
+                toggle.set(look.bool(key, item.optBoolean("default", false)))
+                toggle.onChange = { LookEdit.set(this, key, it) }
+                settingRow(label, null, toggle, marked = own, onLongClick = reset) { toggle.performClick() }
+            }
+            "num" -> {
+                val min = item.optDouble("min", 0.0)
+                val max = item.optDouble("max", 1.0)
+                val value = look.num(key, item.optDouble("default", min))
+                LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    addView(settingRow(label, null, null, rule = false, marked = own, onLongClick = reset, onClick = null))
+                    addView(LedSlider(context, min, max, item.optDouble("step", 0.0), value) { LookEdit.set(context, key, it) }, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+                    addView(rule(), llp(MATCH, dp(1)))
+                }
+            }
+            "enum" -> enumControl(key, label, item, own, reset)
+            "color" -> colorControl(key, label, item.optString("default", "foreground"), own, reset)
+            else -> settingRow(label, item.optString("type"), null, onClick = null)
+        }
+    }
+
+    private fun enumControl(key: String, label: String, item: JSONObject, own: Boolean, reset: () -> Unit): View {
+        val values = item.getJSONArray("values").let { a -> List(a.length()) { a.getString(it) } }
+        val current = Look.current(this).str(key, values.first())
+        val short = values.size <= 3 && values.sumOf { tr(it).length } <= 22
+        if (short) {
+            val choice = Choice(this, values.map { tr(it) }, values.indexOf(current).coerceAtLeast(0)) { LookEdit.set(this, key, values[it]) }
+            return LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                addView(settingRow(label, null, null, rule = false, marked = own, onLongClick = reset, onClick = null))
+                addView(choice, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+                addView(rule(), llp(MATCH, dp(1)))
+            }
+        }
+        // Длинный список: значение справа, нажатие раскрывает варианты под строкой.
+        val options = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+            setPadding(dp(12), 0, 0, dp(8))
+        }
+        values.forEach { v ->
+            val on = v == current
+            options.addView(text((if (on) "● " else "   ") + tr(v), 14f, if (on) Nihil.INK else Nihil.DIM, Nihil.fonts(this).sans).apply {
+                setPadding(0, dp(10), 0, dp(10))
+                setOnClickListener {
+                    LookEdit.set(context, key, v)
+                    applyLook()
+                }
+            }, llp(MATCH, WRAP))
+        }
+        val value = mono(tr(current), 11f, Nihil.DIM)
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(settingRow(label, null, value, rule = false, marked = own, onLongClick = reset) {
+                options.visibility = if (options.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+            })
+            addView(options, llp(MATCH, WRAP))
+            addView(rule(), llp(MATCH, dp(1)))
+        }
+    }
+
+    private fun colorControl(key: String, label: String, default: String, own: Boolean, reset: () -> Unit): View {
+        val look = Look.current(this)
+        val current = look.str(key, default)
+        val roles = (listOf(default, "foreground", "accent", "urgent", "muted", "dim", "red", "green", "yellow", "blue", "magenta", "cyan")).distinct()
+        val strip = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        val swatches = ArrayList<Swatch>()
+        roles.forEach { role ->
+            val color = look.roleColor(role) ?: look.roleColor(default.takeIf { it != "default" } ?: "foreground") ?: Nihil.INK
+            val swatch = Swatch(this, color, role == current)
+            swatch.contentDescription = role
+            swatch.setOnClickListener {
+                LookEdit.set(this, key, role)
+                swatches.forEach { it.chosen = it === swatch }
+            }
+            swatches += swatch
+            strip.addView(swatch, llp(WRAP, WRAP).apply { marginEnd = dp(4) })
+        }
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(settingRow(label, tr(current), null, rule = false, marked = own, onLongClick = reset, onClick = null))
+            addView(HorizontalScrollView(context).apply {
+                isHorizontalScrollBarEnabled = false
+                addView(strip)
+            }, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+            addView(rule(), llp(MATCH, dp(1)))
+        }
+    }
+
+    // --- Мелочи -----------------------------------------------------------------------------
+
+    private fun switchRow(title: String, sub: String?, value: Boolean, onChange: (Boolean) -> Unit): View {
+        val toggle = Toggle(this)
+        toggle.set(value)
+        toggle.onChange = onChange
+        return settingRow(title, sub, toggle) { toggle.performClick() }
+    }
+
+    /** Сетка из [columns] колонок: возвращает функцию «добавить ячейку». */
+    private fun grid(columns: Int, into: LinearLayout = column): (View) -> Unit {
+        var row: LinearLayout? = null
+        var count = 0
+        return { cell ->
+            if (count % columns == 0) {
+                // weightSum: неполная последняя строка не растягивает плитки.
+                row = LinearLayout(this).apply {
+                    orientation = LinearLayout.HORIZONTAL
+                    weightSum = columns.toFloat()
+                }
+                into.addView(row, llp(MATCH, WRAP))
+            }
+            row!!.addView(cell, llp(0, WRAP, 1f).apply {
+                if (count % columns != 0) marginStart = dp(14)
+            })
+            count++
+        }
+    }
+
+    private fun toast(text: String) = Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
+
+    companion object {
+        const val PAGE = "page"
+        const val HOME = "home"
+        const val STYLES = "styles"
+        const val THEMES = "themes"
+        const val PRESETS = "presets"
+        const val FONTS = "fonts"
+        const val TABLE = "table:"
+
+        fun intent(context: Context, page: String = HOME): Intent =
+            Intent(context, CustomizerActivity::class.java).putExtra(PAGE, page)
+    }
+}
