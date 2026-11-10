@@ -57,7 +57,13 @@ weather while that is on — nothing else.
   wallpaper through.
 - **Glyph light.** NIHIL's light round the frame on notifications, calls and charging, in the
   colour, thickness and speed Customizer sets.
-- **Sounds.** Customizer's packs on opening, closing, menus, toggles, Glyph and lock.
+- **Sounds.** Customizer's packs on opening, closing, menus, toggles, Glyph and lock — and
+  across the phone: each pack's ringtone, notification and alarm (built from its sounds) become
+  the phone's defaults, following the pack and the computer, with the previous ones kept to put
+  back; the pack also plays on charging, a low battery, unlocking, the volume keys and Bluetooth,
+  like `omarchy-sound` on the computer. With the computer's pack set to `theme`, the phone
+  plays that Omarchy theme's sounds. Android's own touch, keyboard and lock sounds can't be
+  replaced without root.
 - **Wallpaper studio.** Dotify (the LED matrix, with Customizer's pitch, gamma, unlit LEDs and
   colours) or Recolor (a photo in the theme's palette, like lutgen).
 - **The deck.** Paired with `omadeck` on the computer, the phone opens its apps and webs,
@@ -113,6 +119,7 @@ kept only as hashes. The protocol is in [docs/deck.md](docs/deck.md).
 | `EXPAND_STATUS_BAR` | Swipe down opens the notification shade. |
 | `REQUEST_DELETE_PACKAGES` | "Uninstall" in an app's menu. |
 | `BLUETOOTH_CONNECT`, `READ_CALENDAR`, `READ_CONTACTS`, `ACTIVITY_RECOGNITION`, usage access | Only for the Bluetooth, events, contacts, steps, screen-time and data widgets, asked when you add or tap one. |
+| `WRITE_SETTINGS` (special, asked by a button) | Setting the pack's ringtone, notification and alarm as the phone's defaults. |
 | `SET_ALARM` | The timer widget starts the Clock app's timer, so it rings. |
 | `ACCESS_NETWORK_STATE` | "Follow the computer" checks it only on Wi-Fi. |
 | Notification access (optional) | Glyph light, unread LEDs and now playing (the track from media sessions). Never reads notification text. |

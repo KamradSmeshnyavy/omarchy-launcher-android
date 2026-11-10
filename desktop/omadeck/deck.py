@@ -1352,6 +1352,70 @@ THEME_ID = re.compile(r"[A-Za-z0-9._-]{1,80}")
 PICTURE = (".png", ".jpg", ".jpeg", ".webp", ".gif")
 
 
+# Звуки темы Omarchy (freedesktop-имена, как их ищет omarchy-sound) → события пакета телефона.
+THEME_SOUNDS = {
+    "notify": ("message-new-instant", "message", "bell"),
+    "critical": ("battery-low", "dialog-warning", "suspend-error"),
+    "volume": ("audio-volume-change",),
+    "special": ("screen-capture", "camera-shutter", "complete"),
+    "lock": ("service-login", "desktop-login"),
+    "close": ("service-logout", "device-removed", "power-unplug"),
+    "switch": ("device-added",),
+    "charge": ("power-plug",),
+    "open": ("window-attention", "complete"),
+}
+SOUND_EXTS = ("oga", "ogg", "wav", "flac")
+
+
+def theme_sound_dirs(paths=None):
+    """Где omarchy-sound ищет звуки: тема, затем стандартная тема freedesktop."""
+    paths = paths or omarchy_paths()
+    return [
+        os.path.join(paths["current"], "theme", "apps", "sounds"),
+        os.path.join(paths["omarchy"], "app-defaults", "sounds"),
+        "/usr/share/sounds/freedesktop/stereo",
+    ]
+
+
+def theme_sounds(paths=None, dirs=None):
+    """{событие пакета: путь} — первый найденный файл по freedesktop-именам из THEME_SOUNDS."""
+    dirs = dirs if dirs is not None else theme_sound_dirs(paths)
+    found = {}
+    for event, names in THEME_SOUNDS.items():
+        for name in names:
+            path = next((os.path.join(d, f"{name}.{ext}") for d in dirs for ext in SOUND_EXTS
+                         if os.path.isfile(os.path.join(d, f"{name}.{ext}"))), None)
+            if path:
+                found[event] = path
+                break
+    return found
+
+
+def sounds_stamp(found):
+    parts = sorted(f"{k}:{os.path.realpath(v)}:{os.stat(v).st_mtime_ns}" for k, v in found.items())
+    return hashlib.sha256("\n".join(parts).encode()).hexdigest()[:16]
+
+
+def theme_melodies(found, cache=None):
+    """Звонок, будильник и уведомление из звуков темы (тот же сборщик, что у пакетов); {вид: путь}."""
+    if not found:
+        return {}
+    here = os.path.dirname(os.path.realpath(__file__))
+    if here not in sys.path:
+        sys.path.insert(0, here)
+    import melody  # noqa: E402  (общий с экспортом пакетов)
+    folder = os.path.join(cache or cache_dir(), "sounds", sounds_stamp(found))
+    out = {}
+    for kind in melody.KINDS:
+        target = os.path.join(folder, f"{kind}.ogg")
+        if not os.path.isfile(target):
+            from pathlib import Path
+            melody.build({k: Path(v) for k, v in found.items()}, kind, target)
+        if os.path.isfile(target):
+            out[kind] = target
+    return out
+
+
 def current_theme(paths=None):
     paths = paths or omarchy_paths()
     try:
@@ -1675,6 +1739,20 @@ class Handler(http.server.BaseHTTPRequestHandler):
                 self.reply(404, {"error": "location"})
             else:
                 self.reply(200, location)
+        elif method == "GET" and path == "/v1/sounds":
+            found = theme_sounds()
+            self.reply(200, {"stamp": sounds_stamp(found), "items": sorted(found) + sorted(theme_melodies(found))})
+        elif method == "GET" and path == "/v1/sounds/file":
+            query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
+            name = query.get("name", [""])[0]
+            found = theme_sounds()
+            # Только имена из списка — никаких путей с телефона.
+            source = found.get(name) if name in THEME_SOUNDS else theme_melodies(found).get(name) if name in ("ringtone", "alarm", "notification") else None
+            if source is None:
+                self.reply(404, {"error": "sound"})
+            else:
+                with open(source, "rb") as file:
+                    self.image(file.read(), "audio/ogg")
         elif method == "GET" and path == "/v1/backgrounds":
             query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             theme = query.get("theme", [""])[0] or current_theme()

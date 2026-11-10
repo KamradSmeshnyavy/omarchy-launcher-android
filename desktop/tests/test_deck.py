@@ -431,6 +431,35 @@ class ServerTest(Base):
         self.assertEqual(self.phone.request("GET", "/v1/backgrounds/image?theme=omadeck-test&name=1-fjord.png&w=9&h=160")[0], 400)
         self.assertEqual(self.phone.request("GET", "/v1/weather")[1]["name"], "Oslo")
 
+    def test_theme_sounds_over_https(self):
+        state = os.path.join(self.folder, "xdg-state")
+        sounds = os.path.join(state, "omarchy", "current", "theme", "apps", "sounds")
+        os.makedirs(sounds)
+        pack = os.path.join(os.path.dirname(__file__), "..", "..", "app", "src", "main", "assets", "sounds", "dotmatrix")
+        shutil.copyfile(os.path.join(pack, "notify.ogg"), os.path.join(sounds, "message-new-instant.ogg"))
+        shutil.copyfile(os.path.join(pack, "critical.ogg"), os.path.join(sounds, "battery-low.ogg"))
+        for key, value in (("XDG_STATE_HOME", state), ("XDG_CACHE_HOME", os.path.join(self.folder, "cache"))):
+            old = os.environ.get(key)
+            os.environ[key] = value
+            self.addCleanup(lambda k=key, o=old: os.environ.__setitem__(k, o) if o is not None else os.environ.pop(k, None))
+        self.assertEqual(self.phone.request("GET", "/v1/sounds")[0], 401)
+        self.pair()
+        status, body = self.phone.request("GET", "/v1/sounds")
+        self.assertEqual(status, 200)
+        self.assertIn("notify", body["items"])
+        self.assertIn("critical", body["items"])
+        status, data = self.phone.request("GET", "/v1/sounds/file?name=notify")
+        self.assertEqual(status, 200)
+        with open(os.path.join(sounds, "message-new-instant.ogg"), "rb") as file:
+            self.assertEqual(data, file.read())  # звук темы, а не стандартный freedesktop
+        if shutil.which("ffmpeg"):
+            self.assertIn("ringtone", body["items"])
+            status, data = self.phone.request("GET", "/v1/sounds/file?name=ringtone")
+            self.assertEqual(status, 200)
+            self.assertTrue(data.startswith(b"OggS"))
+        for bad in ("../../etc/passwd", "message-new-instant", "x"):
+            self.assertEqual(self.phone.request("GET", "/v1/sounds/file?name=" + urllib.parse.quote(bad))[0], 404)
+
     def test_icons(self):
         theme = os.path.join(self.folder, "share", "icons", "Test-Theme", "48x48", "apps")
         os.makedirs(theme)

@@ -246,6 +246,8 @@ object Look {
         sp.all.forEach { (k, v) -> if (!k.startsWith("look.") && v != null) values[k] = v }
         pc?.let { o ->
             listOf("glyph", "sounds", "dotmatrix", "widgets").forEach { part -> o.optJSONObject(part)?.let { putAll(values, it) } }
+            // «theme» на компьютере — звуки его темы: они скачаны в пакет pc (PcLook).
+            if (o.optJSONObject("sounds")?.optString("soundPack") == "theme" && Sounds.has(context, Sounds.PC, "notify")) values["soundPack"] = Sounds.PC
         }
 
         // Тема: с ПК (палитрой целиком), своя, или пара светлая/тёмная стиля.

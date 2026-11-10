@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit
 object PcLook {
     private const val STAMP = "look.pcStamp"
     private const val WALL = "look.pcWall"
+    private const val SOUNDS_STAMP = "look.pcSounds"
     private const val MIN_GAP = 30_000L
     private const val JOB = 0x0DEC
 
@@ -81,8 +82,37 @@ object PcLook {
                 if (changedWall) sp.edit().putString(WALL, wall).apply()
             }
         }
-        if (changedLook) main.post { Look.external(context) }
-        return changedLook || changedWall
+        val changedSounds = runCatching { syncSounds(context, client, look) }.getOrDefault(false)
+        if (changedLook || changedSounds) main.post { Look.external(context) }
+        return changedLook || changedWall || changedSounds
+    }
+
+    /**
+     * На компьютере пакет «theme» — звуки темы Omarchy: скачать их (и собранные сервером
+     * звонок, будильник, уведомление) в пакет [Sounds.PC]. Только если они другие (штамп).
+     */
+    private fun syncSounds(context: Context, client: DeckClient, look: org.json.JSONObject): Boolean {
+        if (look.optJSONObject("sounds")?.optString("soundPack") != "theme") return false
+        val list = client.call("GET", "/v1/sounds", null, context)?.takeIf { it.status == 200 }?.json ?: return false
+        val sp = Look.prefs(context)
+        val stamp = list.optString("stamp")
+        val dir = Sounds.pcDir(context)
+        if (stamp.isNotEmpty() && stamp == sp.getString(SOUNDS_STAMP, null) && dir.isDirectory) return false
+        val names = list.optJSONArray("items") ?: return false
+        val fresh = java.io.File(dir.parentFile, "pc.new").apply { deleteRecursively(); mkdirs() }
+        for (i in 0 until names.length()) {
+            val name = names.optString(i)
+            // Имена — только простые слова (их же сервер и проверяет): без путей.
+            if (!name.matches(Regex("[a-z]{3,16}"))) continue
+            val bytes = client.call("GET", "/v1/sounds/file?name=$name")?.takeIf { it.status == 200 }?.bytes ?: continue
+            java.io.File(fresh, "$name.ogg").writeBytes(bytes)
+        }
+        if (fresh.list().isNullOrEmpty()) return false
+        dir.deleteRecursively()
+        if (!fresh.renameTo(dir)) return false
+        sp.edit().putString(SOUNDS_STAMP, stamp).apply()
+        Sounds.reload()
+        return true
     }
 
     /** Включить/выключить: снимок уходит вместе с выключением, остаётся свой выбор. */

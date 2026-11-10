@@ -367,6 +367,23 @@ then the stock one. A name found twice is the first one's.
 That wallpaper cropped to fill `w` × `h` (32 to 4096 each) as JPEG, cached on the computer.
 `404` for a name the listing doesn't have, `400` for a size it does not take.
 
+### `GET /v1/sounds`
+
+The current theme's sounds as the phone's pack events, found the way `omarchy-sound` finds
+them (the theme's `apps/sounds`, then `~/.config/omarchy/app-defaults/sounds`, then the
+freedesktop theme) by freedesktop names — `message-new-instant` is `notify`, `battery-low` or
+`dialog-warning` is `critical`, and so on — plus `ringtone`, `alarm` and `notification` built
+from them with ffmpeg (cached on the computer; missing without ffmpeg). The phone asks for it
+when the computer's sound pack is `theme`, and downloads again when `stamp` changes.
+
+```json
+{ "stamp": "6f0d240d6dfa9378", "items": ["critical", "notify", "alarm", "notification", "ringtone"] }
+```
+
+### `GET /v1/sounds/file?name={name}`
+
+One of those, as Ogg. `404` for any name the listing doesn't have.
+
 ### `GET /v1/weather`
 
 Where the computer's weather is: `~/.local/state/omarchy/settings/weather.json`

@@ -19,6 +19,9 @@ Forked from NIHIL Launcher 0.3.3.
 - Fifteen more widgets in the spirit of Nothing OS's: big clock and date, stopwatch, timer,
   sun, air quality, moon, recorder, camera, torch, ring mode, storage, data, contacts, search.
 - "Follow the computer" no longer crashes the launcher on start (ACCESS_NETWORK_STATE).
+- Sounds across the phone: ringtones, notifications and alarms from each pack, set as the
+  phone's defaults and put back on request; the pack on system events; the computer's theme
+  sounds with its pack set to `theme` (omadeck `/v1/sounds`).
 
 ---
 
