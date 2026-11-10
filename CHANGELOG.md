@@ -1,5 +1,20 @@
 # Changelog
 
+## DOT-MATRIX Launcher 0.1.0 — unreleased
+
+Forked from NIHIL Launcher 0.3.3.
+
+- Omarchy themes and Customizer styles instead of NIHIL's monochrome (which stays as the
+  DOT-MATRIX style), with Customizer's settings drawn from its schema, presets and font profiles.
+- Home widgets (clock styles, now playing, to-do), drawer skins, sound packs.
+- Wallpaper studio: Dotify with Customizer's parameters, and Recolor.
+- omadeck: the deck's server for Omarchy; "follow the computer".
+- Russian.
+
+---
+
+NIHIL Launcher's own history, before the fork:
+
 ## Unreleased
 
 - The deck forgets the computer with a cross instead of a bin, and its dots have no names

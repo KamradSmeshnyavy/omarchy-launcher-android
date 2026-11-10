@@ -1,0 +1,31 @@
+DOT-MATRIX Launcher
+Copyright (c) 2026 KamradSmeshnyavy — MIT (LICENSE)
+
+This project includes or is based on:
+
+- NIHIL Launcher — https://github.com/poligle/Nihil-Launcher
+  MIT License, Copyright (c) 2026 poligle (Pol Iglesias).
+  The whole Android app this one is forked from (imported at 9838581, v0.3.3).
+
+- Nihil-Shell deck — https://github.com/poligle/Nihil-Shell (home/deck)
+  MIT License, Copyright (c) 2026 poligle.
+  desktop/omadeck/deck.py and desktop/tests/test_deck.py, ported to Omarchy;
+  docs/deck.md follows its docs/deck.md.
+
+- Omarchy Customizer and its companions — https://github.com/KamradSmeshnyavy/omarchy-customizer
+  Copyright (c) 2026 KamradSmeshnyavy. The styles, the settings schema, its Russian
+  strings, the paper texture and the sound packs are the author's own, used here under MIT.
+  The dotmatrix and classic sound packs come from Nihil-Shell (MIT, poligle).
+
+- Omarchy themes — their colours only (app/src/main/assets/looks/themes.json); each theme
+  belongs to its author. Wallpaper thumbnails are made locally and not distributed.
+
+Fonts (SIL Open Font License 1.1, app/src/main/assets/fonts):
+- Doto, Space Grotesk, Space Mono (from NIHIL Launcher, OFL.txt)
+- Geist (Vercel, OFL-Geist.txt)
+- DotMatrix Dot / Mono / Pixel / Lumen — built from Doto, Geist Mono, Terminus and
+  Matrix Sans (OFL-DotMatrix.txt, OFL-MatrixSans.txt)
+- Caveat, Pangolin, Pixelify Sans (OFL-Customizer.txt)
+
+The Android robot of the icon is modified from work created and shared by Google,
+under the Creative Commons 3.0 Attribution License.
