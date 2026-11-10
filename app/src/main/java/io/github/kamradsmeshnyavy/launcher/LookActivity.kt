@@ -36,12 +36,12 @@ abstract class LookActivity : Activity() {
         window.decorView.post { lightBars() }
     }
 
-    private val external: () -> Unit = { recreate() }
+    private val external: () -> Unit = { restart() }
 
     override fun onResume() {
         super.onResume()
         Look.current(this)
-        if (seen != Look.version) recreate()
+        if (seen != Look.version) restart()
         Look.listen(external)
     }
 
@@ -61,6 +61,20 @@ abstract class LookActivity : Activity() {
     fun applyLook() {
         Look.invalidate(this)
         seen = Look.version
-        recreate()
+        restart()
+    }
+
+    /**
+     * Экран заново под новый Look. Не recreate(): после него окно не раздаёт системные
+     * отступы, и у рамки домашнего экрана и страниц настроек пропадают поля.
+     */
+    protected fun restart() {
+        val again = intent
+        finish()
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
+        startActivity(again)
+        @Suppress("DEPRECATION")
+        overridePendingTransition(0, 0)
     }
 }

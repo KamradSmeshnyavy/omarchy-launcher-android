@@ -137,8 +137,8 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
             })
         }
         if (clockLook.style == "minimal") {
-            clock.setShadowLayer(context.dp(10f), 0f, 0f, 0x66000000)
-            date.setShadowLayer(context.dp(6f), 0f, 0f, 0x66000000)
+            clock.setShadowLayer(context.dp(10f), 0f, 0f, withAlpha(Nihil.VOID, 0.4f))
+            date.setShadowLayer(context.dp(6f), 0f, 0f, withAlpha(Nihil.VOID, 0.4f))
         }
 
         // The battery on the left, the alarm on the right; the unread apps under them.
@@ -173,7 +173,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         }
         addView(empty, lp(MATCH, WRAP, Gravity.BOTTOM))
 
-        empty.setShadowLayer(context.dp(6f), 0f, 0f, 0x99000000.toInt())
+        empty.setShadowLayer(context.dp(6f), 0f, 0f, withAlpha(Nihil.VOID, 0.6f))
         updateClock(animate = false)
     }
 
@@ -304,7 +304,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
             }
             val label = context.text(entry.label, 24f, Nihil.INK, fonts.sans, -0.01f).apply {
                 maxLines = 1
-                setShadowLayer(context.dp(8f), 0f, 0f, 0x80000000.toInt())
+                setShadowLayer(context.dp(8f), 0f, 0f, withAlpha(Nihil.VOID, 0.5f))
             }
             row.addView(label, llp(WRAP, WRAP))
             favorites.addView(row)
@@ -315,7 +315,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         val w = width.toFloat()
         val h = height.toFloat()
         if (dim) {
-            canvas.drawColor(0x8C000000.toInt())
+            canvas.drawColor(withAlpha(Nihil.VOID, 0.55f))
             return
         }
         // A soft shade behind the favourites, so any wallpaper stays readable;
@@ -325,7 +325,8 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         val key = "$h $bandBottom"
         if (key != shadeFor) {
             shadeFor = key
-            bottomShade = LinearGradient(0f, bottomStart, 0f, cardEnd, 0, 0xA6000000.toInt(), Shader.TileMode.CLAMP)
+            bottomShade = // Тень под избранным — цвета фона темы: на светлой теме светлая, тёмный текст читается.
+            LinearGradient(0f, bottomStart, 0f, cardEnd, withAlpha(Nihil.VOID, 0f), withAlpha(Nihil.VOID, 0.65f), Shader.TileMode.CLAMP)
         }
         scrim.shader = bottomShade
         canvas.drawRect(0f, bottomStart, w, h, scrim)

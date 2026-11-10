@@ -311,7 +311,7 @@ class CustomizerActivity : LookActivity() {
                 setOnLongClickListener {
                     LookEdit.toggleFavoriteTheme(context, theme.id)
                     toast(if (theme.id in favorites) getString(R.string.cz_unstarred) else getString(R.string.cz_starred))
-                    recreate()
+                    restart()
                     true
                 }
             }
@@ -343,7 +343,7 @@ class CustomizerActivity : LookActivity() {
                 val n = name.text.toString().trim()
                 if (n.isEmpty()) return@setOnClickListener
                 LookEdit.savePreset(context, n)
-                recreate()
+                restart()
             }
         }
         column.addView(LinearLayout(this).apply {
@@ -361,7 +361,7 @@ class CustomizerActivity : LookActivity() {
             val delete = KeyButton(this, getString(R.string.cz_delete), danger = true).apply {
                 setOnClickListener {
                     LookEdit.deletePreset(context, preset.name)
-                    recreate()
+                    restart()
                 }
             }
             column.addView(settingRow("★ " + preset.name, "$styleName · $themeName", delete) {

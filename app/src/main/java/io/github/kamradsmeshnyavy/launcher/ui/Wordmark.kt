@@ -7,7 +7,7 @@ import android.view.View
 import io.github.kamradsmeshnyavy.launcher.core.BrandFace
 
 /**
- * NIHIL as the logo and the desktop's Preferences have it (Nihil-Shell's
+ * DOT-MATRIX in NIHIL's logo hand, as the desktop's Preferences have it (Nihil-Shell's
  * settings/Logo.qml): lit LEDs for the letters, faint ones around them.
  * [size] is its height in pixels.
  */
@@ -16,7 +16,7 @@ class Wordmark(context: Context, private val size: Int) : View(context) {
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
-        contentDescription = "NIHIL"
+        contentDescription = "DOT-MATRIX"
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
