@@ -13,6 +13,12 @@ Forked from NIHIL Launcher 0.3.3.
 - Desks (grid or stack), the bar in Omarchy bar skins, twenty own widgets and app widgets
   themed to the style, Omarchy lock designs as the lock wallpaper and the screensaver.
 - omadeck: theme wallpapers, the weather's place, the computer's stats.
+- The grid fits the screen, so swipe up opens the drawer again; desks page on the first try;
+  widgets resize with handles (app widgets within their app's limits); desks are deleted,
+  renamed and reordered; the dotmatrix drawer skin draws icons in LED dots.
+- Fifteen more widgets in the spirit of Nothing OS's: big clock and date, stopwatch, timer,
+  sun, air quality, moon, recorder, camera, torch, ring mode, storage, data, contacts, search.
+- "Follow the computer" no longer crashes the launcher on start (ACCESS_NETWORK_STATE).
 
 ---
 

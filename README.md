@@ -31,15 +31,20 @@ weather while that is on — nothing else.
   Dot/Mono/Pixel/Lumen with Cyrillic.
 - **Desks.** Several home screens, as Hyprland workspaces: swipe sideways or tap the bar.
   Lay them out as a grid (cells, as in Android launchers) or a stack of cards — Customizer's
-  choice; long press anything for size, place, settings or another desk.
+  choice; long press anything for size, place, settings or another desk. In the grid the desk
+  fits the screen (no scrolling, so swipe up always opens the drawer) and widgets — app widgets
+  too, within the app's limits — resize by dragging the handles of their frame. Desks are
+  renamed, reordered and deleted in Customizer → Desks or from the long-press menu.
 - **The bar.** Android's status bar can't be restyled, so on the home screen the launcher hides it
   and draws its own in any of the 24 Omarchy bar skins (the style's, the computer's or your own):
   desks in 22 label styles, weather, time, battery. Swipe from the edge for the system one.
-- **Widgets.** Twenty of its own, each in the DOT-MATRIX voice (5×7 LED digits, dots, LED bars)
+- **Widgets.** Thirty-five of its own, each in the DOT-MATRIX voice (5×7 LED digits, dots, LED bars)
   or the style's: dot clock, analog in dots, world clock, month, alarm, weather with a forecast,
   battery ring, Bluetooth devices, cover in LEDs, photo frame, quote, to-do, events, the
   computer (CPU, memory, battery, temperature, controls), toggles, compass, steps, countdown,
-  screen time — and any app's widget, in the style's card with Material You colours taken from
+  screen time; and in the spirit of Nothing OS's set, drawn its own way: big clock, big date,
+  stopwatch, timer, sunrise and sunset, air quality, moon phase, recorder, camera, torch, ring
+  mode, storage, data this month, favourite contacts, search — and any app's widget, in the style's card with Material You colours taken from
   the theme, tinted to the theme or to mono if you like.
 - **Lock screen.** The 30 Omarchy lock designs as the lock-screen wallpaper (Android draws the
   clock there) and as the screensaver, with a live clock.
@@ -107,7 +112,9 @@ kept only as hashes. The protocol is in [docs/deck.md](docs/deck.md).
 | `SET_WALLPAPER` | The studio and "follow the computer". |
 | `EXPAND_STATUS_BAR` | Swipe down opens the notification shade. |
 | `REQUEST_DELETE_PACKAGES` | "Uninstall" in an app's menu. |
-| `BLUETOOTH_CONNECT`, `READ_CALENDAR`, `ACTIVITY_RECOGNITION`, usage access | Only for the Bluetooth, events, steps and screen-time widgets, asked when you add one. |
+| `BLUETOOTH_CONNECT`, `READ_CALENDAR`, `READ_CONTACTS`, `ACTIVITY_RECOGNITION`, usage access | Only for the Bluetooth, events, contacts, steps, screen-time and data widgets, asked when you add or tap one. |
+| `SET_ALARM` | The timer widget starts the Clock app's timer, so it rings. |
+| `ACCESS_NETWORK_STATE` | "Follow the computer" checks it only on Wi-Fi. |
 | Notification access (optional) | Glyph light, unread LEDs and now playing (the track from media sessions). Never reads notification text. |
 | Accessibility (optional) | Double tap to lock, Glyph light over other apps. Reads nothing. |
 
