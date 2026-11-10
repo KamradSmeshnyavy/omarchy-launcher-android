@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "nihil-launcher"
+rootProject.name = "dotmatrix-launcher"
 include(":app")

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">NIHIL</string>
+    <string name="app_name" translatable="false">DOT-MATRIX</string>
     <string name="tagline" translatable="false">ex nihilo</string>
 
     <!-- Home -->
@@ -74,7 +74,7 @@
     <string name="section_about">About</string>
     <string name="about_text">NIHIL for Android %1$s. No ads, no tracking, no account: it talks to nothing but your own computer, and only as its deck.</string>
     <string name="about_fonts">Doto, Space Grotesk and Space Mono, under the SIL Open Font License 1.1.</string>
-    <string name="about_site" translatable="false">nihilshell.com/android</string>
+    <string name="about_site" translatable="false">github.com/KamradSmeshnyavy/omarchy-launcher-android</string>
 
     <!-- Wallpaper studio -->
     <string name="studio_title">NIHIL wallpaper</string>

@@ -10,4 +10,4 @@
     android:canRetrieveWindowContent="false"
     android:description="@string/lock_service_description"
     android:notificationTimeout="1000"
-    android:packageNames="com.nihilshell.launcher" />
+    android:packageNames="io.github.kamradsmeshnyavy.launcher" />
