@@ -140,6 +140,34 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
 
     private var movingRoot: RootLayout? = null
 
+    /**
+     * «Растянуть»: рамка с ручками вокруг [item] на текущем столе; нажатие мимо — готово.
+     * Виджеты приложений — в пределах, что задало приложение, свои — по допустимым размерам.
+     */
+    fun startResize(item: Desk.Item, sizes: List<Pair<Int, Int>>?, root: RootLayout) {
+        val page = pages.getOrNull(pager.page) ?: return
+        root.locked = true
+        page.sizes = { sizes }
+        page.limits = { it ->
+            if (it.kind != "appwidget") {
+                null
+            } else {
+                io.github.kamradsmeshnyavy.launcher.core.AppWidgets.info(context, it.appWidgetId)?.let { info ->
+                    // Пределы приложения (px) плюс поля карточки вокруг виджета.
+                    val pad = context.dp(12)
+                    io.github.kamradsmeshnyavy.launcher.core.AppWidgets.limits(context, info, it.w * page.board.cell, it.h * page.board.cellH)
+                        .map { v -> if (v <= 0) 0 else v + pad }.toIntArray()
+                }
+            }
+        }
+        page.onResized = {
+            root.locked = false
+            Desk.save(context)
+            rebuild()
+        }
+        page.resizing = item
+    }
+
     private fun drop(page: DeskPage, x: Int, y: Int) {
         val item = page.moving ?: return
         Desk.Grid.move(page.space.items, item, x, y)

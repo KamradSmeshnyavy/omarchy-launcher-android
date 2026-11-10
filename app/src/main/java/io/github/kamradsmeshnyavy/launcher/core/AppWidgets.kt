@@ -82,6 +82,23 @@ object AppWidgets {
     }
 
     /**
+     * Пределы растяжения в px: minW, minH, maxW, maxH (0 — без предела). Если приложение не даёт
+     * тянуть по оси (resizeMode), минимум и максимум по ней — текущий размер ([curW], [curH]).
+     */
+    fun limits(context: Context, info: AppWidgetProviderInfo, curW: Int, curH: Int): IntArray {
+        val horizontal = info.resizeMode and AppWidgetProviderInfo.RESIZE_HORIZONTAL != 0
+        val vertical = info.resizeMode and AppWidgetProviderInfo.RESIZE_VERTICAL != 0
+        val minW = if (info.minResizeWidth > 0) info.minResizeWidth else info.minWidth
+        val minH = if (info.minResizeHeight > 0) info.minResizeHeight else info.minHeight
+        return intArrayOf(
+            if (horizontal) minW else curW,
+            if (vertical) minH else curH,
+            if (horizontal) info.maxResizeWidth else curW,
+            if (vertical) info.maxResizeHeight else curH,
+        )
+    }
+
+    /**
      * Цвета Material You для виджетов (android.R.color.system_accent1..3_*, system_neutral1..2_*)
      * из палитры темы: акцент, смесь акцента и текста, опасный, и нейтральные — от фона.
      */

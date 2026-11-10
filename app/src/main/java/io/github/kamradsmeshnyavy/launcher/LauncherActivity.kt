@@ -594,8 +594,10 @@ class LauncherActivity :
             else -> getString(R.string.app_name)
         }
         val sizes = when (item.kind) {
-            "favourites" -> listOf(4 to 3, 4 to 2, 4 to 4, 4 to 5)
+            "favourites" -> listOf(4 to 3, 4 to 2, 4 to 4, 4 to 5, 4 to 6)
             "app" -> listOf(1 to 1)
+            // Виджет приложения: в стопке — любая высота во всю ширину; в сетке — ручками.
+            "appwidget" -> (1..6).map { 4 to it }
             else -> catalog.spec(item.type)?.sizes ?: listOf(item.w to item.h)
         }
         val changed = {
@@ -604,7 +606,11 @@ class LauncherActivity :
         }
         val items = ArrayList<AppMenu.Item>()
         if (item.kind == "widget" || item.kind == "appwidget") items += AppMenu.Item(LineIcon.Shape.SETTINGS, getString(R.string.desk_options)) { editOptions(item) }
-        if (sizes.size > 1) items += AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_size)) {
+        if (grid && item.kind != "app") items += AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_resize)) {
+            android.widget.Toast.makeText(this, R.string.desk_resize_hint, android.widget.Toast.LENGTH_SHORT).show()
+            home.startResize(item, if (item.kind == "appwidget") null else sizes, root)
+        }
+        if (!grid && sizes.size > 1) items += AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_size)) {
             popup.show(anchor = from, title = getString(R.string.desk_size), items = sizes.map { (w, h) ->
                 AppMenu.Item(LineIcon.Shape.CHECK, "$w × $h" + if (w == item.w && h == item.h) "  ●" else "") {
                     io.github.kamradsmeshnyavy.launcher.core.Desk.Grid.resize(space.items, item, w, h)

@@ -50,7 +50,7 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
 
     override fun canScrollVertically(direction: Int): Boolean = mode != "grid" && super.canScrollVertically(direction)
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = moving != null || (mode != "grid" && super.onInterceptTouchEvent(ev))
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = moving != null || resizing != null || (mode != "grid" && super.onInterceptTouchEvent(ev))
 
     fun scrollableAt(rawX: Float, rawY: Float, dy: Float): Boolean {
         widgets.forEach { if (it.scrollableAt(rawX, rawY, dy)) return true }
@@ -72,7 +72,111 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
     /** Куда встанет [moving], и что делать по отпусканию: (x, y) клетки. */
     var onDrop: ((Int, Int) -> Unit)? = null
 
+    // --- Растяжение в сетке ---------------------------------------------------------------------
+
+    /** Элемент, который сейчас растягивают за ручки рамки. */
+    var resizing: Desk.Item? = null
+        set(value) {
+            field = value
+            board.invalidate()
+            if (value == null) systemGestureExclusionRects = emptyList()
+        }
+
+    /** Ручки у края экрана: жест «назад» не должен забирать их (система даёт до 200 dp). */
+    fun excludeHandles(frame: RectF) {
+        val k = context.dp(24)
+        val dx = board.left - scrollX
+        val dy = board.top - scrollY
+        val cy = (frame.centerY() + dy).toInt()
+        systemGestureExclusionRects = listOf(
+            android.graphics.Rect((frame.left + dx).toInt() - k, cy - k * 2, (frame.left + dx).toInt() + k, cy + k * 2),
+            android.graphics.Rect((frame.right + dx).toInt() - k, cy - k * 2, (frame.right + dx).toInt() + k, cy + k * 2),
+        )
+    }
+
+    /** Пределы в px [minW, minH, maxW, maxH] (0 — без предела) — для виджетов приложений. */
+    var limits: ((Desk.Item) -> IntArray?)? = null
+
+    /** Допустимые размеры в клетках (свои виджеты); null — любые. */
+    var sizes: ((Desk.Item) -> List<Pair<Int, Int>>?)? = null
+
+    /** Растяжение закончено (нажатие мимо рамки). */
+    var onResized: (() -> Unit)? = null
+
+    /** Ручка, за которую тянут: 0 лево, 1 верх, 2 право, 3 низ; -1 — нет. */
+    private var edge = -1
+    private var start = IntArray(4)
+
+    private fun resizeTouch(item: Desk.Item, ev: MotionEvent): Boolean {
+        val x = ev.x - board.left + scrollX - board.paddingLeft
+        val y = ev.y - board.top + scrollY - board.paddingTop
+        val c = board.cell.toFloat()
+        val ch = board.cellH.toFloat()
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                val l = item.x * c
+                val t = item.y * ch
+                val r = (item.x + item.w) * c
+                val b = (item.y + item.h) * ch
+                val grab = context.dp(36).toFloat()
+                val inY = y in t - grab..b + grab
+                val inX = x in l - grab..r + grab
+                edge = when {
+                    inY && kotlin.math.abs(x - r) < grab -> 2
+                    inX && kotlin.math.abs(y - b) < grab -> 3
+                    inY && kotlin.math.abs(x - l) < grab -> 0
+                    inX && kotlin.math.abs(y - t) < grab -> 1
+                    else -> -1
+                }
+                if (edge < 0 && !(x in l..r && y in t..b)) {
+                    resizing = null
+                    onResized?.invoke()
+                }
+                start = intArrayOf(item.x, item.y, item.w, item.h)
+            }
+            MotionEvent.ACTION_MOVE -> if (edge >= 0) {
+                var (nx, ny, nw, nh) = start.toList()
+                when (edge) {
+                    0 -> { val to = (x / c).roundToInt().coerceIn(0, start[0] + start[2] - 1); nw = start[0] + start[2] - to; nx = to }
+                    1 -> { val to = (y / ch).roundToInt().coerceIn(0, start[1] + start[3] - 1); nh = start[1] + start[3] - to; ny = to }
+                    2 -> nw = ((x / c).roundToInt() - start[0]).coerceIn(1, Desk.Grid.COLUMNS - start[0])
+                    3 -> nh = ((y / ch).roundToInt() - start[1]).coerceIn(1, (board.rows.takeIf { it > 0 } ?: 99) - start[1])
+                }
+                val lim = limits?.invoke(item)
+                if (lim != null) {
+                    val minW = kotlin.math.ceil(lim[0] / c.toDouble() - 0.15).toInt().coerceAtLeast(1)
+                    val minH = kotlin.math.ceil(lim[1] / ch.toDouble() - 0.15).toInt().coerceAtLeast(1)
+                    val maxW = if (lim[2] > 0) (lim[2] / c + 0.15f).toInt().coerceAtLeast(minW) else 99
+                    val maxH = if (lim[3] > 0) (lim[3] / ch + 0.15f).toInt().coerceAtLeast(minH) else 99
+                    if (nw !in minW..maxW || nh !in minH..maxH) return true
+                }
+                sizes?.invoke(item)?.let { allowed ->
+                    if ((nw to nh) !in allowed) {
+                        // Ближайший допустимый размер, если он растёт в ту же сторону.
+                        val near = allowed.minByOrNull { (w, h) -> kotlin.math.abs(w - nw) * 2 + kotlin.math.abs(h - nh) * 2 } ?: return true
+                        if (edge == 0) nx = start[0] + start[2] - near.first
+                        if (edge == 1) ny = start[1] + start[3] - near.second
+                        nw = near.first
+                        nh = near.second
+                    }
+                }
+                if (nx < 0 || ny < 0 || nx + nw > Desk.Grid.COLUMNS) return true
+                if (board.rows > 0 && ny + nh > board.rows) return true
+                if (!Desk.Grid.free(space.items, nx, ny, nw, nh, except = item.id)) return true
+                if (nx != item.x || ny != item.y || nw != item.w || nh != item.h) {
+                    item.x = nx; item.y = ny; item.w = nw; item.h = nh
+                    performHapticFeedback(android.view.HapticFeedbackConstants.CLOCK_TICK)
+                    board.requestLayout()
+                    board.invalidate()
+                }
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> edge = -1
+        }
+        return true
+    }
+
     override fun onTouchEvent(ev: MotionEvent): Boolean {
+        resizing?.let { return resizeTouch(it, ev) }
         val item = moving ?: return mode != "grid" && super.onTouchEvent(ev)
         val (cx, cy) = board.cellAt(ev.x - board.left + scrollX, ev.y - board.top + scrollY, item)
         board.target = cx to cy
@@ -181,6 +285,30 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
             val cx = ((x - paddingLeft) / cell - item.w / 2f).roundToInt().coerceIn(0, Desk.Grid.COLUMNS - item.w)
             val cy = ((y - paddingTop) / cellH - item.h / 2f).roundToInt().coerceAtLeast(0)
             return cx to cy
+        }
+
+        override fun dispatchDraw(canvas: Canvas) {
+            super.dispatchDraw(canvas)
+            val item = resizing ?: return
+            // Рамка растяжения поверх виджетов: контур и четыре ручки.
+            rect.set(
+                (paddingLeft + item.x * cell).toFloat(), (paddingTop + item.y * cellH).toFloat(),
+                (paddingLeft + (item.x + item.w) * cell).toFloat(), (paddingTop + (item.y + item.h) * cellH).toFloat(),
+            )
+            hint.style = Paint.Style.STROKE
+            hint.strokeWidth = context.dp(2f)
+            hint.color = Nihil.SIGNAL
+            val r = Nihil.corner(context.dp(16f))
+            canvas.drawRoundRect(rect, r, r, hint)
+            excludeHandles(rect)
+            hint.style = Paint.Style.FILL
+            val k = context.dp(7f)
+            for ((hx, hy) in listOf(rect.left to rect.centerY(), rect.centerX() to rect.top, rect.right to rect.centerY(), rect.centerX() to rect.bottom)) {
+                hint.color = Nihil.SIGNAL
+                canvas.drawCircle(hx, hy, k, hint)
+                hint.color = Nihil.VOID
+                canvas.drawCircle(hx, hy, k * 0.45f, hint)
+            }
         }
 
         override fun onDraw(canvas: Canvas) {
