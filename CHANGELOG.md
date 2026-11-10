@@ -10,6 +10,9 @@ Forked from NIHIL Launcher 0.3.3.
 - Wallpaper studio: Dotify with Customizer's parameters, and Recolor.
 - omadeck: the deck's server for Omarchy; "follow the computer".
 - Russian.
+- Desks (grid or stack), the bar in Omarchy bar skins, twenty own widgets and app widgets
+  themed to the style, Omarchy lock designs as the lock wallpaper and the screensaver.
+- omadeck: theme wallpapers, the weather's place, the computer's stats.
 
 ---
 

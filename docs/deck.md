@@ -382,3 +382,15 @@ Where the computer's weather is: `~/.local/state/omarchy/settings/weather.json`
 
 The phone opens `omadeck://pair?…` (the URI under the QR) too, and pairs after the person
 confirms the computer's name and addresses: a link can come from anyone.
+
+## The computer's state and look extras
+
+### `GET /v1/stats`
+
+For the computer widget: `{ "name", "cpu", "memory", "battery", "charging", "temperature" }`
+(percent, percent, percent, bool, °C), each left out when the computer can't say. The CPU is
+measured over a quarter of a second.
+
+`GET /v1/look` also carries `bar` (`~/.config/omarchy/bar-skin.json`, the bar skin's tokens) and
+`lock` (`~/.config/omarchy/lock-design.json`), for the phone's bar and lock designs "as on the
+computer".

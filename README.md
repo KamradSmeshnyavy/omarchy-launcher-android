@@ -29,6 +29,20 @@ weather while that is on — nothing else.
   Your own presets save the whole look.
 - **Fonts as profiles.** stock, nothing, pixel, lumen, dots-all, paper, retro — DotMatrix
   Dot/Mono/Pixel/Lumen with Cyrillic.
+- **Desks.** Several home screens, as Hyprland workspaces: swipe sideways or tap the bar.
+  Lay them out as a grid (cells, as in Android launchers) or a stack of cards — Customizer's
+  choice; long press anything for size, place, settings or another desk.
+- **The bar.** Android's status bar can't be restyled, so on the home screen the launcher hides it
+  and draws its own in any of the 24 Omarchy bar skins (the style's, the computer's or your own):
+  desks in 22 label styles, weather, time, battery. Swipe from the edge for the system one.
+- **Widgets.** Twenty of its own, each in the DOT-MATRIX voice (5×7 LED digits, dots, LED bars)
+  or the style's: dot clock, analog in dots, world clock, month, alarm, weather with a forecast,
+  battery ring, Bluetooth devices, cover in LEDs, photo frame, quote, to-do, events, the
+  computer (CPU, memory, battery, temperature, controls), toggles, compass, steps, countdown,
+  screen time — and any app's widget, in the style's card with Material You colours taken from
+  the theme, tinted to the theme or to mono if you like.
+- **Lock screen.** The 30 Omarchy lock designs as the lock-screen wallpaper (Android draws the
+  clock there) and as the screensaver, with a live clock.
 - **Home widgets.** The clock as `big`, `stacked`, `terminal` or `minimal`, 24-hour and
   seconds; the weather in it (Open-Meteo, for the computer's place or a city of your own;
   tap it for the weather app); now playing (any player); the to-do list shared with the computer.
@@ -93,6 +107,7 @@ kept only as hashes. The protocol is in [docs/deck.md](docs/deck.md).
 | `SET_WALLPAPER` | The studio and "follow the computer". |
 | `EXPAND_STATUS_BAR` | Swipe down opens the notification shade. |
 | `REQUEST_DELETE_PACKAGES` | "Uninstall" in an app's menu. |
+| `BLUETOOTH_CONNECT`, `READ_CALENDAR`, `ACTIVITY_RECOGNITION`, usage access | Only for the Bluetooth, events, steps and screen-time widgets, asked when you add one. |
 | Notification access (optional) | Glyph light, unread LEDs and now playing (the track from media sessions). Never reads notification text. |
 | Accessibility (optional) | Double tap to lock, Glyph light over other apps. Reads nothing. |
 
