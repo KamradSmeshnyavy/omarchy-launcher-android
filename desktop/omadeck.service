@@ -1,0 +1,13 @@
+[Unit]
+Description=omadeck: телефон как пульт для Omarchy (DOT-MATRIX Launcher)
+Documentation=https://github.com/KamradSmeshnyavy/omarchy-launcher-android/blob/main/docs/deck.md
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/bin/omadeck serve
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target

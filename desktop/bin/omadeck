@@ -1,0 +1,4 @@
+#!/bin/sh
+# omadeck: служба и команды пульта (deck.py). Ссылка на это — в ~/.local/bin (just server-install).
+here=$(dirname "$(readlink -f "$0")")
+exec python3 -I "$here/../omadeck/deck.py" "$@"

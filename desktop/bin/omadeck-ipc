@@ -1,0 +1,4 @@
+#!/bin/sh
+# omadeck-ipc: действия пульта командами Omarchy (ipc.py).
+here=$(dirname "$(readlink -f "$0")")
+exec python3 -I "$here/../omadeck/ipc.py" "$@"

@@ -161,7 +161,7 @@ class TrackpadLink(private val store: DeckStore, private val onState: (State) ->
     }
 
     companion object {
-        const val PROTOCOL = "nihil-trackpad"
+        const val PROTOCOL = "omadeck-trackpad"
         private const val TOUCH: Byte = 1
         private const val KEEPALIVE: Byte = 2
         private const val KEEPALIVE_EVERY = 1000L
