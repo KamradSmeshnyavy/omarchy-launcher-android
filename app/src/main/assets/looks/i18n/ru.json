@@ -24,6 +24,7 @@
  "DOT-MATRIX: text": "DOT-MATRIX: текст",
  "Desktop widgets: on / off (off — none of them is drawn)": "Виджеты рабочего стола: вкл / выкл (выкл — не рисуется ни один)",
  "Dot matrix": "Светодиодная матрица",
+ "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)": "Скин ящика (grid — как в NIHIL, compact — плотнее, list — списком, dotmatrix — моно-значки и имена точками)",
  "General": "Общее",
  "Glyph lighting": "Подсветка Glyph",
  "Glyph: core thickness": "Glyph: толщина луча",
@@ -62,6 +63,9 @@
  "Void background colour": "Цвет фона между точками",
  "Widgets: look (style — follows the Customizer style)": "Виджеты: вид (style — по стилю Customizer)",
  "auto": "авто",
+ "compact": "плотно",
  "default": "по умолчанию",
+ "grid": "сетка",
+ "list": "список",
  "off": "выкл"
 }

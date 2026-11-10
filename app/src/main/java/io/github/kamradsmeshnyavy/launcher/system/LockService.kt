@@ -1,5 +1,6 @@
 package io.github.kamradsmeshnyavy.launcher.system
 
+import io.github.kamradsmeshnyavy.launcher.system.Glyph.sound
 import android.accessibilityservice.AccessibilityService
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -65,7 +66,9 @@ class LockService : AccessibilityService(), Glyph.Listener {
     override fun onUnread(packages: List<String>) = Unit
 
     override fun onPulse(pulse: Glyph.Pulse) {
-        if (Glyph.homeShowing || !Prefs.get(this).glyph) return
+        if (Glyph.homeShowing) return
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.play(this, pulse.sound())
+        if (!Prefs.get(this).glyph) return
         // With the screen off there is nothing to light.
         if (getSystemService(PowerManager::class.java)?.isInteractive != true) return
         (overlay ?: HaloOverlay(this).also { overlay = it }).show(pulse)

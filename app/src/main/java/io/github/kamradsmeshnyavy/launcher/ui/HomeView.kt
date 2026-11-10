@@ -39,17 +39,45 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         /** The favourites in this order now (their keys), after one was moved. */
         fun orderFavorites(keys: List<String>)
         fun closeMenu()
+        /** Список дел (виджет todo): доска задач. */
+        fun openTasks()
     }
 
     private val fonts = Nihil.fonts(context)
+    private val clockLook = ClockLook(io.github.kamradsmeshnyavy.launcher.core.Look.now, DateFormat.is24HourFormat(context))
+    private val media = if (clockLook.media) MediaCard(context) else null
+    private val todo = if (clockLook.todo) TodoCard(context, clockLook.todoMax) { host.openTasks() } else null
+    private val ticker = object : Runnable {
+        override fun run() {
+            updateClock(animate = false)
+            postDelayed(this, 1000L - System.currentTimeMillis() % 1000L)
+        }
+    }
     private val header = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
     private val card = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
         gravity = Gravity.CENTER_HORIZONTAL
     }
-    private val clock = context.text("", 68f, Nihil.INK, fonts.dot).apply {
-        gravity = Gravity.CENTER
-        maxLines = 1
+    // Часы по clockStyle Customizer'а: big — точками по центру (как в NIHIL), stacked — часы
+    // над минутами, terminal — моноширинно, как в терминале, minimal — тонко и без карточки.
+    private val clock = when (clockLook.style) {
+        "stacked" -> context.text("", 64f, Nihil.INK, if (clockLook.dots) fonts.dot else fonts.sansMedium).apply {
+            gravity = Gravity.START
+            maxLines = 2
+            setLineSpacing(0f, 0.86f)
+        }
+        "terminal" -> context.text("", 40f, Nihil.INK, fonts.mono).apply {
+            gravity = Gravity.START
+            maxLines = 1
+        }
+        "minimal" -> context.text("", 58f, Nihil.INK, if (clockLook.dots) fonts.dot else fonts.sans, -0.02f).apply {
+            gravity = Gravity.START
+            maxLines = 1
+        }
+        else -> context.text("", 68f, Nihil.INK, if (clockLook.dots) fonts.dot else fonts.sansMedium).apply {
+            gravity = Gravity.CENTER
+            maxLines = 1
+        }
     }
     private val day = context.mono(size = 12f, color = Nihil.DIM)
     private val date = context.text("", 14f, Nihil.MUTED)
@@ -96,15 +124,22 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         header.clipChildren = false
         header.clipToPadding = false
 
-        card.background = rounded(Nihil.VOID, context.dp(22f), context.dp(1), Nihil.LINE)
+        card.background = if (clockLook.style == "minimal") null else rounded(Nihil.VOID, context.dp(22f), context.dp(1), Nihil.LINE)
         card.setPadding(context.dp(20), context.dp(18), context.dp(20), context.dp(16))
-        card.addView(clock, llp(MATCH, WRAP))
-        card.addView(day, llp(WRAP, WRAP).apply { topMargin = context.dp(6) })
-        card.addView(date, llp(WRAP, WRAP).apply { topMargin = context.dp(4) })
-        card.addView(context.rule(), llp(MATCH, context.dp(1)).apply {
-            topMargin = context.dp(16)
-            bottomMargin = context.dp(12)
-        })
+        if (clockLook.style != "big") card.gravity = Gravity.START
+        if (clockLook.show) {
+            card.addView(clock, llp(MATCH, WRAP))
+            card.addView(day, llp(WRAP, WRAP).apply { topMargin = context.dp(6) })
+            card.addView(date, llp(WRAP, WRAP).apply { topMargin = context.dp(4) })
+            card.addView(context.rule(), llp(MATCH, context.dp(1)).apply {
+                topMargin = context.dp(16)
+                bottomMargin = context.dp(12)
+            })
+        }
+        if (clockLook.style == "minimal") {
+            clock.setShadowLayer(context.dp(10f), 0f, 0f, 0x66000000)
+            date.setShadowLayer(context.dp(6f), 0f, 0f, 0x66000000)
+        }
 
         // The battery on the left, the alarm on the right; the unread apps under them.
         val status = LinearLayout(context).apply {
@@ -123,6 +158,9 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         card.addView(unread, llp(MATCH, WRAP).apply { topMargin = context.dp(8) })
 
         header.addView(card, llp(MATCH, WRAP))
+        // Виджеты под часами: «сейчас играет» и список дел.
+        media?.let { header.addView(it, llp(MATCH, WRAP).apply { topMargin = context.dp(10) }) }
+        todo?.let { header.addView(it, llp(MATCH, WRAP).apply { topMargin = context.dp(10) }) }
         addView(header, lp(MATCH, WRAP, Gravity.TOP))
         favoritesHolder.addView(favorites, lp(MATCH, WRAP, Gravity.BOTTOM))
         favoritesScroll.addView(favoritesHolder, ViewGroup.LayoutParams(MATCH, WRAP))
@@ -155,13 +193,33 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         invalidate()
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (clockLook.seconds) post(ticker)
+    }
+
+    override fun onDetachedFromWindow() {
+        removeCallbacks(ticker)
+        super.onDetachedFromWindow()
+    }
+
+    fun refreshTodo() {
+        todo?.refresh()
+    }
+
     fun updateClock(animate: Boolean) {
         val now = Date()
-        val is24 = DateFormat.is24HourFormat(context)
-        val time = SimpleDateFormat(if (is24) "HH:mm" else "h:mm", Locale.ROOT).format(now)
+        val is24 = clockLook.is24
+        val pattern = (if (is24) "HH:mm" else "h:mm") + if (clockLook.seconds) ":ss" else ""
+        val formatted = SimpleDateFormat(pattern, Locale.ROOT).format(now)
+        val time = when (clockLook.style) {
+            "stacked" -> formatted.replaceFirst(":", "\n").replace(":", " ")
+            "terminal" -> "> $formatted"
+            else -> formatted
+        }
         if (clock.text.toString() != time) {
             clock.text = time
-            if (animate) {
+            if (animate && !clockLook.seconds) {
                 clock.alpha = 0.4f
                 clock.animate().alpha(1f).setDuration(Nihil.NORMAL).setInterpolator(EASE).start()
             }
@@ -169,6 +227,10 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
         val locale = Locale.getDefault()
         day.text = SimpleDateFormat("EEEE", locale).format(now).replaceFirstChar { it.titlecase(locale) }
         date.text = SimpleDateFormat(DateFormat.getBestDateTimePattern(locale, "dMMMM"), locale).format(now)
+        if (clockLook.style == "terminal") {
+            day.text = "# " + day.text.toString().lowercase(locale)
+            date.typeface = fonts.mono
+        }
     }
 
     fun updateBattery(level: Int, charging: Boolean) {

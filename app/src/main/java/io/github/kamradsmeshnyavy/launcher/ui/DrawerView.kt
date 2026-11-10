@@ -72,6 +72,13 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
     private var rows: List<Search.Row> = emptyList()
     private var items: List<Item> = emptyList()
     private var columns = 4
+    /** Скин ящика (drawerSkin): grid — как в NIHIL, compact — мельче и плотнее, list — списком, dotmatrix — монохромные значки и имена точками. */
+    private val skin = io.github.kamradsmeshnyavy.launcher.core.Look.now.str("drawerSkin", "grid")
+    private val rowHeight get() = when (skin) {
+        "compact" -> context.dp(88)
+        "list" -> context.dp(58)
+        else -> context.dp(108)
+    }
     private var topInset = 0
     private var bottomInset = 0
 
@@ -259,7 +266,11 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // Four across on a phone, more where there is room, as wide as the desktop's cells.
-        val wanted = ((w - context.dp(24)) / context.dp(92)).coerceAtLeast(4)
+        val wanted = when (skin) {
+            "list" -> 1
+            "compact" -> ((w - context.dp(24)) / context.dp(72)).coerceAtLeast(5)
+            else -> ((w - context.dp(24)) / context.dp(92)).coerceAtLeast(4)
+        }
         if (wanted != columns) {
             columns = wanted
             refresh()
@@ -400,7 +411,7 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
 
         init {
             orientation = HORIZONTAL
-            layoutParams = AbsListView.LayoutParams(MATCH, context.dp(108))
+            layoutParams = AbsListView.LayoutParams(MATCH, rowHeight)
         }
 
         fun bind(item: Item.Tiles, selectedFirst: Boolean): TileRow {
@@ -425,22 +436,40 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
     /** An app as the desktop's cell: the icon over its name; the selected one raised, in colour. */
     private inner class Tile(context: Context) : LinearLayout(context) {
         private val icon = ImageView(context)
-        private val name = context.mono(size = 11f, color = Nihil.MUTED).apply {
-            gravity = Gravity.CENTER_HORIZONTAL
+        private val name = when (skin) {
+            "list" -> context.text("", 17f, Nihil.MUTED, Nihil.fonts(context).sans)
+            "dotmatrix" -> context.text("", 13f, Nihil.MUTED, Nihil.fonts(context).dot)
+            else -> context.mono(size = if (skin == "compact") 10f else 11f, color = Nihil.MUTED)
+        }.apply {
+            gravity = if (skin == "list") Gravity.START else Gravity.CENTER_HORIZONTAL
             maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
         }
-        private val iconSize = context.dp(46)
+        private val iconSize = context.dp(
+            when (skin) {
+                "list" -> 32
+                "compact" -> 38
+                else -> 46
+            },
+        )
         private val plain = ripple(context.dp(18f))
         private val raised = context.dp(18f).let { ripple(it, rounded(Nihil.RAISED, it, context.dp(1), Nihil.LINE)) }
         private var key: String? = null
 
         init {
-            orientation = VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            setPadding(context.dp(4), context.dp(14), context.dp(4), 0)
-            addView(icon, llp(iconSize, iconSize))
-            addView(name, llp(MATCH, WRAP).apply { topMargin = context.dp(10) })
+            if (skin == "list") {
+                orientation = HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(context.dp(12), 0, context.dp(12), 0)
+                addView(icon, llp(iconSize, iconSize))
+                addView(name, llp(0, WRAP, 1f).apply { marginStart = context.dp(18) })
+            } else {
+                orientation = VERTICAL
+                gravity = Gravity.CENTER_HORIZONTAL
+                setPadding(context.dp(4), context.dp(if (skin == "compact") 10 else 14), context.dp(4), 0)
+                addView(icon, llp(iconSize, iconSize))
+                addView(name, llp(MATCH, WRAP).apply { topMargin = context.dp(if (skin == "compact") 7 else 10) })
+            }
         }
 
         fun empty() {
@@ -458,7 +487,7 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
             name.setTextColor(if (selected) Nihil.INK else Nihil.MUTED)
             contentDescription = entry.label
             key = entry.key
-            icon.bindIcon(entry, iconSize, if (selected) IconStyle.COLOR else style)
+            icon.bindIcon(entry, iconSize, if (selected) IconStyle.COLOR else if (skin == "dotmatrix") IconStyle.MONO else style)
             setOnClickListener { host.launch(entry, this) }
             setOnLongClickListener {
                 host.menu(entry, this)

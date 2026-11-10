@@ -48,6 +48,7 @@ import io.github.kamradsmeshnyavy.launcher.core.WebEntry
 import io.github.kamradsmeshnyavy.launcher.core.Webs
 import io.github.kamradsmeshnyavy.launcher.system.Access
 import io.github.kamradsmeshnyavy.launcher.system.Glyph
+import io.github.kamradsmeshnyavy.launcher.system.Glyph.sound
 import io.github.kamradsmeshnyavy.launcher.system.LockService
 import io.github.kamradsmeshnyavy.launcher.ui.AppMenu
 import io.github.kamradsmeshnyavy.launcher.ui.DrawerView
@@ -187,6 +188,7 @@ class LauncherActivity :
         resumed = true
         updateHomeShowing()
         home.updateClock(animate = false)
+        home.refreshTodo()
         updateAlarm()
         Webs.fetchIcons(this, prefs.webs)
         if (!prefs.wallpaperSeeded && Access.isDefaultHome(this)) seedWallpaper()
@@ -327,6 +329,7 @@ class LauncherActivity :
     }
 
     private fun settled(open: Boolean) {
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.play(this, if (open) io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.OPEN else io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.CLOSE)
         if (open) {
             drawer.opened(prefs.keyboardOnOpen)
         } else {
@@ -575,6 +578,7 @@ class LauncherActivity :
     }
 
     override fun lockScreen() {
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.play(this, io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.LOCK)
         if (LockService.lock()) return
         notice(getString(R.string.lock_needs_service))
         Access.startFirst(this, listOf(Access.lockServiceIntent()))
@@ -620,6 +624,7 @@ class LauncherActivity :
 
     override fun onPulse(pulse: Glyph.Pulse) {
         if (prefs.glyph && Glyph.homeShowing) frame.pulse(pulse)
+        if (Glyph.homeShowing) io.github.kamradsmeshnyavy.launcher.core.Sounds.play(this, pulse.sound())
     }
 
     // --- Time, battery, alarm ------------------------------------------------------

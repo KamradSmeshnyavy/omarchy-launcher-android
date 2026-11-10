@@ -51,6 +51,7 @@ class AppMenu(private val context: Context) {
         point: Pair<Int, Int>? = null,
         onShortcut: (ShortcutInfo, View) -> Unit = { _, _ -> },
     ) {
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.play(anchor.context, io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.MENU)
         dismiss()
         val width = context.dp(248)
         val panel = LinearLayout(context).apply {

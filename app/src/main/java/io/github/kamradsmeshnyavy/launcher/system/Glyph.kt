@@ -17,6 +17,13 @@ object Glyph {
         CHARGE,
     }
 
+    /** Звук пакета на этот импульс. */
+    fun Pulse.sound(): io.github.kamradsmeshnyavy.launcher.core.Sounds.Event = when (this) {
+        Pulse.NOTIFY -> io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.NOTIFY
+        Pulse.SIGNAL -> io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.CRITICAL
+        Pulse.CHARGE -> io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.CHARGE
+    }
+
     interface Listener {
         fun onUnread(packages: List<String>)
         fun onPulse(pulse: Pulse)

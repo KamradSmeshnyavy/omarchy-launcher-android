@@ -55,6 +55,19 @@ TABLES = {
     },
 }
 
+# Строки, которых нет в Customizer, но есть у телефона: (таблица, строка, перевод подписи и значений).
+EXTRA_ITEMS = {
+    "LAUNCHER_TWEAKS": [
+        {"key": "drawerSkin", "type": "enum", "values": ["grid", "compact", "list", "dotmatrix"],
+         "label": "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)"},
+    ],
+}
+EXTRA_RU = {
+    "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)":
+        "Скин ящика (grid — как в NIHIL, compact — плотнее, list — списком, dotmatrix — моно-значки и имена точками)",
+    "grid": "сетка", "compact": "плотно", "list": "список",
+}
+
 # Что из стиля нужно лаунчеру.
 STYLE_KEYS = ("name", "name_ru", "note", "note_ru", "look", "theme", "glyph", "fonts", "sounds", "launcher")
 STYLE_WIDGET_KEYS = ("widgetStyle", "clockStyle", "media")
@@ -273,6 +286,7 @@ def export_settings():
                 if not nxt or "section" in nxt:
                     continue
             clean.append(item)
+        clean += EXTRA_ITEMS.get(t["id"], [])
         tables.append({"id": t["id"], "category": t.get("category"), "file": Path(t.get("file", "")).name,
                        "items": clean})
     return {"version": data.get("version"), "tables": tables}
@@ -288,6 +302,7 @@ def export_i18n(settings, styles):
                     wanted.add(item[k])
             for v in item.get("values", []):
                 wanted.add(v)
+    ru = {**ru, **EXTRA_RU}
     return {k: ru[k] for k in sorted(wanted) if k in ru}
 
 

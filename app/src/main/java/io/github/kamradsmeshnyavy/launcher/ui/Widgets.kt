@@ -177,7 +177,10 @@ class Toggle(context: Context) : View(context) {
                 start()
             }
         }
-        if (notify) onChange?.invoke(value)
+        if (notify) {
+            io.github.kamradsmeshnyavy.launcher.core.Sounds.play(context, io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.SWITCH)
+            onChange?.invoke(value)
+        }
     }
 
     // 34 × 20 on the desktop; a little bigger under a finger.

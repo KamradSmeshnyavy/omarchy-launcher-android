@@ -226,6 +226,12 @@ object Look {
             putAll(values, s.sounds)
             putAll(values, s.widgets)
             s.launcher.optDouble("backdrop").takeIf { !it.isNaN() }?.let { values["backdrop"] = it }
+            // Скин лаунчера стиля (drawer-glass, dotmatrix…) → скин ящика телефона.
+            values["drawerSkin"] = when (s.launcher.optString("skin")) {
+                "dotmatrix" -> "dotmatrix"
+                "drawer-retro", "drawer-brutal" -> "compact"
+                else -> "grid"
+            }
         }
         sp.all.forEach { (k, v) -> if (!k.startsWith("look.") && v != null) values[k] = v }
         pc?.let { o ->

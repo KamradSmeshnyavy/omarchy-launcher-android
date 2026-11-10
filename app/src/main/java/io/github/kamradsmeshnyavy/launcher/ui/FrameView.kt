@@ -67,10 +67,16 @@ class FrameView(context: Context) : View(context) {
         val h = height.toFloat()
         card.set(left.toFloat(), top.toFloat(), w - right, cardBottom)
         if (card.height() <= 0.5f) {
+            black.color = Nihil.VOID
+            black.alpha = (255 * io.github.kamradsmeshnyavy.launcher.core.Look.now.num("backdrop", 1.0).toFloat().coerceIn(0.2f, 1f)).toInt()
             canvas.drawRect(0f, 0f, w, h, black)
             return
         }
-        val r = min(radius, card.height() / 2)
+        // Затемнение под ящиком (backdrop лаунчера Customizer): за открытым ящиком видны обои.
+        val backdrop = io.github.kamradsmeshnyavy.launcher.core.Look.now.num("backdrop", 1.0).toFloat().coerceIn(0.2f, 1f)
+        black.color = Nihil.VOID
+        black.alpha = (255 * (1f - progress * (1f - backdrop))).toInt()
+        val r = min(Nihil.corner(radius), card.height() / 2)
         shape.reset()
         shape.fillType = Path.FillType.EVEN_ODD
         shape.addRect(0f, 0f, w, h, Path.Direction.CW)
@@ -85,7 +91,7 @@ class FrameView(context: Context) : View(context) {
 
     private fun layoutGlyph() {
         if (width == 0 || height == 0) return
-        halo.setRing(RectF(left.toFloat(), top.toFloat(), (width - right).toFloat(), (height - bottom).toFloat()), radius)
+        halo.setRing(RectF(left.toFloat(), top.toFloat(), (width - right).toFloat(), (height - bottom).toFloat()), Nihil.corner(radius))
     }
 
     /** Runs the Glyph light round the card, as the desktop's frame does. Only on the home card. */
