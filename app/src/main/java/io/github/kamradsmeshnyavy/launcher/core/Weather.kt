@@ -39,8 +39,29 @@ object Weather {
 
     enum class Kind { CLEAR, PARTLY, CLOUDY, FOG, DRIZZLE, RAIN, SNOW, STORM }
 
-    class Now(val temperature: Double, val code: Int, val day: Boolean, val place: String, val at: Long, val country: String = "") {
+    class Day(val date: String, val code: Int, val max: Double, val min: Double) {
         val kind: Kind get() = kindOf(code)
+    }
+
+    class Now(
+        val temperature: Double, val code: Int, val day: Boolean, val place: String, val at: Long,
+        val country: String = "", val days: List<Day> = emptyList(),
+    ) {
+        val kind: Kind get() = kindOf(code)
+    }
+
+    private fun daysJson(days: List<Day>) = org.json.JSONArray().apply {
+        days.forEach { put(JSONObject().put("d", it.date).put("c", it.code).put("hi", it.max).put("lo", it.min)) }
+    }
+
+    private fun daysFrom(a: org.json.JSONArray?): List<Day> =
+        if (a == null) emptyList() else List(a.length()) { a.getJSONObject(it).let { o -> Day(o.getString("d"), o.getInt("c"), o.getDouble("hi"), o.getDouble("lo")) } }
+
+    /** Температура без знака градуса — для виджетов. */
+    fun degrees(t: Double, units: String, country: String): String {
+        val f = fahrenheit(units, country)
+        val r = (if (f) t * 9 / 5 + 32 else t).roundToInt()
+        return if (r < 0) "−" + (-r) else r.toString()
     }
 
     /** WMO-код погоды → вид значка. */
@@ -79,7 +100,7 @@ object Weather {
 
     fun cached(context: Context): Now? = runCatching {
         val o = JSONObject(Look.prefs(context).getString(CACHE, null) ?: return null)
-        Now(o.getDouble("t"), o.getInt("code"), o.optBoolean("day", true), o.optString("place"), o.getLong("at"), o.optString("country"))
+        Now(o.getDouble("t"), o.getInt("code"), o.optBoolean("day", true), o.optString("place"), o.getLong("at"), o.optString("country"), daysFrom(o.optJSONArray("days")))
     }.getOrNull()
 
     /** В фоне, если кэш старше получаса (или [force]); [done] — на главном потоке. */
@@ -88,7 +109,7 @@ object Weather {
         val sp = Look.prefs(app)
         if (!sp.getBoolean(SHOW, true)) return
         val have = cached(app)
-        if (!force && have != null && System.currentTimeMillis() - have.at < FRESH) {
+        if (!force && have != null && have.days.isNotEmpty() && System.currentTimeMillis() - have.at < FRESH) {
             done(have)
             return
         }
@@ -98,7 +119,7 @@ object Weather {
                 sp.edit().putString(
                     CACHE,
                     JSONObject().put("t", fresh.temperature).put("code", fresh.code).put("day", fresh.day)
-                        .put("place", fresh.place).put("at", fresh.at).put("country", fresh.country).toString(),
+                        .put("place", fresh.place).put("at", fresh.at).put("country", fresh.country).put("days", daysJson(fresh.days)).toString(),
                 ).apply()
             }
             main.post { done(fresh ?: have) }
@@ -127,10 +148,16 @@ object Weather {
         val place = location(context) ?: return null
         val o = get(
             "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}" +
-                "&current=temperature_2m,weather_code,is_day&timezone=auto",
+                "&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&timezone=auto",
         )
         val c = o.getJSONObject("current")
-        return Now(c.getDouble("temperature_2m"), c.getInt("weather_code"), c.optInt("is_day", 1) == 1, place.name, System.currentTimeMillis(), place.country)
+        val days = o.optJSONObject("daily")?.let { d ->
+            val t = d.getJSONArray("time")
+            List(t.length()) { i ->
+                Day(t.getString(i), d.getJSONArray("weather_code").optInt(i), d.getJSONArray("temperature_2m_max").optDouble(i), d.getJSONArray("temperature_2m_min").optDouble(i))
+            }
+        } ?: emptyList()
+        return Now(c.getDouble("temperature_2m"), c.getInt("weather_code"), c.optInt("is_day", 1) == 1, place.name, System.currentTimeMillis(), place.country, days)
     }
 
     private fun get(url: String): JSONObject {

@@ -18,6 +18,12 @@ interface DeskHost {
     fun openTasks()
     /** Долгое нажатие на элемент стола: меню правки (размер, порядок, настройки, удалить). */
     fun editItem(item: Desk.Item, from: View)
+    /** Разрешение для виджета: спросить и, если дали, [then]. */
+    fun ask(permission: String, then: () -> Unit)
+    /** Выбрать фото (системный выбор с сохранением доступа). */
+    fun pickImages(then: (List<android.net.Uri>) -> Unit)
+    /** Настройки этого виджета (Customizer → страница виджета). */
+    fun editOptions(item: Desk.Item)
 }
 
 /**

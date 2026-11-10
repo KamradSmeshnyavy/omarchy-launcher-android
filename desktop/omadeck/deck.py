@@ -1283,6 +1283,71 @@ def weather_location():
             "country": country if re.fullmatch(r"[A-Za-z]{2}", country) else ""}
 
 
+def _cpu_times():
+    try:
+        with open("/proc/stat") as file:
+            parts = [int(x) for x in file.readline().split()[1:]]
+        idle = parts[3] + (parts[4] if len(parts) > 4 else 0)
+        return sum(parts), idle
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def system_stats(sample=0.25, root="/"):
+    """Процессор (за [sample] с), память, батарея и температура компьютера, из /proc и /sys."""
+    found = {"name": socket.gethostname()}
+    first = _cpu_times()
+    time.sleep(sample)
+    second = _cpu_times()
+    if first and second and second[0] > first[0]:
+        busy = 1 - (second[1] - first[1]) / (second[0] - first[0])
+        found["cpu"] = round(max(0.0, min(1.0, busy)) * 100)
+    try:
+        info = {}
+        with open("/proc/meminfo") as file:
+            for line in file:
+                key, _, value = line.partition(":")
+                info[key] = int(value.split()[0])
+        found["memory"] = round((1 - info["MemAvailable"] / info["MemTotal"]) * 100)
+    except (OSError, ValueError, KeyError, ZeroDivisionError):
+        pass
+    supply = os.path.join(root, "sys/class/power_supply")
+    try:
+        for entry in sorted(os.listdir(supply)):
+            if not entry.startswith("BAT"):
+                continue
+            with open(os.path.join(supply, entry, "capacity")) as file:
+                found["battery"] = int(file.read().strip())
+            try:
+                with open(os.path.join(supply, entry, "status")) as file:
+                    found["charging"] = file.read().strip() in ("Charging", "Full")
+            except OSError:
+                pass
+            break
+    except (OSError, ValueError):
+        pass
+    hottest = None
+    thermal = os.path.join(root, "sys/class/thermal")
+    try:
+        for entry in os.listdir(thermal):
+            if not entry.startswith("thermal_zone"):
+                continue
+            try:
+                with open(os.path.join(thermal, entry, "type")) as file:
+                    kind = file.read().strip()
+                with open(os.path.join(thermal, entry, "temp")) as file:
+                    value = int(file.read().strip()) / 1000
+            except (OSError, ValueError):
+                continue
+            if kind in ("x86_pkg_temp", "TCPU", "cpu-thermal", "k10temp", "acpitz") and 0 < value < 130:
+                hottest = value if hottest is None else max(hottest, value)
+    except OSError:
+        pass
+    if hottest is not None:
+        found["temperature"] = round(hottest)
+    return found
+
+
 THEME_ID = re.compile(r"[A-Za-z0-9._-]{1,80}")
 PICTURE = (".png", ".jpg", ".jpeg", ".webp", ".gif")
 
@@ -1602,6 +1667,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.reply(200, {"media": session.playing(), "volume": session.volume(), **session.toggles(), "look": look_stamp()})
         elif method == "GET" and path == "/v1/look":
             self.reply(200, current_look())
+        elif method == "GET" and path == "/v1/stats":
+            self.reply(200, system_stats())
         elif method == "GET" and path == "/v1/weather":
             location = weather_location()
             if location is None:

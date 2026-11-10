@@ -132,6 +132,22 @@ class BackgroundsTest(Sandbox):
         self.assertEqual(deck.weather_location(), {"name": "Moscow", "latitude": 55.75, "longitude": 37.62, "source": "omarchy", "country": ""})
 
 
+class StatsTest(Sandbox):
+    def test_battery_and_temperature_from_sys(self):
+        bat = os.path.join(self.root, "sys/class/power_supply/BAT0")
+        zone = os.path.join(self.root, "sys/class/thermal/thermal_zone3")
+        os.makedirs(bat)
+        os.makedirs(zone)
+        self.write(os.path.join(bat, "capacity"), "57\n")
+        self.write(os.path.join(bat, "status"), "Discharging\n")
+        self.write(os.path.join(zone, "type"), "x86_pkg_temp\n")
+        self.write(os.path.join(zone, "temp"), "61000\n")
+        found = deck.system_stats(sample=0.01, root=self.root)
+        self.assertEqual((found["battery"], found["charging"], found["temperature"]), (57, False, 61))
+        self.assertIn("memory", found)
+        self.assertTrue(0 <= found.get("cpu", 0) <= 100)
+
+
 def card(ident, text, column, t, p, rank=None):
     c = {"id": ident, "text": text, "column": column, "textStamp": t, "placeStamp": p}
     if rank is not None:

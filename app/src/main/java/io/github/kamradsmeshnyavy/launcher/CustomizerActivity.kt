@@ -99,6 +99,8 @@ class CustomizerActivity : LookActivity() {
             page == WEATHER -> weather()
             page == BAR -> barPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
+            page.startsWith(ADD) -> addWidget(page.removePrefix(ADD).toIntOrNull() ?: 0)
+            page.startsWith(ITEM) -> itemOptions(page.removePrefix(ITEM))
         }
     }
 
@@ -455,6 +457,132 @@ class CustomizerActivity : LookActivity() {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    // --- Виджеты: выбор и настройки ----------------------------------------------------------------
+
+    /** Хост для превью: ничего не делает. */
+    private val previewHost = object : io.github.kamradsmeshnyavy.launcher.ui.desk.DeskHost {
+        override fun launch(entry: io.github.kamradsmeshnyavy.launcher.core.Entry, from: View) = Unit
+        override fun menu(entry: io.github.kamradsmeshnyavy.launcher.core.Entry, from: View) = Unit
+        override fun openShade() = Unit
+        override fun orderFavorites(keys: List<String>) = Unit
+        override fun closeMenu() = Unit
+        override fun openTasks() = Unit
+        override fun editItem(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item, from: View) = Unit
+        override fun ask(permission: String, then: () -> Unit) = Unit
+        override fun pickImages(then: (List<android.net.Uri>) -> Unit) = Unit
+        override fun editOptions(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item) = Unit
+    }
+
+    private fun addWidget(space: Int) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val catalog = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog
+        column.addView(heading(getString(R.string.desk_add_widget), getString(R.string.desk_add_widget_sub)))
+        val width = resources.displayMetrics.widthPixels - dp(48)
+        fun add(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item) {
+            desk.add(this, space, item)
+            toast(getString(R.string.desk_added))
+            finish()
+        }
+        catalog.GROUPS.forEach { group ->
+            column.addView(mono(getString(group).uppercase(), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(26); bottomMargin = dp(8) })
+            catalog.all.filter { it.group == group }.forEach { spec ->
+                val (w, h) = spec.sizes.first()
+                val probe = io.github.kamradsmeshnyavy.launcher.core.Desk.Item("preview-" + spec.type, "widget", spec.type, w = w, h = h)
+                val previewH = (width.toFloat() / 4 * h * 1.15f * (4f / w).coerceAtMost(1.6f)).toInt().coerceIn(dp(72), dp(260))
+                val frame = android.widget.FrameLayout(this)
+                runCatching { spec.make(this, probe, previewHost) }.getOrNull()?.let { widget ->
+                    widget.fixedHeight = true
+                    frame.addView(widget, io.github.kamradsmeshnyavy.launcher.ui.lp(if (w >= 4) MATCH else (width * w / 4f * 1.4f).toInt().coerceAtMost(width), previewH))
+                    widget.onClock(false)
+                    widget.onBattery(87, false)
+                    widget.onWeather(io.github.kamradsmeshnyavy.launcher.core.Weather.cached(this))
+                }
+                // Поверх — прозрачная «кнопка»: превью не нажимается само.
+                frame.addView(View(this).apply {
+                    background = io.github.kamradsmeshnyavy.launcher.ui.ripple(dp(22f))
+                    setOnClickListener { add(io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("w"), "widget", spec.type, w = w, h = h)) }
+                }, io.github.kamradsmeshnyavy.launcher.ui.lp(MATCH, previewH))
+                column.addView(frame, llp(MATCH, previewH))
+                column.addView(text(getString(spec.title), 14f, Nihil.INK, Nihil.fonts(this).sans), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                column.addView(mono(spec.sizes.joinToString("  ") { "${it.first}×${it.second}" }, 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { bottomMargin = dp(16) })
+            }
+        }
+        column.addView(mono(getString(R.string.wg_apps).uppercase(), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(26); bottomMargin = dp(8) })
+        column.addView(settingRow(getString(R.string.w_favourites), null, chevron()) { add(io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("f"), "favourites", w = 4, h = 3)) })
+        column.addView(settingRow(getString(R.string.w_app_widgets), getString(R.string.w_app_widgets_sub), chevron()) {
+            setResult(RESULT_OK, Intent().putExtra("appwidget", space))
+            startActivity(Intent(this, LauncherActivity::class.java).setAction(ACTION_PICK_APP_WIDGET).putExtra("space", space).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            finish()
+        })
+    }
+
+    private fun itemOptions(id: String) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val catalog = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog
+        val (_, item) = desk.find(this, id) ?: run {
+            finish()
+            return
+        }
+        val spec = catalog.spec(item.type)
+        column.addView(heading(spec?.title?.let { getString(it) } ?: getString(R.string.desk_options), getString(R.string.desk_options_sub)))
+        val opts = listOf(catalog.VOICE) + (spec?.options ?: emptyList())
+        fun save() = desk.save(this)
+        opts.forEach { opt ->
+            val label = getString(opt.title)
+            when (opt.type) {
+                "enum" -> {
+                    val current = item.options.optString(opt.key, opt.default.toString())
+                    column.addView(settingRow(label, null, null, rule = false, onClick = null))
+                    column.addView(Choice(this, opt.values.map { tr(getString(resources.getIdentifier("wv_$it", "string", packageName).takeIf { r -> r != 0 } ?: R.string.wv_auto)) }, opt.values.indexOf(current).coerceAtLeast(0)) {
+                        item.options.put(opt.key, opt.values[it])
+                        save()
+                    }, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+                    column.addView(rule(), llp(MATCH, dp(1)))
+                }
+                "bool" -> {
+                    val toggle = Toggle(this)
+                    toggle.set(item.options.optBoolean(opt.key, opt.default as? Boolean ?: false))
+                    toggle.onChange = {
+                        item.options.put(opt.key, it)
+                        save()
+                    }
+                    column.addView(settingRow(label, null, toggle) { toggle.performClick() })
+                }
+                "num" -> {
+                    val value = item.options.optDouble(opt.key, (opt.default as? Double) ?: opt.min)
+                    column.addView(settingRow(label, null, null, rule = false, onClick = null))
+                    column.addView(LedSlider(this, opt.min, opt.max, if (opt.max - opt.min > 200) 500.0 else 1.0, value) {
+                        item.options.put(opt.key, it)
+                        save()
+                    }, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+                    column.addView(rule(), llp(MATCH, dp(1)))
+                }
+                else -> {
+                    // text / date: поле ввода; дата — ГГГГ-ММ-ДД.
+                    column.addView(settingRow(label, if (opt.type == "date") "2026-12-31" else null, null, rule = false, onClick = null))
+                    column.addView(EditText(this).apply {
+                        setText(item.options.optString(opt.key, opt.default.toString()))
+                        setTextColor(Nihil.INK)
+                        setHintTextColor(Nihil.MUTED)
+                        typeface = Nihil.fonts(context).mono
+                        setSingleLine()
+                        background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+                        setPadding(dp(14), dp(12), dp(14), dp(12))
+                        if (opt.type == "date") inputType = InputType.TYPE_CLASS_DATETIME or InputType.TYPE_DATETIME_VARIATION_DATE
+                        addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                            override fun afterTextChanged(s: Editable?) {
+                                item.options.put(opt.key, s?.toString()?.trim().orEmpty())
+                                save()
+                            }
+                        })
+                    }, llp(MATCH, WRAP).apply { bottomMargin = dp(14) })
                 }
             }
         }
@@ -844,7 +972,10 @@ class CustomizerActivity : LookActivity() {
         const val WALLPAPERS = "wallpapers"
         const val WEATHER = "weather"
         const val BAR = "bar"
+        const val ADD = "add:"
+        const val ITEM = "item:"
         const val TABLE = "table:"
+        const val ACTION_PICK_APP_WIDGET = "io.github.kamradsmeshnyavy.launcher.PICK_APP_WIDGET"
 
         fun intent(context: Context, page: String = HOME): Intent =
             Intent(context, CustomizerActivity::class.java).putExtra(PAGE, page)

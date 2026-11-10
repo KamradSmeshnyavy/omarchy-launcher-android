@@ -429,21 +429,43 @@ class LauncherActivity :
 
     // --- Рабочие столы ---------------------------------------------------------------
 
-    private fun addWidget(x: Float, y: Float) {
-        val space = home.page
-        val items = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog.all.map { spec ->
-            AppMenu.Item(LineIcon.Shape.PLUS, getString(spec.title)) {
-                val (w, h) = spec.sizes.first()
-                io.github.kamradsmeshnyavy.launcher.core.Desk.add(this, space,
-                    io.github.kamradsmeshnyavy.launcher.core.Desk.Item(io.github.kamradsmeshnyavy.launcher.core.Desk.newId("w"), "widget", spec.type, w = w, h = h))
-                home.rebuild()
-            }
-        } + AppMenu.Item(LineIcon.Shape.PLUS, getString(R.string.w_favourites)) {
-            io.github.kamradsmeshnyavy.launcher.core.Desk.add(this, space,
-                io.github.kamradsmeshnyavy.launcher.core.Desk.Item(io.github.kamradsmeshnyavy.launcher.core.Desk.newId("f"), "favourites", w = 4, h = 3))
-            home.rebuild()
+    private fun addWidget(@Suppress("UNUSED_PARAMETER") x: Float, @Suppress("UNUSED_PARAMETER") y: Float) {
+        startActivity(CustomizerActivity.intent(this, CustomizerActivity.ADD + home.page))
+    }
+
+    // --- Для виджетов: разрешения, фото, настройки ----------------------------------------
+
+    private val asked = HashMap<Int, () -> Unit>()
+    private var askCode = 100
+
+    override fun ask(permission: String, then: () -> Unit) {
+        if (checkSelfPermission(permission) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            then()
+            return
         }
-        popup.show(anchor = root, title = getString(R.string.desk_add_widget), point = x.toInt() to y.toInt(), items = items)
+        val code = askCode++
+        asked[code] = then
+        requestPermissions(arrayOf(permission), code)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val then = asked.remove(requestCode) ?: return
+        if (grantResults.firstOrNull() == android.content.pm.PackageManager.PERMISSION_GRANTED) then()
+    }
+
+    private var picked: ((List<android.net.Uri>) -> Unit)? = null
+
+    override fun pickImages(then: (List<android.net.Uri>) -> Unit) {
+        picked = then
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
+            .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+        @Suppress("DEPRECATION")
+        runCatching { startActivityForResult(intent, REQUEST_IMAGES) }
+    }
+
+    override fun editOptions(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item) {
+        startActivity(CustomizerActivity.intent(this, CustomizerActivity.ITEM + item.id))
     }
 
     /** Все элементы этого стола: выбрать, какой править (так правится и избранное). */
@@ -493,6 +515,7 @@ class LauncherActivity :
             home.rebuild()
         }
         val items = ArrayList<AppMenu.Item>()
+        if (item.kind == "widget" || item.kind == "appwidget") items += AppMenu.Item(LineIcon.Shape.SETTINGS, getString(R.string.desk_options)) { editOptions(item) }
         if (sizes.size > 1) items += AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_size)) {
             popup.show(anchor = from, title = getString(R.string.desk_size), items = sizes.map { (w, h) ->
                 AppMenu.Item(LineIcon.Shape.CHECK, "$w × $h" + if (w == item.w && h == item.h) "  ●" else "") {
@@ -861,7 +884,23 @@ class LauncherActivity :
         home.updateAlarm(nextAlarmText()?.let { getString(R.string.alarm_next, it) })
     }
 
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGES) {
+            val then = picked ?: return
+            picked = null
+            if (resultCode != RESULT_OK || data == null) return
+            val uris = ArrayList<android.net.Uri>()
+            data.clipData?.let { clip -> for (i in 0 until clip.itemCount) uris += clip.getItemAt(i).uri }
+            data.data?.let { if (it !in uris) uris += it }
+            uris.forEach { runCatching { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) } }
+            if (uris.isNotEmpty()) then(uris)
+        }
+    }
+
     private companion object {
+        const val REQUEST_IMAGES = 41
         const val DAY = 24L * 60 * 60 * 1000
         const val DEFAULT_WALLPAPER = "wallpapers/night.jpg"
     }
