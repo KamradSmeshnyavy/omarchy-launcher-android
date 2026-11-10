@@ -21,6 +21,12 @@ class Workspaces(context: Context) : ViewGroup(context) {
     var page = 0
         private set
 
+    /**
+     * false — касания ведёт не сам пейджер, а родитель (домашний экран: RootLayout делит
+     * жесты между ящиком, шторкой и столами), через [beginDrag]/[dragBy]/[release].
+     */
+    var ownTouch = true
+
     private val slop = ViewConfiguration.get(context).scaledTouchSlop
     private val fling = ViewConfiguration.get(context).scaledMinimumFlingVelocity * 4
     private var downX = 0f
@@ -64,7 +70,30 @@ class Workspaces(context: Context) : ViewGroup(context) {
         if (changed) onPage?.invoke(target)
     }
 
+    fun beginDrag() {
+        animator?.cancel()
+        animator = null
+        startScroll = scrollX
+    }
+
+    fun dragBy(dx: Float) {
+        val max = (childCount - 1).coerceAtLeast(0) * width
+        scrollTo((startScroll - dx).roundToInt().coerceIn(0, max), 0)
+    }
+
+    fun release(vx: Float) {
+        val nearest = if (width > 0) (scrollX.toFloat() / width).roundToInt() else page
+        show(
+            when {
+                vx < -fling -> page + 1
+                vx > fling -> page - 1
+                else -> nearest
+            },
+        )
+    }
+
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        if (!ownTouch) return false
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 downX = ev.x
@@ -82,6 +111,7 @@ class Workspaces(context: Context) : ViewGroup(context) {
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
+        if (!ownTouch) return false
         track(ev)
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {

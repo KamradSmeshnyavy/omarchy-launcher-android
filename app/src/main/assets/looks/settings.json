@@ -10,12 +10,6 @@
      "section": "General"
     },
     {
-     "key": "desktopWidgets",
-     "type": "bool",
-     "default": true,
-     "label": "Desktop widgets: on / off (off — none of them is drawn)"
-    },
-    {
      "key": "widgetStyle",
      "type": "enum",
      "values": [
@@ -268,6 +262,15 @@
      "step": 0.05,
      "default": 0.94,
      "label": "Background dim"
+    },
+    {
+     "key": "deskLayout",
+     "type": "enum",
+     "values": [
+      "stack",
+      "grid"
+     ],
+     "label": "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)"
     },
     {
      "key": "drawerSkin",

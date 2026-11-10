@@ -59,11 +59,43 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         }
     })
 
+    /** Рабочие столы: горизонтальный свайп на домашнем экране листает их. */
+    interface Pager {
+        val pageCount: Int
+        fun beginDrag()
+        fun dragBy(dx: Float)
+        fun release(vx: Float)
+    }
+
+    var pager: Pager? = null
+
+    /** true — жесты не перехватываются (виджет перетаскивают по столу). */
+    var locked = false
+
+    private var paging = false
+
+    /**
+     * Пустое ли место под (rawX, rawY): там долгое нажатие — меню домашнего экрана, двойное
+     * касание — блокировка, даже если касание забрала прокручиваемая страница стола.
+     */
+    var blankAt: ((Float, Float) -> Boolean)? = null
+    private var blankDown = false
+    private var fedDown = false
+
     /** Minimum fling speed, in px/s, for a release to decide the direction. */
     val flingVelocity: Float get() = fling
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        if (locked) return false
         track(ev)
+        val onHomeNow = listener.progress <= 0.001f
+        if (ev.actionMasked == MotionEvent.ACTION_DOWN) {
+            blankDown = onHomeNow && (blankAt?.invoke(ev.rawX, ev.rawY) ?: false)
+            fedDown = blankDown
+            if (blankDown) detector.onTouchEvent(ev)
+        } else if (blankDown && onHomeNow && !dragging && !spent && !paging) {
+            detector.onTouchEvent(ev)
+        }
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 begin(ev)
@@ -74,15 +106,51 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
                     startDrag(ev)
                 }
             }
-            MotionEvent.ACTION_MOVE -> if (!dragging && !spent && wantsDrag(ev)) start(ev)
+            MotionEvent.ACTION_MOVE -> when {
+                paging -> Unit
+                !dragging && !spent && wantsPage(ev) -> startPaging(ev)
+                !dragging && !spent && wantsDrag(ev) -> start(ev)
+            }
         }
-        return dragging || spent
+        return dragging || spent || paging
+    }
+
+    private fun wantsPage(ev: MotionEvent): Boolean {
+        val p = pager ?: return false
+        if (p.pageCount < 2 || listener.progress > 0.001f) return false
+        val dx = ev.x - downX
+        val dy = ev.y - downY
+        return abs(dx) > slop && abs(dx) > abs(dy) * 1.2f
+    }
+
+    private fun startPaging(ev: MotionEvent) {
+        paging = true
+        downX = ev.x
+        cancelDetector(ev)
+        pager?.beginDrag()
+        parent?.requestDisallowInterceptTouchEvent(true)
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
+        if (locked) return false
         track(ev)
+        if (paging || (ev.actionMasked == MotionEvent.ACTION_MOVE && !dragging && !spent && wantsPage(ev))) {
+            if (!paging) startPaging(ev)
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_MOVE -> pager?.dragBy(ev.x - downX)
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    val t = tracker
+                    t?.computeCurrentVelocity(1000)
+                    pager?.release(t?.xVelocity ?: 0f)
+                    paging = false
+                    end()
+                }
+            }
+            return true
+        }
         val onHome = listener.progress <= 0.001f
-        if (onHome && !dragging && !spent) detector.onTouchEvent(ev)
+        val already = ev.actionMasked == MotionEvent.ACTION_DOWN && fedDown
+        if (onHome && !dragging && !spent && !already) detector.onTouchEvent(ev)
         when (ev.actionMasked) {
             // Already dragging if the down caught an animation in onInterceptTouchEvent.
             MotionEvent.ACTION_DOWN -> if (!dragging) begin(ev)
@@ -165,6 +233,7 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
     }
 
     private fun end() {
+        paging = false
         dragging = false
         spent = false
         tracker?.recycle()

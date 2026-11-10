@@ -48,7 +48,7 @@ TABLES = {
     },
     # Виджеты рабочего стола: на телефоне есть часы, «сейчас играет» и todo (доска deck).
     "WIDGET_TWEAKS": {
-        "edgeHover", "edgeMargin", "screens", "clockAnchor", "mediaAnchor", "visualizer",
+        "desktopWidgets", "edgeHover", "edgeMargin", "screens", "clockAnchor", "mediaAnchor", "visualizer",
         "visualizerStyle", "visualizerBars", "visualizerHeight", "visualizerAlpha", "visualizerIdle",
         "sysinfo", "sysinfoAnchor", "network", "networkAnchor", "todoAnchor", "quote", "quoteAnchor",
         "photo", "photoAnchor", "photoDir", "photoInterval",
@@ -58,6 +58,8 @@ TABLES = {
 # Строки, которых нет в Customizer, но есть у телефона: (таблица, строка, перевод подписи и значений).
 EXTRA_ITEMS = {
     "LAUNCHER_TWEAKS": [
+        {"key": "deskLayout", "type": "enum", "values": ["stack", "grid"],
+         "label": "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)"},
         {"key": "drawerSkin", "type": "enum", "values": ["grid", "compact", "list", "dotmatrix"],
          "label": "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)"},
     ],
@@ -65,7 +67,9 @@ EXTRA_ITEMS = {
 EXTRA_RU = {
     "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)":
         "Скин ящика (grid — как в NIHIL, compact — плотнее, list — списком, dotmatrix — моно-значки и имена точками)",
-    "grid": "сетка", "compact": "плотно", "list": "список",
+    "grid": "сетка", "compact": "плотно", "list": "список", "stack": "стопка",
+    "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)":
+        "Раскладка столов (стопка — карточки сверху вниз, сетка — клетки, как в лаунчерах Android)",
 }
 
 # Что из стиля нужно лаунчеру.

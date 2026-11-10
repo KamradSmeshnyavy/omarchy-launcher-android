@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Рабочие столы и виджеты -->
+<resources>
+    <string name="desk_add_widget">Add a widget</string>
+    <string name="desk_new_space">New desk</string>
+    <string name="desk_size">Size</string>
+    <string name="desk_move">Move</string>
+    <string name="desk_to_space">To another desk</string>
+    <string name="desk_remove">Remove from the desk</string>
+    <string name="w_clock_card">Clock card</string>
+    <string name="w_media_card">Now playing</string>
+    <string name="w_todo">To-do</string>
+    <string name="w_favourites">Favourites</string>
+    <string name="wg_time">Time and date</string>
+    <string name="wg_weather">Weather and battery</string>
+    <string name="wg_media">Media and photos</string>
+    <string name="wg_work">Productivity and computer</string>
+    <string name="wg_nothing">Tools</string>
+    <string name="wg_apps">Apps</string>
+    <string name="desk_edit_items">Widgets on this desk</string>
+</resources>

@@ -135,6 +135,8 @@ class LauncherActivity :
         setContentView(root)
 
         root.scrollableAt = { x, y, dy -> home.favoritesScrollAt(x, y, dy) }
+        root.pager = home
+        root.blankAt = { x, y -> home.blankAt(x, y) }
         root.setOnApplyWindowInsetsListener { _, insets ->
             applyInsets(insets)
             insets
@@ -186,6 +188,7 @@ class LauncherActivity :
     override fun onResume() {
         super.onResume()
         resumed = true
+        home.rebuildIfStale()
         updateHomeShowing()
         home.updateClock(animate = false)
         home.refreshTodo()
@@ -381,11 +384,117 @@ class LauncherActivity :
             title = getString(R.string.app_name),
             point = x.toInt() to y.toInt(),
             items = listOf(
+                AppMenu.Item(LineIcon.Shape.PLUS, getString(R.string.desk_add_widget)) { addWidget(x, y) },
+                AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_edit_items)) { editItems(x, y) },
+                AppMenu.Item(LineIcon.Shape.TASKS, getString(R.string.desk_new_space)) { newSpace() },
                 AppMenu.Item(LineIcon.Shape.IMAGE, getString(R.string.act_wallpaper)) { openStudio() },
                 AppMenu.Item(LineIcon.Shape.WEB, getString(R.string.web_add)) { addWeb() },
                 AppMenu.Item(LineIcon.Shape.SETTINGS, getString(R.string.act_nihil)) { openSettings() },
             ),
         )
+    }
+
+    // --- Рабочие столы ---------------------------------------------------------------
+
+    private fun addWidget(x: Float, y: Float) {
+        val space = home.page
+        val items = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog.all.map { spec ->
+            AppMenu.Item(LineIcon.Shape.PLUS, getString(spec.title)) {
+                val (w, h) = spec.sizes.first()
+                io.github.kamradsmeshnyavy.launcher.core.Desk.add(this, space,
+                    io.github.kamradsmeshnyavy.launcher.core.Desk.Item(io.github.kamradsmeshnyavy.launcher.core.Desk.newId("w"), "widget", spec.type, w = w, h = h))
+                home.rebuild()
+            }
+        } + AppMenu.Item(LineIcon.Shape.PLUS, getString(R.string.w_favourites)) {
+            io.github.kamradsmeshnyavy.launcher.core.Desk.add(this, space,
+                io.github.kamradsmeshnyavy.launcher.core.Desk.Item(io.github.kamradsmeshnyavy.launcher.core.Desk.newId("f"), "favourites", w = 4, h = 3))
+            home.rebuild()
+        }
+        popup.show(anchor = root, title = getString(R.string.desk_add_widget), point = x.toInt() to y.toInt(), items = items)
+    }
+
+    /** Все элементы этого стола: выбрать, какой править (так правится и избранное). */
+    private fun editItems(x: Float, y: Float) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val space = desk.state(this).spaces.getOrNull(home.page) ?: return
+        val catalog = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog
+        popup.show(anchor = root, title = getString(R.string.desk_edit_items), point = x.toInt() to y.toInt(),
+            items = space.items.sortedBy { it.order }.map { item ->
+                val name = when (item.kind) {
+                    "favourites" -> getString(R.string.w_favourites)
+                    "widget" -> catalog.spec(item.type)?.title?.let { getString(it) } ?: item.type
+                    "app" -> io.github.kamradsmeshnyavy.launcher.core.Apps.find(item.type)?.label ?: item.type
+                    else -> item.type
+                }
+                AppMenu.Item(LineIcon.Shape.CHEVRON, name) { root.post { editItem(item, root) } }
+            })
+    }
+
+    private fun newSpace() {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val index = desk.addSpace(this, (desk.state(this).spaces.size + 1).toString())
+        home.rebuild()
+        home.post { home.showPage(index) }
+    }
+
+    override fun editItem(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item, from: View) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val catalog = io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog
+        root.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
+        val state = desk.state(this)
+        val (spaceIndex, _) = desk.find(this, item.id) ?: return
+        val space = state.spaces[spaceIndex]
+        val grid = desk.layoutMode(this) == "grid"
+        val title = when (item.kind) {
+            "favourites" -> getString(R.string.w_favourites)
+            "widget" -> catalog.spec(item.type)?.title?.let { getString(it) } ?: item.type
+            else -> getString(R.string.app_name)
+        }
+        val sizes = when (item.kind) {
+            "favourites" -> listOf(4 to 3, 4 to 2, 4 to 4, 4 to 5)
+            "app" -> listOf(1 to 1)
+            else -> catalog.spec(item.type)?.sizes ?: listOf(item.w to item.h)
+        }
+        val changed = {
+            desk.save(this)
+            home.rebuild()
+        }
+        val items = ArrayList<AppMenu.Item>()
+        if (sizes.size > 1) items += AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_size)) {
+            popup.show(anchor = from, title = getString(R.string.desk_size), items = sizes.map { (w, h) ->
+                AppMenu.Item(LineIcon.Shape.CHECK, "$w × $h" + if (w == item.w && h == item.h) "  ●" else "") {
+                    io.github.kamradsmeshnyavy.launcher.core.Desk.Grid.resize(space.items, item, w, h)
+                    changed()
+                }
+            })
+        }
+        if (grid) {
+            items += AppMenu.Item(LineIcon.Shape.HOME, getString(R.string.desk_move)) { home.startMove(item, root) }
+        } else {
+            items += AppMenu.Item(LineIcon.Shape.UP, getString(R.string.menu_move_up)) {
+                desk.shift(space.items, item, -1)
+                changed()
+            }
+            items += AppMenu.Item(LineIcon.Shape.DOWN, getString(R.string.menu_move_down)) {
+                desk.shift(space.items, item, 1)
+                changed()
+            }
+        }
+        if (state.spaces.size > 1) items += AppMenu.Item(LineIcon.Shape.NEXT, getString(R.string.desk_to_space)) {
+            popup.show(anchor = from, title = getString(R.string.desk_to_space), items = state.spaces.indices.filter { it != spaceIndex }.map { i ->
+                AppMenu.Item(LineIcon.Shape.NEXT, state.spaces[i].name) {
+                    space.items.remove(item)
+                    desk.add(this, i, item)
+                    home.rebuild()
+                }
+            })
+        }
+        items += AppMenu.Item(LineIcon.Shape.TRASH, getString(R.string.desk_remove), danger = true) {
+            space.items.remove(item)
+            if (grid) io.github.kamradsmeshnyavy.launcher.core.Desk.Grid.compact(space.items)
+            changed()
+        }
+        popup.show(anchor = from, title = title, items = items)
     }
 
     // --- Apps --------------------------------------------------------------------

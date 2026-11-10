@@ -22,7 +22,7 @@
  "DOT-MATRIX: secondary text": "DOT-MATRIX: второстепенный текст",
  "DOT-MATRIX: signal (accent marks and indicators)": "DOT-MATRIX: сигнальный (акценты и индикаторы)",
  "DOT-MATRIX: text": "DOT-MATRIX: текст",
- "Desktop widgets: on / off (off — none of them is drawn)": "Виджеты рабочего стола: вкл / выкл (выкл — не рисуется ни один)",
+ "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)": "Раскладка столов (стопка — карточки сверху вниз, сетка — клетки, как в лаунчерах Android)",
  "Dot matrix": "Светодиодная матрица",
  "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)": "Скин ящика (grid — как в NIHIL, compact — плотнее, list — списком, dotmatrix — моно-значки и имена точками)",
  "General": "Общее",
@@ -67,5 +67,6 @@
  "default": "по умолчанию",
  "grid": "сетка",
  "list": "список",
- "off": "выкл"
+ "off": "выкл",
+ "stack": "стопка"
 }
