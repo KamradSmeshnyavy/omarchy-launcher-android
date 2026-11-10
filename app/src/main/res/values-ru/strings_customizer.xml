@@ -82,4 +82,43 @@
     <string name="studio_mode_plain">Как есть</string>
     <string name="studio_colours_hint">Цвета, гамма и незажжённые диоды: Customizer → Dotify</string>
     <string name="cz_follow_pc_unpaired">Сначала сопрягите компьютер: Настройки → Deck</string>
+    <string name="deck_link_confirm">Сопрячь с %1$s (%2$s)? Только если вы сейчас запустили на нём omadeck pair.</string>
+
+    <!-- Обои тем и погода -->
+    <string name="cz_walls">Обои тем</string>
+    <string name="cz_walls_sub">Обои текущей темы Omarchy — с компьютера</string>
+    <string name="cz_walls_page_sub">Обои приходят с сопряжённого компьютера (omadeck), обрезанные под этот экран: в приложение они не помещаются.</string>
+    <string name="cz_walls_unpaired">Сначала сопрягите компьютер: обои лежат на нём.</string>
+    <string name="cz_walls_follow">Обои вместе с темой</string>
+    <string name="cz_walls_follow_sub">Выбрали тему (стиль или пресет) — ставятся и её первые обои</string>
+    <string name="cz_walls_target">Куда</string>
+    <string name="cz_walls_fx">Как</string>
+    <string name="cz_walls_tap">Нажмите на обои, чтобы поставить.</string>
+    <string name="cz_walls_loading">Спрашиваю компьютер…</string>
+    <string name="cz_walls_offline">Компьютер не отвечает</string>
+    <string name="cz_walls_none">У этой темы нет обоев</string>
+    <string name="cz_walls_setting">Ставлю…</string>
+    <string name="cz_weather">Погода</string>
+    <string name="cz_weather_sub">В часах; нажатие открывает приложение погоды</string>
+    <string name="cz_weather_page_sub">Open-Meteo, без ключа и аккаунта. С телефона уходят только координаты.</string>
+    <string name="cz_weather_show">Погода в часах</string>
+    <string name="cz_weather_source">Место</string>
+    <string name="cz_weather_source_sub">Как у компьютера (погода Omarchy) или свой город</string>
+    <string name="cz_weather_from_pc">Компьютер</string>
+    <string name="cz_weather_from_city">Город</string>
+    <string name="cz_weather_city_hint">Город, например Москва</string>
+    <string name="cz_weather_units">Единицы</string>
+    <string name="cz_weather_auto">Авто</string>
+    <string name="cz_weather_app">Приложение погоды</string>
+    <string name="cz_weather_app_sub">Что открывается по нажатию на погоду</string>
+    <string name="cz_weather_app_auto">Автоматически</string>
+    <string name="cz_weather_check">Проверить сейчас</string>
+    <string name="cz_weather_failed">Нет погоды: не задано место или нет сети</string>
+    <string name="cz_weather_privacy">Погода — единственное, кроме вашего компьютера, с чем говорит лаунчер, и только пока она включена.</string>
+    <plurals name="cz_walls_count">
+        <item quantity="one">Обоев: %d</item>
+        <item quantity="few">Обоев: %d</item>
+        <item quantity="many">Обоев: %d</item>
+        <item quantity="other">Обоев: %d</item>
+    </plurals>
 </resources>

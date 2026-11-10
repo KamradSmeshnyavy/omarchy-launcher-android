@@ -108,8 +108,17 @@ class DeckScanActivity : LookActivity() {
         setContentView(root)
     }
 
+    /** Приглашение из ссылки omadeck://pair (omadeck pair печатает её под QR): без камеры. */
+    private val link: DeckClient.Invitation? by lazy {
+        intent?.data?.toString()?.let { DeckClient.Invitation.parse(it) }
+    }
+
     override fun onResume() {
         super.onResume()
+        link?.let { invitation ->
+            if (!done) confirm(invitation)
+            return
+        }
         if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             start()
         } else {
@@ -301,6 +310,25 @@ class DeckScanActivity : LookActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Ссылку мог подсунуть кто угодно: сопряжение — только после «Сопрячь», с именем и
+     * адресами компьютера на виду.
+     */
+    private fun confirm(invitation: DeckClient.Invitation) {
+        done = true
+        say(getString(R.string.deck_link_confirm, invitation.name, invitation.hosts.joinToString(", ")))
+        val bottom = status.parent as? LinearLayout ?: return
+        if (bottom.findViewWithTag<View>("pair") != null) return
+        bottom.addView(KeyButton(this, getString(R.string.deck_pair), accent = true).apply {
+            tag = "pair"
+            setOnClickListener {
+                visibility = View.GONE
+                done = false
+                found(invitation.uri)
+            }
+        }, 1, llp(WRAP, WRAP).apply { topMargin = dp(14) })
     }
 
     private fun say(message: String) {

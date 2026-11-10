@@ -95,6 +95,8 @@ class CustomizerActivity : LookActivity() {
             page == THEMES -> themes()
             page == PRESETS -> presets()
             page == FONTS -> fonts()
+            page == WALLPAPERS -> wallpapers()
+            page == WEATHER -> weather()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
         }
     }
@@ -157,6 +159,8 @@ class CustomizerActivity : LookActivity() {
             R.string.cz_desktop, R.string.cz_desktop_sub,
             listOf(
                 Triple(R.string.cz_themes, R.string.cz_themes_sub, THEMES),
+                Triple(R.string.cz_walls, R.string.cz_walls_sub, WALLPAPERS),
+                Triple(R.string.cz_weather, R.string.cz_weather_sub, WEATHER),
                 Triple(R.string.cz_widgets, R.string.cz_widgets_sub, TABLE + "WIDGET_TWEAKS"),
                 Triple(R.string.cz_dotify, R.string.cz_dotify_sub, TABLE + "DOTIFY_TWEAKS"),
                 Triple(R.string.cz_dotmatrix, R.string.cz_dotmatrix_sub, TABLE + "DOTMATRIX_TWEAKS"),
@@ -373,6 +377,177 @@ class CustomizerActivity : LookActivity() {
         table("PRESET_TWEAKS", withHeading = false)
     }
 
+    // --- Обои тем ------------------------------------------------------------------------------
+
+    private fun wallpapers() {
+        val look = Look.current(this)
+        val theme = look.theme
+        column.addView(heading(getString(R.string.cz_walls), getString(R.string.cz_walls_page_sub)))
+        if (!io.github.kamradsmeshnyavy.launcher.core.ThemeWalls.paired(this)) {
+            column.addView(body(getString(R.string.cz_walls_unpaired)), llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+            column.addView(KeyButton(this, getString(R.string.deck_pair), accent = true).apply {
+                setOnClickListener { startActivity(Intent(context, DeckActivity::class.java)) }
+            }, llp(WRAP, WRAP))
+            return
+        }
+        val sp = Look.prefs(this)
+        val walls = io.github.kamradsmeshnyavy.launcher.core.ThemeWalls
+        column.addView(switchRow(getString(R.string.cz_walls_follow), getString(R.string.cz_walls_follow_sub), sp.getBoolean(walls.FOLLOW, true)) {
+            sp.edit().putBoolean(walls.FOLLOW, it).apply()
+        })
+        fun choice(title: Int, key: String, values: List<String>, labels: List<Int>) {
+            column.addView(settingRow(getString(title), null, null, rule = false, onClick = null))
+            column.addView(Choice(this, labels.map { getString(it) }, values.indexOf(sp.getString(key, values.first())).coerceAtLeast(0)) {
+                sp.edit().putString(key, values[it]).apply()
+            }, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+            column.addView(rule(), llp(MATCH, dp(1)))
+        }
+        choice(R.string.cz_walls_target, walls.TARGET, listOf("both", "home", "lock"), listOf(R.string.apply_both, R.string.apply_home, R.string.apply_lock))
+        choice(R.string.cz_walls_fx, walls.FX, listOf("plain", "dotify", "recolor"), listOf(R.string.studio_mode_plain, R.string.studio_mode_dotify, R.string.studio_mode_recolor))
+
+        column.addView(heading(theme?.name ?: "—", getString(R.string.cz_walls_tap)))
+        val status = mono(getString(R.string.cz_walls_loading), 11f, Nihil.MUTED)
+        column.addView(status, llp(MATCH, WRAP).apply { bottomMargin = dp(10) })
+        val holder = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        column.addView(holder, llp(MATCH, WRAP))
+        val id = theme?.id ?: return
+        val tileW = (resources.displayMetrics.widthPixels - dp(62)) / 2
+        val tileH = tileW * 16 / 9
+        pool.execute {
+            val names = walls.list(this, id)
+            runOnUiThread {
+                if (isDestroyed) return@runOnUiThread
+                when {
+                    names == null -> status.text = getString(R.string.cz_walls_offline)
+                    names.isEmpty() -> status.text = getString(R.string.cz_walls_none)
+                    else -> {
+                        status.text = resources.getQuantityString(R.plurals.cz_walls_count, names.size, names.size)
+                        val add = grid(2, holder)
+                        names.forEach { name ->
+                            val image = android.widget.ImageView(this).apply {
+                                scaleType = android.widget.ImageView.ScaleType.CENTER_CROP
+                                background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+                                clipToOutline = true
+                                outlineProvider = object : android.view.ViewOutlineProvider() {
+                                    override fun getOutline(view: View, outline: android.graphics.Outline) =
+                                        outline.setRoundRect(0, 0, view.width, view.height, Nihil.corner(dp(12f)))
+                                }
+                            }
+                            val cell = LinearLayout(this).apply {
+                                orientation = LinearLayout.VERTICAL
+                                addView(image, llp(MATCH, tileH))
+                                addView(mono(name.substringBeforeLast('.'), 10f, Nihil.MUTED).apply { maxLines = 1 }, llp(MATCH, WRAP).apply { topMargin = dp(4) })
+                                setPadding(0, 0, 0, dp(14))
+                                setOnClickListener {
+                                    toast(getString(R.string.cz_walls_setting))
+                                    walls.execute {
+                                        val ok = walls.apply(context, id, name)
+                                        runOnUiThread { toast(getString(if (ok) R.string.studio_done else R.string.cz_walls_offline)) }
+                                    }
+                                }
+                            }
+                            add(cell)
+                            pool.execute {
+                                val bmp = walls.image(this, id, name, tileW / 2, tileH / 2)
+                                if (bmp != null) image.post { image.setImageBitmap(bmp) }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // --- Погода ---------------------------------------------------------------------------------
+
+    private fun weather() {
+        val w = io.github.kamradsmeshnyavy.launcher.core.Weather
+        val sp = Look.prefs(this)
+        column.addView(heading(getString(R.string.cz_weather), getString(R.string.cz_weather_page_sub)))
+        column.addView(switchRow(getString(R.string.cz_weather_show), null, sp.getBoolean(w.SHOW, true)) { sp.edit().putBoolean(w.SHOW, it).apply() })
+
+        val city = EditText(this).apply {
+            hint = getString(R.string.cz_weather_city_hint)
+            setHintTextColor(Nihil.MUTED)
+            setTextColor(Nihil.INK)
+            typeface = Nihil.fonts(context).sans
+            setSingleLine()
+            setText(sp.getString(w.CITY, ""))
+            background = rounded(Nihil.SURFACE, dp(12f), dp(1), Nihil.LINE)
+            setPadding(dp(14), dp(12), dp(14), dp(12))
+            imeOptions = android.view.inputmethod.EditorInfo.IME_ACTION_DONE
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(s: Editable?) {
+                    sp.edit().putString(w.CITY, s?.toString()?.trim().orEmpty()).apply()
+                }
+            })
+        }
+        val sources = listOf("computer", "city")
+        val cityBox = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(city, llp(MATCH, WRAP).apply { bottomMargin = dp(12) })
+            visibility = if (sp.getString(w.SOURCE, "computer") == "city") View.VISIBLE else View.GONE
+        }
+        column.addView(settingRow(getString(R.string.cz_weather_source), getString(R.string.cz_weather_source_sub), null, rule = false, onClick = null))
+        column.addView(Choice(this, listOf(getString(R.string.cz_weather_from_pc), getString(R.string.cz_weather_from_city)),
+            sources.indexOf(sp.getString(w.SOURCE, "computer")).coerceAtLeast(0)) {
+            sp.edit().putString(w.SOURCE, sources[it]).apply()
+            cityBox.visibility = if (it == 1) View.VISIBLE else View.GONE
+        }, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+        column.addView(cityBox, llp(MATCH, WRAP))
+        column.addView(rule(), llp(MATCH, dp(1)))
+
+        val units = listOf("auto", "c", "f")
+        column.addView(settingRow(getString(R.string.cz_weather_units), null, null, rule = false, onClick = null))
+        column.addView(Choice(this, listOf(getString(R.string.cz_weather_auto), "°C", "°F"), units.indexOf(sp.getString(w.UNITS, "auto")).coerceAtLeast(0)) {
+            sp.edit().putString(w.UNITS, units[it]).apply()
+        }, llp(WRAP, WRAP).apply { bottomMargin = dp(8) })
+        column.addView(rule(), llp(MATCH, dp(1)))
+
+        // Приложение по нажатию на погоду: автоматически (Pixel Weather, Breezy…) или своё.
+        io.github.kamradsmeshnyavy.launcher.core.Apps.init(this)
+        val chosen = sp.getString(w.APP, "").orEmpty()
+        val apps = io.github.kamradsmeshnyavy.launcher.core.Apps.visible(emptySet()).distinctBy { it.packageName }.sortedBy { it.label.lowercase() }
+        val current = apps.firstOrNull { it.packageName == chosen }?.label ?: getString(R.string.cz_weather_app_auto)
+        val list = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+            setPadding(dp(12), 0, 0, dp(8))
+        }
+        fun option(label: String, pkg: String) {
+            val on = pkg == chosen
+            list.addView(text((if (on) "● " else "   ") + label, 14f, if (on) Nihil.INK else Nihil.DIM, Nihil.fonts(this).sans).apply {
+                setPadding(0, dp(10), 0, dp(10))
+                setOnClickListener {
+                    sp.edit().putString(w.APP, pkg).apply()
+                    restart()
+                }
+            }, llp(MATCH, WRAP))
+        }
+        option(getString(R.string.cz_weather_app_auto), "")
+        apps.forEach { option(it.label, it.packageName) }
+        column.addView(settingRow(getString(R.string.cz_weather_app), getString(R.string.cz_weather_app_sub), mono(current, 11f, Nihil.DIM), rule = false) {
+            list.visibility = if (list.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        })
+        column.addView(list, llp(MATCH, WRAP))
+        column.addView(rule(), llp(MATCH, dp(1)))
+
+        val result = mono("", 11f, Nihil.DIM)
+        column.addView(KeyButton(this, getString(R.string.cz_weather_check)).apply {
+            setOnClickListener {
+                result.text = getString(R.string.cz_walls_loading)
+                w.refresh(context, force = true) { now ->
+                    result.text = if (now == null) getString(R.string.cz_weather_failed)
+                    else w.format(now, sp.getString(w.UNITS, "auto") ?: "auto") + " · " + now.place
+                }
+            }
+        }, llp(WRAP, WRAP).apply { topMargin = dp(18) })
+        column.addView(result, llp(MATCH, WRAP).apply { topMargin = dp(10) })
+        column.addView(body(getString(R.string.cz_weather_privacy)), llp(MATCH, WRAP).apply { topMargin = dp(16) })
+    }
+
     // --- Шрифты --------------------------------------------------------------------------------
 
     private fun fonts() {
@@ -578,6 +753,8 @@ class CustomizerActivity : LookActivity() {
                 }
                 into.addView(row, llp(MATCH, WRAP))
             }
+            // Фильтр в галерее тем кладёт те же плитки в новые строки: со старой их снимаем.
+            (cell.parent as? android.view.ViewGroup)?.removeView(cell)
             row!!.addView(cell, llp(0, WRAP, 1f).apply {
                 if (count % columns != 0) marginStart = dp(14)
             })
@@ -594,6 +771,8 @@ class CustomizerActivity : LookActivity() {
         const val THEMES = "themes"
         const val PRESETS = "presets"
         const val FONTS = "fonts"
+        const val WALLPAPERS = "wallpapers"
+        const val WEATHER = "weather"
         const val TABLE = "table:"
 
         fun intent(context: Context, page: String = HOME): Intent =

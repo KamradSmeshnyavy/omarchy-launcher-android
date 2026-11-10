@@ -12,7 +12,8 @@ around it: any Omarchy theme, eight more styles, Customizer's settings, a server
 (`omadeck`) and "follow the computer".
 
 No ads, no tracking, no account. Kotlin on the Android framework alone — no AndroidX, no
-Compose, no libraries. It talks to nothing but your own computer, and only once paired.
+Compose, no libraries. It talks to your own computer once paired, and to Open-Meteo for the
+weather while that is on — nothing else.
 
 ## What it has
 
@@ -29,7 +30,10 @@ Compose, no libraries. It talks to nothing but your own computer, and only once 
 - **Fonts as profiles.** stock, nothing, pixel, lumen, dots-all, paper, retro — DotMatrix
   Dot/Mono/Pixel/Lumen with Cyrillic.
 - **Home widgets.** The clock as `big`, `stacked`, `terminal` or `minimal`, 24-hour and
-  seconds; now playing (any player); the to-do list shared with the computer.
+  seconds; the weather in it (Open-Meteo, for the computer's place or a city of your own;
+  tap it for the weather app); now playing (any player); the to-do list shared with the computer.
+- **Theme wallpapers.** The current Omarchy theme's wallpapers, from the paired computer, cut
+  to the phone's screen — as they are, in LEDs or recoloured; optionally put on with the theme.
 - **Drawer skins.** grid (NIHIL's), compact, list, dotmatrix; Customizer's backdrop lets the
   wallpaper through.
 - **Glyph light.** NIHIL's light round the frame on notifications, calls and charging, in the
@@ -67,7 +71,11 @@ the gallery shows palette stripes.
 just server-install    # omadeck in ~/.local/bin, omadeck.service in systemd --user
 just server-firewall   # 64445/tcp in ufw for private networks (LAN, Tailscale)
 just server-pair       # the QR to scan: Settings → Computer → Pair
+omadeck pair --image   # the same QR as a picture
 ```
+
+The phone also pairs from the `omadeck://pair?…` link printed under the QR (opened on the
+phone, e.g. sent over KDE Connect), after asking.
 
 `omadeck` is NIHIL's `nihil-deck` (Python, standard library only) with an Omarchy adapter:
 apps from XDG through `uwsm-app`, `omarchy-launch-browser`, `omarchy-shell media`,
@@ -80,7 +88,7 @@ kept only as hashes. The protocol is in [docs/deck.md](docs/deck.md).
 
 | Permission | Why |
 |---|---|
-| `INTERNET` | Only the deck: the paired computer on your network. |
+| `INTERNET` | The deck (the paired computer on your network) and, when it is on, the weather from Open-Meteo (only coordinates are sent). |
 | `CAMERA` | Only to read the computer's pairing QR. |
 | `SET_WALLPAPER` | The studio and "follow the computer". |
 | `EXPAND_STATUS_BAR` | Swipe down opens the notification shade. |

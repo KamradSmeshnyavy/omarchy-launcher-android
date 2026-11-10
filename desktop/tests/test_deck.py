@@ -403,6 +403,34 @@ class ServerTest(Base):
         self.assertEqual(self.phone.request("POST", "/v1/night", {"action": "toggle"})[0], 503)
         self.assertNotIn("caffeine", self.phone.request("GET", "/v1/state")[1])
 
+    @unittest.skipUnless(shutil.which("magick"), "needs ImageMagick")
+    def test_theme_backgrounds_and_weather_over_https(self):
+        config = os.path.join(self.folder, "xdg-config")
+        state = os.path.join(self.folder, "xdg-state")
+        walls = os.path.join(config, "omarchy", "themes", "omadeck-test", "backgrounds")
+        os.makedirs(walls)
+        os.makedirs(os.path.join(state, "omarchy", "current"))
+        os.makedirs(os.path.join(state, "omarchy", "settings"))
+        with open(os.path.join(state, "omarchy", "current", "theme.name"), "w") as file:
+            file.write("omadeck-test")
+        with open(os.path.join(state, "omarchy", "settings", "weather.json"), "w") as file:
+            json.dump({"name": "Oslo", "latitude": 59.9, "longitude": 10.7}, file)
+        subprocess.run(["magick", "-size", "200x100", "xc:#5e81ac", os.path.join(walls, "1-fjord.png")], check=True)
+        for key, value in (("XDG_CONFIG_HOME", config), ("XDG_STATE_HOME", state), ("XDG_CACHE_HOME", os.path.join(self.folder, "cache"))):
+            old = os.environ.get(key)
+            os.environ[key] = value
+            self.addCleanup(lambda k=key, o=old: os.environ.__setitem__(k, o) if o is not None else os.environ.pop(k, None))
+        self.assertEqual(self.phone.request("GET", "/v1/backgrounds")[0], 401)
+        self.pair()
+        status, body = self.phone.request("GET", "/v1/backgrounds")
+        self.assertEqual((status, body), (200, {"theme": "omadeck-test", "current": True, "items": [{"name": "1-fjord.png"}]}))
+        status, picture = self.phone.request("GET", "/v1/backgrounds/image?theme=omadeck-test&name=1-fjord.png&w=90&h=160")
+        self.assertEqual(status, 200)
+        self.assertTrue(picture.startswith(b"\xff\xd8"))
+        self.assertEqual(self.phone.request("GET", "/v1/backgrounds/image?theme=omadeck-test&name=../../x&w=90&h=160")[0], 404)
+        self.assertEqual(self.phone.request("GET", "/v1/backgrounds/image?theme=omadeck-test&name=1-fjord.png&w=9&h=160")[0], 400)
+        self.assertEqual(self.phone.request("GET", "/v1/weather")[1]["name"], "Oslo")
+
     def test_icons(self):
         theme = os.path.join(self.folder, "share", "icons", "Test-Theme", "48x48", "apps")
         os.makedirs(theme)

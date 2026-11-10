@@ -42,6 +42,7 @@ object LookEdit {
     fun setTheme(context: Context, id: String?) {
         sp(context).edit().apply { if (id == null) remove(Look.THEME) else putString(Look.THEME, id) }.apply()
         Look.invalidate(context)
+        ThemeWalls.themeChanged(context, Look.current(context).theme?.id)
     }
 
     fun setFontProfile(context: Context, profile: String?) {
@@ -119,7 +120,9 @@ object LookEdit {
         }
         edit.putString(Look.STYLE, styleId)
         edit.apply()
+        val before = now.theme?.id
         Look.invalidate(context)
+        Look.current(context).theme?.id?.takeIf { it != before }?.let { ThemeWalls.themeChanged(context, it) }
     }
 
     // --- Свои пресеты -----------------------------------------------------------------
@@ -192,5 +195,6 @@ object LookEdit {
         if (now.bool("presetLook", true)) edit.remove(LOOK_FROM)
         edit.apply()
         Look.invalidate(context)
+        if (now.bool("presetWallpaper", true)) ThemeWalls.themeChanged(context, Look.current(context).theme?.id)
     }
 }

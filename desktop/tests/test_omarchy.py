@@ -95,6 +95,43 @@ class LookTest(Sandbox):
         self.assertIsNone(deck.wallpaper(90, 160, "magick"))
 
 
+class BackgroundsTest(Sandbox):
+    def test_own_first_then_the_themes(self):
+        own = os.path.join(self.omarchy, "backgrounds", "tokyo")
+        theirs = os.path.join(self.omarchy, "themes", "tokyo", "backgrounds")
+        os.makedirs(own)
+        os.makedirs(theirs)
+        for folder, name in ((own, "2-mine.png"), (theirs, "1-city.jpg"), (theirs, "2-mine.png"), (theirs, "notes.txt"), (theirs, ".hidden.png")):
+            self.write(os.path.join(folder, name), "x")
+        found = deck.backgrounds("tokyo")
+        self.assertEqual([n for n, _ in found], ["1-city.jpg", "2-mine.png"])
+        self.assertEqual(dict(found)["2-mine.png"], os.path.join(own, "2-mine.png"))
+
+    def test_no_way_out_of_the_theme(self):
+        for bad in ("..", "../..", "a/b", ".config", "", "x" * 200):
+            self.assertEqual(deck.backgrounds(bad), [], bad)
+
+    def test_current_theme(self):
+        self.write(os.path.join(self.current, "theme.name"), "nord\n")
+        self.assertEqual(deck.current_theme(), "nord")
+
+    @unittest.skipUnless(shutil.which("magick"), "needs ImageMagick")
+    def test_picture_is_cached(self):
+        source = os.path.join(self.root, "w.png")
+        subprocess.run(["magick", "-size", "300x100", "xc:#123456", source], check=True)
+        cache = os.path.join(self.root, "cache")
+        first = deck.fit_picture(source, 60, 120, "magick", cache)
+        self.assertTrue(first.startswith(b"\xff\xd8"))
+        self.assertEqual(len(os.listdir(cache)), 1)
+        self.assertEqual(deck.fit_picture(source, 60, 120, "magick", cache), first)
+
+    def test_weather_from_omarchy(self):
+        os.makedirs(os.path.join(self.root, "state", "omarchy", "settings"))
+        self.write(os.path.join(self.root, "state", "omarchy", "settings", "weather.json"),
+                   json.dumps({"name": "Moscow", "latitude": 55.75, "longitude": 37.62}))
+        self.assertEqual(deck.weather_location(), {"name": "Moscow", "latitude": 55.75, "longitude": 37.62, "source": "omarchy", "country": ""})
+
+
 def card(ident, text, column, t, p, rank=None):
     c = {"id": ident, "text": text, "column": column, "textStamp": t, "placeStamp": p}
     if rank is not None:

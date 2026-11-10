@@ -81,6 +81,19 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
     }
     private val day = context.mono(size = 12f, color = Nihil.DIM)
     private val date = context.text("", 14f, Nihil.MUTED)
+    // Погода (Customizer → Погода): значок, температура и место; нажатие — приложение погоды.
+    private val weatherIcon = ImageView(context)
+    private val weatherText = context.mono(size = 12f, color = Nihil.DIM)
+    private val weather = LinearLayout(context).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        visibility = View.GONE
+        setPadding(context.dp(6), context.dp(4), context.dp(8), context.dp(4))
+        background = ripple(context.dp(12f))
+        addView(weatherIcon, llp(context.dp(20), context.dp(20)))
+        addView(weatherText, llp(WRAP, WRAP).apply { marginStart = context.dp(8) })
+        setOnClickListener { runCatching { context.startActivity(io.github.kamradsmeshnyavy.launcher.core.Weather.intent(context)) } }
+    }
     private val gauge = LedGauge(context)
     private val battery = context.mono(size = 11f, color = Nihil.DIM)
     private val alarm = context.mono(size = 11f, color = Nihil.DIM)
@@ -131,6 +144,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
             card.addView(clock, llp(MATCH, WRAP))
             card.addView(day, llp(WRAP, WRAP).apply { topMargin = context.dp(6) })
             card.addView(date, llp(WRAP, WRAP).apply { topMargin = context.dp(4) })
+            card.addView(weather, llp(WRAP, WRAP).apply { topMargin = context.dp(6) })
             card.addView(context.rule(), llp(MATCH, context.dp(1)).apply {
                 topMargin = context.dp(16)
                 bottomMargin = context.dp(12)
@@ -201,6 +215,20 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context) 
     override fun onDetachedFromWindow() {
         removeCallbacks(ticker)
         super.onDetachedFromWindow()
+    }
+
+    fun updateWeather(now: io.github.kamradsmeshnyavy.launcher.core.Weather.Now?) {
+        val sp = io.github.kamradsmeshnyavy.launcher.core.Look.prefs(context)
+        if (now == null || !sp.getBoolean(io.github.kamradsmeshnyavy.launcher.core.Weather.SHOW, true)) {
+            weather.visibility = View.GONE
+            return
+        }
+        weather.visibility = View.VISIBLE
+        weatherIcon.setImageDrawable(WeatherIcon(now.kind, now.day, Nihil.INK))
+        val units = sp.getString(io.github.kamradsmeshnyavy.launcher.core.Weather.UNITS, "auto") ?: "auto"
+        weatherText.text = listOf(io.github.kamradsmeshnyavy.launcher.core.Weather.format(now, units), now.place)
+            .filter { it.isNotEmpty() }.joinToString(" · ")
+        weather.contentDescription = weatherText.text
     }
 
     fun refreshTodo() {

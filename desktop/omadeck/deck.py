@@ -1253,13 +1253,101 @@ def wallpaper(width, height, magick, paths=None):
     source = os.path.realpath(os.path.join(paths["current"], "background"))
     if not os.path.isfile(source):
         return None
+    return fit_picture(source, width, height, magick)
+
+
+def weather_location():
+    """Где компьютер смотрит погоду: ~/.local/state/omarchy/settings/weather.json
+    (omarchy-weather-location), а без него — geo.omarchy.org, как виджет Omarchy."""
+    state = home_dir("XDG_STATE_HOME", ".local/state")
+    found = _read_json(os.path.join(state, "omarchy", "settings", "weather.json"))
+    source = "omarchy"
+    if not found.get("latitude") and not found.get("longitude"):
+        try:
+            with urllib.request.urlopen(urllib.request.Request("https://geo.omarchy.org/", headers={"User-Agent": "omadeck"}), timeout=4) as answer:
+                found = json.loads(answer.read(4096))
+            source = "geo"
+        except (OSError, ValueError, urllib.error.URLError, http.client.HTTPException):
+            return None
+    try:
+        latitude, longitude = float(found["latitude"]), float(found["longitude"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+        return None
+    country = str(found.get("country") or "")
+    return {"name": str(found.get("name") or "")[:80], "latitude": latitude, "longitude": longitude, "source": source,
+            "country": country if re.fullmatch(r"[A-Za-z]{2}", country) else ""}
+
+
+THEME_ID = re.compile(r"[A-Za-z0-9._-]{1,80}")
+PICTURE = (".png", ".jpg", ".jpeg", ".webp", ".gif")
+
+
+def current_theme(paths=None):
+    paths = paths or omarchy_paths()
+    try:
+        with open(os.path.join(paths["current"], "theme.name")) as file:
+            return file.read().strip()
+    except OSError:
+        return ""
+
+
+def background_dirs(theme):
+    """Где лежат обои темы, как их ищет переключатель обоев Omarchy: свои
+    (~/.config/omarchy/backgrounds/ТЕМА), затем самой темы — своей и стоковой."""
+    config = home_dir("XDG_CONFIG_HOME", ".config")
+    return [os.path.join(config, "omarchy", "backgrounds", theme),
+            os.path.join(config, "omarchy", "themes", theme, "backgrounds"),
+            os.path.join("/usr/share/omarchy/themes", theme, "backgrounds")]
+
+
+def backgrounds(theme):
+    """Обои темы: [(имя, путь)], по имени; имя без каталогов, первое по порядку побеждает."""
+    if not THEME_ID.fullmatch(theme or "") or theme.startswith("."):
+        return []
+    found = {}
+    for folder in background_dirs(theme):
+        try:
+            names = sorted(os.listdir(folder))
+        except OSError:
+            continue
+        for name in names:
+            path = os.path.join(folder, name)
+            if name.lower().endswith(PICTURE) and not name.startswith(".") and os.path.isfile(path):
+                found.setdefault(name, path)
+    return sorted(found.items())
+
+
+def fit_picture(source, width, height, magick, cache=None):
+    """[source], обрезанная под width × height (cover), JPEG; кэш по пути, mtime и размеру."""
+    try:
+        stamp = os.stat(source).st_mtime_ns
+    except OSError:
+        return None
+    key = hashlib.sha256(f"{os.path.realpath(source)}:{stamp}:{width}x{height}".encode()).hexdigest()[:32]
+    cached = os.path.join(cache, key + ".jpg") if cache else None
+    if cached and os.path.isfile(cached):
+        with open(cached, "rb") as file:
+            return file.read()
     try:
         done = subprocess.run([magick, source + "[0]", "-auto-orient", "-resize", f"{width}x{height}^",
                                "-gravity", "center", "-extent", f"{width}x{height}", "-strip", "-quality", "88", "jpeg:-"],
                               stdin=subprocess.DEVNULL, capture_output=True, timeout=30)
     except (OSError, subprocess.SubprocessError):
         return None
-    return done.stdout if done.returncode == 0 and done.stdout else None
+    if done.returncode != 0 or not done.stdout:
+        return None
+    if cached:
+        try:
+            os.makedirs(cache, mode=0o700, exist_ok=True)
+            write_private(cached + ".tmp", "")
+            with open(cached + ".tmp", "wb") as file:
+                file.write(done.stdout)
+            os.replace(cached + ".tmp", cached)
+        except OSError:
+            pass
+    return done.stdout
 
 
 # --- The service ------------------------------------------------------------------
@@ -1511,6 +1599,34 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.reply(200, {"media": session.playing(), "volume": session.volume(), **session.toggles(), "look": look_stamp()})
         elif method == "GET" and path == "/v1/look":
             self.reply(200, current_look())
+        elif method == "GET" and path == "/v1/weather":
+            location = weather_location()
+            if location is None:
+                self.reply(404, {"error": "location"})
+            else:
+                self.reply(200, location)
+        elif method == "GET" and path == "/v1/backgrounds":
+            query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
+            theme = query.get("theme", [""])[0] or current_theme()
+            self.reply(200, {"theme": theme, "current": theme == current_theme(),
+                             "items": [{"name": name} for name, _ in backgrounds(theme)]})
+        elif method == "GET" and path == "/v1/backgrounds/image":
+            query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
+            theme = query.get("theme", [""])[0] or current_theme()
+            name = query.get("name", [""])[0]
+            try:
+                width, height = (int(query.get(key, ["0"])[0]) for key in ("w", "h"))
+            except ValueError:
+                width = height = 0
+            source = dict(backgrounds(theme)).get(name)
+            if not (32 <= width <= 4096 and 32 <= height <= 4096):
+                self.reply(400, {"error": "invalid"})
+                return
+            found = fit_picture(source, width, height, deck.config.get("magick", "magick"), os.path.join(cache_dir(), "backgrounds")) if source else None
+            if found is None:
+                self.reply(404, {"error": "wallpaper"})
+            else:
+                self.image(found, "image/jpeg")
         elif method == "GET" and path == "/v1/wallpaper":
             query = urllib.parse.parse_qs(urllib.parse.urlsplit(self.path).query)
             try:
@@ -1720,6 +1836,26 @@ def qr_rows(text):
     return rows
 
 
+def terminal_qr(rows, margin=2):
+    """QR в терминал: два ряда модулей на строку (▀ ▄ █ и пробел), чёрное на белом через
+    ANSI, тихая зона [margin] модулей."""
+    if not rows:
+        return ""
+    size = len(rows)
+    grid = [[False] * (size + 2 * margin) for _ in range(margin)]
+    grid += [[False] * margin + [m == "1" for m in row] + [False] * margin for row in rows]
+    grid += [[False] * (size + 2 * margin) for _ in range(margin)]
+    if len(grid) % 2:
+        grid.append([False] * (size + 2 * margin))
+    lines = []
+    for y in range(0, len(grid), 2):
+        line = ""
+        for top, bottom in zip(grid[y], grid[y + 1]):
+            line += {(True, True): "█", (True, False): "▀", (False, True): "▄", (False, False): " "}[(top, bottom)]
+        lines.append("\x1b[30;107m" + line + "\x1b[0m")
+    return "\n".join(lines)
+
+
 def qr(uri, qrencode):
     done = subprocess.run([qrencode, "-t", "ASCII", "-m", "0", "-l", "M", uri],
                           check=True, capture_output=True, text=True, timeout=10)
@@ -1732,6 +1868,7 @@ def main():
     parser.add_argument("command", nargs="?", default="devices", choices=["serve", "pair", "cancel", "devices", "forget"])
     parser.add_argument("target", nargs="?", help="forget: a phone's id, or all")
     parser.add_argument("--json", action="store_true", help="for the shell")
+    parser.add_argument("--image", action="store_true", help="pair: QR картинкой, в просмотрщике")
     options = parser.parse_args()
 
     config = {}
@@ -1767,9 +1904,19 @@ def main():
                 reply["error"] = str(error)
         if options.json:
             print(json.dumps(reply))
+        elif options.image:
+            # Картинкой: PNG в $XDG_RUNTIME_DIR, открывается просмотрщиком изображений.
+            picture = os.path.join(os.environ.get("XDG_RUNTIME_DIR") or tempfile.gettempdir(), "omadeck-pair.png")
+            subprocess.run([config["qrencode"], "-t", "PNG", "-s", "12", "-m", "4", "-o", picture, reply["uri"]],
+                           check=True, timeout=10)
+            subprocess.Popen(["xdg-open", picture], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
+                             stderr=subprocess.DEVNULL, start_new_session=True)
+            print(picture)
+            print(reply["uri"])
         else:
-            for row in reply["qr"]:
-                print("".join("██" if module == "1" else "  " for module in row))
+            # Полублоки, явно чёрное на белом и с белой рамкой: вдвое меньше по высоте и
+            # не выворачивается тёмной темой терминала (тогда камера видит негатив).
+            print(terminal_qr(reply.get("qr") or []))
             print(reply["uri"])
             print(f"Valid until {time.strftime('%H:%M', time.localtime(reply['expires']))}, once.")
         return 0

@@ -23,9 +23,16 @@ object QrDecoder {
     /** The text in the QR code in [luminance] (one byte a pixel, row by row), or null. */
     fun decode(luminance: ByteArray, width: Int, height: Int): String? {
         if (width < 21 || height < 21 || luminance.size < width * height) return null
-        // As it comes; then, for a grainy picture (little light), softened.
-        return attempt(luminance, width, height) ?: attempt(soften(luminance, width, height), width, height)
+        // As it comes; then, for a grainy picture (little light), softened; then inverted —
+        // light modules on dark, as a QR printed in a terminal with a dark theme comes out.
+        return attempt(luminance, width, height)
+            ?: attempt(soften(luminance, width, height), width, height)
+            ?: attempt(invert(luminance, width, height), width, height)
     }
+
+    /** Light for dark: 255 − each pixel. */
+    fun invert(luminance: ByteArray, width: Int, height: Int): ByteArray =
+        ByteArray(width * height) { (255 - (luminance[it].toInt() and 0xFF)).toByte() }
 
     /** A 3 × 3 box blur: the grain of a dark room goes, modules of three pixels and more stay. */
     internal fun soften(lum: ByteArray, w: Int, h: Int): ByteArray {

@@ -347,3 +347,38 @@ over its own choices until "follow the computer" is turned off.
 
 The current Omarchy wallpaper, cropped to fill `w` × `h` (64 to 4096 each) as JPEG. `404`
 without one, `400` for a size it does not take.
+
+## Theme wallpapers and the weather's place
+
+omadeck only, like the look.
+
+### `GET /v1/backgrounds?theme={id}`
+
+The wallpapers of theme `{id}` (the current theme without it), as Omarchy's wallpaper switcher
+finds them: `~/.config/omarchy/backgrounds/{id}`, then the theme's own `backgrounds`, the user's
+then the stock one. A name found twice is the first one's.
+
+```json
+{ "theme": "nothing-steel", "current": true, "items": [ { "name": "1-galaxy.png" } ] }
+```
+
+### `GET /v1/backgrounds/image?theme={id}&name={name}&w={width}&h={height}`
+
+That wallpaper cropped to fill `w` × `h` (32 to 4096 each) as JPEG, cached on the computer.
+`404` for a name the listing doesn't have, `400` for a size it does not take.
+
+### `GET /v1/weather`
+
+Where the computer's weather is: `~/.local/state/omarchy/settings/weather.json`
+(`omarchy-weather-location`), or without one what geo.omarchy.org says.
+
+```json
+{ "name": "Moscow", "latitude": 55.75, "longitude": 37.62, "source": "omarchy", "country": "" }
+```
+
+`404` when neither says. The phone asks Open-Meteo itself, with these coordinates.
+
+## Pairing from a link
+
+The phone opens `omadeck://pair?…` (the URI under the QR) too, and pairs after the person
+confirms the computer's name and addresses: a link can come from anyone.

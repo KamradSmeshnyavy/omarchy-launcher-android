@@ -189,6 +189,7 @@ class LauncherActivity :
         updateHomeShowing()
         home.updateClock(animate = false)
         home.refreshTodo()
+        io.github.kamradsmeshnyavy.launcher.core.Weather.refresh(this) { if (!isDestroyed) home.updateWeather(it) }
         io.github.kamradsmeshnyavy.launcher.core.PcLook.syncSoon(this)
         updateAlarm()
         Webs.fetchIcons(this, prefs.webs)

@@ -35,6 +35,12 @@ class QrDecoderTest {
     }
 
     @Test
+    fun lightOnDarkAsATerminalPrintsIt() {
+        val p = render(NIHIL_URI, scale = 5f)
+        assertEquals(URI, QrDecoder.decode(QrDecoder.invert(p.lum, p.width, p.height), p.width, p.height))
+    }
+
+    @Test
     fun smallNoisyAndDim() {
         assertEquals(URI, decode(render(NIHIL_URI, scale = 3f)))
         assertEquals(URI, decode(render(NIHIL_URI, scale = 5f, dots = true, noise = 30, light = 170, dark = 80)))

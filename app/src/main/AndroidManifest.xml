@@ -175,10 +175,18 @@
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
+        <!-- Сопряжение по QR или по ссылке omadeck://pair (с подтверждением) -->
         <activity
             android:name=".DeckScanActivity"
-            android:exported="false"
+            android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.Nihil" />
+            android:theme="@style/Theme.Nihil" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="omadeck" android:host="pair" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

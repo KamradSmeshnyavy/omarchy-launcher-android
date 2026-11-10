@@ -147,7 +147,7 @@ class DeckClient(private val computer: Computer, private val token: String?) {
     }
 
     /** What the computer's QR holds (omadeck://pair?…). */
-    class Invitation(val name: String, val hosts: List<String>, val port: Int, val code: String, val pin: String) {
+    class Invitation(val name: String, val hosts: List<String>, val port: Int, val code: String, val pin: String, val uri: String = "") {
         companion object {
             private val CODE = Regex("[A-HJ-NP-Z2-9]{8}")
             private val PIN = Regex("[A-Za-z0-9_-]{43}")
@@ -160,7 +160,7 @@ class DeckClient(private val computer: Computer, private val token: String?) {
                 val code = uri.getQueryParameter("code").orEmpty()
                 val pin = uri.getQueryParameter("pin").orEmpty()
                 if (hosts.isEmpty() || port !in 1..65535 || !CODE.matches(code) || !PIN.matches(pin)) return null
-                Invitation(uri.getQueryParameter("name").orEmpty().ifEmpty { hosts.first() }, hosts, port, code, pin)
+                Invitation(uri.getQueryParameter("name").orEmpty().ifEmpty { hosts.first() }, hosts, port, code, pin, text.trim())
             }.getOrNull()
         }
     }

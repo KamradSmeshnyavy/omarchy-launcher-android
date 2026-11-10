@@ -82,4 +82,41 @@
     <string name="studio_mode_plain">As is</string>
     <string name="studio_colours_hint">Colours, gamma and unlit LEDs: Customizer → Dotify</string>
     <string name="cz_follow_pc_unpaired">Pair the computer first: Settings → Deck</string>
+    <string name="deck_link_confirm">Pair with %1$s (%2$s)? Only if you just ran omadeck pair on it.</string>
+
+    <!-- Обои тем и погода -->
+    <string name="cz_walls">Theme wallpapers</string>
+    <string name="cz_walls_sub">The current Omarchy theme’s wallpapers, from the computer</string>
+    <string name="cz_walls_page_sub">Wallpapers come from the paired computer (omadeck), cut to this screen: they are too many to fit in the app.</string>
+    <string name="cz_walls_unpaired">Pair the computer first: the wallpapers are there.</string>
+    <string name="cz_walls_follow">Wallpaper with the theme</string>
+    <string name="cz_walls_follow_sub">Putting a theme on (or a style, or a preset) puts its first wallpaper on too</string>
+    <string name="cz_walls_target">Where</string>
+    <string name="cz_walls_fx">How</string>
+    <string name="cz_walls_tap">Tap a wallpaper to put it on.</string>
+    <string name="cz_walls_loading">Asking the computer…</string>
+    <string name="cz_walls_offline">The computer doesn’t answer</string>
+    <string name="cz_walls_none">This theme has no wallpapers</string>
+    <string name="cz_walls_setting">Putting it on…</string>
+    <string name="cz_weather">Weather</string>
+    <string name="cz_weather_sub">In the clock; tap it for the weather app</string>
+    <string name="cz_weather_page_sub">Open-Meteo, no key and no account. Only the coordinates leave the phone.</string>
+    <string name="cz_weather_show">Weather in the clock</string>
+    <string name="cz_weather_source">Place</string>
+    <string name="cz_weather_source_sub">The computer’s (as Omarchy’s weather has it) or a city of your own</string>
+    <string name="cz_weather_from_pc">Computer</string>
+    <string name="cz_weather_from_city">City</string>
+    <string name="cz_weather_city_hint">City, e.g. Moscow</string>
+    <string name="cz_weather_units">Units</string>
+    <string name="cz_weather_auto">Auto</string>
+    <string name="cz_weather_app">Weather app</string>
+    <string name="cz_weather_app_sub">What opens when you tap the weather</string>
+    <string name="cz_weather_app_auto">Automatic</string>
+    <string name="cz_weather_check">Check now</string>
+    <string name="cz_weather_failed">No weather: no place, or no network</string>
+    <string name="cz_weather_privacy">Weather is the only thing besides your computer that the launcher talks to, and only while it is on.</string>
+    <plurals name="cz_walls_count">
+        <item quantity="one">%d wallpaper</item>
+        <item quantity="other">%d wallpapers</item>
+    </plurals>
 </resources>
