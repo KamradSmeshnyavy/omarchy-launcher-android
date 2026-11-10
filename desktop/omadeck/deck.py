@@ -1189,7 +1189,7 @@ def _colors_toml(path):
     return found, mode
 
 
-LOOK_FILES = ("style.json", "glyph.json", "sounds.json", "dotmatrix.json", "widgets.json", "fonts.json")
+LOOK_FILES = ("style.json", "glyph.json", "sounds.json", "dotmatrix.json", "widgets.json", "fonts.json", "bar-skin.json", "lock-design.json")
 
 
 def look_stamp(paths=None):
@@ -1244,6 +1244,9 @@ def current_look(paths=None):
         "dotmatrix": _read_json(os.path.join(paths["omarchy"], "dotmatrix.json")),
         "widgets": {key: widgets[key] for key in ("widgetStyle", "clockStyle", "clock", "clock24", "clockSeconds", "media", "todo", "todoMax", "tint") if key in widgets},
         "fonts": str(fonts.get("profile", "")),
+        # Скин бара и дизайн блокировки — для бара и блокировки на телефоне.
+        "bar": _read_json(os.path.join(paths["omarchy"], "bar-skin.json")),
+        "lock": _read_json(os.path.join(paths["omarchy"], "lock-design.json")),
     }
 
 

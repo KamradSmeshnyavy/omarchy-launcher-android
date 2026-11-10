@@ -50,6 +50,7 @@ import io.github.kamradsmeshnyavy.launcher.system.Access
 import io.github.kamradsmeshnyavy.launcher.system.Glyph
 import io.github.kamradsmeshnyavy.launcher.system.Glyph.sound
 import io.github.kamradsmeshnyavy.launcher.system.LockService
+import io.github.kamradsmeshnyavy.launcher.ui.BarView
 import io.github.kamradsmeshnyavy.launcher.ui.AppMenu
 import io.github.kamradsmeshnyavy.launcher.ui.DrawerView
 import io.github.kamradsmeshnyavy.launcher.ui.EASE
@@ -91,6 +92,8 @@ class LauncherActivity :
     private lateinit var root: RootLayout
     private lateinit var home: HomeView
     private lateinit var frame: FrameView
+    /** Бар в скине бара Omarchy вместо строки состояния (Customizer → Бар); null — выключен. */
+    private var bar: BarView? = null
     private lateinit var drawer: DrawerView
     private lateinit var noticeView: Notice
     private lateinit var popup: AppMenu
@@ -126,16 +129,28 @@ class LauncherActivity :
         frame = FrameView(this)
         drawer = DrawerView(this, this)
         noticeView = Notice(this)
+        if (io.github.kamradsmeshnyavy.launcher.core.BarSkin.enabled(this)) bar = BarView(this) { home.showPage(it) }
         root = RootLayout(this, this).apply {
             addView(home, lp(MATCH, MATCH))
             addView(frame, lp(MATCH, MATCH))
             addView(drawer, lp(MATCH, MATCH))
+            bar?.let { addView(it, lp(MATCH, WRAP, Gravity.TOP)) }
             addView(noticeView, lp(WRAP, WRAP, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL))
         }
         setContentView(root)
 
         root.scrollableAt = { x, y, dy -> home.favoritesScrollAt(x, y, dy) }
         root.pager = home
+        home.onPage = { bar?.current = it }
+        home.onRebuilt = { count, current ->
+            bar?.spaces = count
+            bar?.current = current
+        }
+        bar?.let {
+            it.spaces = io.github.kamradsmeshnyavy.launcher.core.Desk.state(this).spaces.size
+            it.current = home.page
+            hideStatusBar()
+        }
         root.blankAt = { x, y -> home.blankAt(x, y) }
         root.setOnApplyWindowInsetsListener { _, insets ->
             applyInsets(insets)
@@ -176,6 +191,7 @@ class LauncherActivity :
         super.onStart()
         register()
         home.updateClock(animate = false)
+        bar?.tick()
         updateAlarm()
         Glyph.listen(this)
         // Notification access granted but its listener not bound (after an
@@ -189,10 +205,12 @@ class LauncherActivity :
         super.onResume()
         resumed = true
         home.rebuildIfStale()
+        if (bar != null) hideStatusBar()
         updateHomeShowing()
         home.updateClock(animate = false)
+        bar?.tick()
         home.refreshTodo()
-        io.github.kamradsmeshnyavy.launcher.core.Weather.refresh(this) { if (!isDestroyed) home.updateWeather(it) }
+        io.github.kamradsmeshnyavy.launcher.core.Weather.refresh(this) { if (!isDestroyed) { home.updateWeather(it); bar?.setWeather(it) } }
         io.github.kamradsmeshnyavy.launcher.core.PcLook.syncSoon(this)
         updateAlarm()
         Webs.fetchIcons(this, prefs.webs)
@@ -266,12 +284,27 @@ class LauncherActivity :
 
     // --- Insets and the drawer ---------------------------------------------------
 
+    /** Своя строка вместо системной: системная показывается временно, свайпом от края. */
+    private fun hideStatusBar() {
+        window.insetsController?.let {
+            it.hide(WindowInsets.Type.statusBars())
+            it.systemBarsBehavior = android.view.WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
     private fun applyInsets(insets: WindowInsets) {
         val bars = insets.getInsets(WindowInsets.Type.systemBars() or WindowInsets.Type.displayCutout())
         val side = dp(6)
         val left = max(bars.left, side)
         val right = max(bars.right, side)
         bandTop = max(bars.top, dp(24))
+        bar?.let { b ->
+            // Бар — на месте строки состояния: не ниже выреза камеры, не ниже самой строки.
+            val status = insets.getInsetsIgnoringVisibility(WindowInsets.Type.statusBars()).top
+            b.inset = (status - b.band).coerceAtLeast(0)
+            b.measure(View.MeasureSpec.makeMeasureSpec(root.width.coerceAtLeast(1), View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
+            bandTop = max(b.measuredHeight, dp(24))
+        }
         bandBottom = max(bars.bottom, dp(10))
         imeBottom = insets.getInsets(WindowInsets.Type.ime()).bottom
 
@@ -743,9 +776,9 @@ class LauncherActivity :
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
-                Intent.ACTION_TIME_TICK -> home.updateClock(animate = true)
+                Intent.ACTION_TIME_TICK -> run { home.updateClock(animate = true); bar?.tick() }
                 Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED, Intent.ACTION_DATE_CHANGED -> {
-                    home.updateClock(animate = true)
+                    run { home.updateClock(animate = true); bar?.tick() }
                     updateAlarm()
                 }
                 Intent.ACTION_BATTERY_CHANGED -> battery(intent)
@@ -790,6 +823,7 @@ class LauncherActivity :
         if (charging == false && plugged && prefs.glyph && Glyph.homeShowing) frame.pulse(Glyph.Pulse.CHARGE)
         charging = plugged
         home.updateBattery(level * 100 / scale, plugged)
+        bar?.setBattery(level * 100 / scale, plugged)
     }
 
     /**

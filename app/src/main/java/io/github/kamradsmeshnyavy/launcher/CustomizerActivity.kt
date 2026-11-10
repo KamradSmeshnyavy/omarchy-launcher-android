@@ -97,6 +97,7 @@ class CustomizerActivity : LookActivity() {
             page == FONTS -> fonts()
             page == WALLPAPERS -> wallpapers()
             page == WEATHER -> weather()
+            page == BAR -> barPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
         }
     }
@@ -177,6 +178,7 @@ class CustomizerActivity : LookActivity() {
             R.string.cz_type_launcher, R.string.cz_type_launcher_sub,
             listOf(
                 Triple(R.string.cz_fonts, R.string.cz_fonts_sub, FONTS),
+                Triple(R.string.cz_bar, R.string.cz_bar_sub, BAR),
                 Triple(R.string.cz_launcher, R.string.cz_launcher_sub, TABLE + "LAUNCHER_TWEAKS"),
             ),
         )
@@ -456,6 +458,74 @@ class CustomizerActivity : LookActivity() {
                 }
             }
         }
+    }
+
+    // --- Бар ----------------------------------------------------------------------------------------
+
+    private fun barPage() {
+        val sp = Look.prefs(this)
+        val bars = io.github.kamradsmeshnyavy.launcher.core.BarSkin
+        column.addView(heading(getString(R.string.cz_bar), getString(R.string.cz_bar_page_sub)))
+        column.addView(switchRow(getString(R.string.cz_bar_on), getString(R.string.cz_bar_on_sub), sp.getBoolean(bars.ENABLED, true)) {
+            sp.edit().putBoolean(bars.ENABLED, it).apply()
+            applyLook()
+        })
+        // Подписи столов: как у скина или своя.
+        val styles = listOf("skin") + bars.LABEL_STYLES
+        val now = sp.getString(bars.LABELS, "skin") ?: "skin"
+        val labels = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            visibility = View.GONE
+            setPadding(dp(12), 0, 0, dp(8))
+        }
+        styles.forEach { st ->
+            val on = st == now
+            val sample = if (st == "skin") getString(R.string.cz_bar_labels_skin) else (0 until 3).joinToString(" ") { bars.label(st, it, it == 0) }
+            labels.addView(text((if (on) "● " else "   ") + sample + if (st != "skin") "   ($st)" else "", 14f, if (on) Nihil.INK else Nihil.DIM, Nihil.fonts(this).mono).apply {
+                setPadding(0, dp(10), 0, dp(10))
+                setOnClickListener {
+                    sp.edit().putString(bars.LABELS, st).apply()
+                    applyLook()
+                }
+            }, llp(MATCH, WRAP))
+        }
+        column.addView(settingRow(getString(R.string.cz_bar_labels), null, mono(if (now == "skin") getString(R.string.cz_bar_labels_skin) else now, 11f, Nihil.DIM), rule = false) {
+            labels.visibility = if (labels.visibility == View.VISIBLE) View.GONE else View.VISIBLE
+        })
+        column.addView(labels, llp(MATCH, WRAP))
+        column.addView(rule(), llp(MATCH, dp(1)))
+
+        column.addView(heading(getString(R.string.cz_bar_skins), getString(R.string.cz_bar_skins_sub)))
+        val chosen = sp.getString(bars.SKIN, "style") ?: "style"
+        fun tile(id: String, title: String, note: String, skin: io.github.kamradsmeshnyavy.launcher.core.BarSkin.Skin) {
+            val on = id == chosen
+            column.addView(LinearLayout(this).apply {
+                orientation = LinearLayout.VERTICAL
+                setPadding(0, dp(10), 0, dp(14))
+                background = io.github.kamradsmeshnyavy.launcher.ui.ripple(dp(12f))
+                addView(io.github.kamradsmeshnyavy.launcher.ui.BarView(context, skin) {}.apply { inset = 0 }, llp(MATCH, WRAP))
+                addView(text(title + if (on) "  ●" else "", 14f, if (on) Nihil.SIGNAL else Nihil.INK, Nihil.fonts(context).sans), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                if (note.isNotEmpty()) addView(body(note), llp(MATCH, WRAP).apply { topMargin = dp(2) })
+                setOnClickListener {
+                    sp.edit().putString(bars.SKIN, id).apply()
+                    applyLook()
+                }
+            }, llp(MATCH, WRAP))
+            column.addView(rule(), llp(MATCH, dp(1)))
+        }
+        val styleSkin = run {
+            val prev = sp.getString(bars.SKIN, "style")
+            sp.edit().putString(bars.SKIN, "style").commit()
+            val s = bars.current(this)
+            sp.edit().putString(bars.SKIN, prev).commit()
+            s
+        }
+        tile("style", getString(R.string.cz_bar_from_style), Look.current(this).style?.let { if (ru) it.nameRu else it.name }.orEmpty(), styleSkin)
+        if (Look.prefs(this).getString(Look.PC_SNAPSHOT, null)?.contains("\"bar\"") == true) {
+            val pc = org.json.JSONObject(Look.prefs(this).getString(Look.PC_SNAPSHOT, "{}")!!).optJSONObject("bar")
+            if (pc != null) tile("pc", getString(R.string.cz_bar_from_pc), "", io.github.kamradsmeshnyavy.launcher.core.BarSkin.Skin("pc", pc))
+        }
+        bars.all(this).forEach { skin -> tile(skin.id, skin.id, if (ru) skin.noteRu else skin.note, skin) }
     }
 
     // --- Погода ---------------------------------------------------------------------------------
@@ -773,6 +843,7 @@ class CustomizerActivity : LookActivity() {
         const val FONTS = "fonts"
         const val WALLPAPERS = "wallpapers"
         const val WEATHER = "weather"
+        const val BAR = "bar"
         const val TABLE = "table:"
 
         fun intent(context: Context, page: String = HOME): Intent =

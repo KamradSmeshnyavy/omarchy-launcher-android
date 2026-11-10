@@ -1,0 +1,277 @@
+{
+ "designs": [
+  {
+   "id": "classic",
+   "name": "Classic",
+   "description": "Stock Omarchy screen: blurred wallpaper and a field in the center",
+   "description_ru": "Стоковый экран Omarchy: размытые обои и поле по центру",
+   "tags": [
+    "minimal"
+   ]
+  },
+  {
+   "id": "zen",
+   "name": "Zen",
+   "description": "No field — just type, dots appear in the center",
+   "description_ru": "Без поля — просто печатайте, точки появляются по центру",
+   "tags": [
+    "minimal"
+   ]
+  },
+  {
+   "id": "dock",
+   "name": "Dock",
+   "description": "Everything in a thin strip at the bottom",
+   "description_ru": "Всё в тонкой полосе внизу экрана",
+   "tags": [
+    "minimal"
+   ]
+  },
+  {
+   "id": "island",
+   "name": "Island",
+   "description": "A pill at the top: time, date and input in one island",
+   "description_ru": "Капсула сверху: время, дата и ввод в одном острове",
+   "tags": [
+    "minimal"
+   ]
+  },
+  {
+   "id": "split",
+   "name": "Split",
+   "description": "Clock and input on a panel on the left, the wallpaper on the right",
+   "description_ru": "Слева панель с часами и вводом, справа обои",
+   "tags": [
+    "cards"
+   ]
+  },
+  {
+   "id": "sheet",
+   "name": "Sheet",
+   "description": "Frosted side panel with an avatar",
+   "description_ru": "Матовая боковая панель с аватаром",
+   "tags": [
+    "cards"
+   ]
+  },
+  {
+   "id": "card",
+   "name": "Card",
+   "description": "A greeting card with avatar and name",
+   "description_ru": "Карточка-приветствие с аватаром и именем",
+   "tags": [
+    "cards"
+   ]
+  },
+  {
+   "id": "cinema",
+   "name": "Cinema",
+   "description": "Cinematic black bars at the top and bottom",
+   "description_ru": "Кинематографичные чёрные полосы сверху и снизу",
+   "tags": [
+    "cards"
+   ]
+  },
+  {
+   "id": "poster",
+   "name": "Poster",
+   "description": "A huge poster clock",
+   "description_ru": "Огромные часы плакатом",
+   "tags": [
+    "clock"
+   ]
+  },
+  {
+   "id": "editorial",
+   "name": "Editorial",
+   "description": "Magazine layout: the date as a headline, thin rules",
+   "description_ru": "Журнальная вёрстка: дата заголовком, тонкие линии",
+   "tags": [
+    "clock"
+   ]
+  },
+  {
+   "id": "analog",
+   "name": "Analog",
+   "description": "Analog clock",
+   "description_ru": "Стрелочные часы",
+   "tags": [
+    "clock"
+   ]
+  },
+  {
+   "id": "flip",
+   "name": "Flip",
+   "description": "Flip-card clock",
+   "description_ru": "Перекидные часы-карточки",
+   "tags": [
+    "clock"
+   ]
+  },
+  {
+   "id": "ring",
+   "name": "Ring",
+   "description": "A ring of seconds around the time",
+   "description_ru": "Кольцо секунд вокруг времени",
+   "tags": [
+    "clock"
+   ]
+  },
+  {
+   "id": "calendar",
+   "name": "Calendar",
+   "description": "Month grid next to the clock",
+   "description_ru": "Сетка месяца рядом с часами",
+   "tags": [
+    "clock",
+    "info"
+   ]
+  },
+  {
+   "id": "terminal",
+   "name": "Terminal",
+   "description": "Console-style login: login and Password",
+   "description_ru": "Вход как в консоли: login и Password",
+   "tags": [
+    "fun"
+   ]
+  },
+  {
+   "id": "neon",
+   "name": "Neon",
+   "description": "Glowing neon text and border",
+   "description_ru": "Светящиеся неоновые надписи и рамка",
+   "tags": [
+    "fun"
+   ]
+  },
+  {
+   "id": "system",
+   "name": "System",
+   "description": "Uptime, memory, load and battery",
+   "description_ru": "Аптайм, память, нагрузка и батарея",
+   "tags": [
+    "info"
+   ]
+  },
+  {
+   "id": "music",
+   "name": "Music",
+   "description": "Now playing (MPRIS) with buttons",
+   "description_ru": "Что играет сейчас (MPRIS) с кнопками",
+   "tags": [
+    "info"
+   ]
+  },
+  {
+   "id": "aurora",
+   "name": "Aurora",
+   "description": "Drifting aurora in the theme's colours",
+   "description_ru": "Плывущее сияние цветов темы",
+   "tags": [
+    "motion"
+   ]
+  },
+  {
+   "id": "rain",
+   "name": "Rain",
+   "description": "Digital rain",
+   "description_ru": "Цифровой дождь",
+   "tags": [
+    "motion"
+   ]
+  },
+  {
+   "id": "constellation",
+   "name": "Constellation",
+   "description": "Every password character lights up a star",
+   "description_ru": "Каждый символ пароля зажигает звезду",
+   "tags": [
+    "motion",
+    "fun"
+   ]
+  },
+  {
+   "id": "dotmatrix",
+   "name": "DOT-MATRIX",
+   "description": "Dot-matrix Doto clock, black bezel, circular LED password pill and ex nihilo motto",
+   "description_ru": "Матричные часы Doto, чёрная рамка, капсула пароля с LED-точками и девиз ex nihilo",
+   "tags": [
+    "minimal",
+    "clock"
+   ]
+  },
+  {
+   "id": "style-flat",
+   "name": "Flat style",
+   "description": "The DOT-MATRIX lock layout in the Flat style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Флэт» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-glass",
+   "name": "Glass style",
+   "description": "The DOT-MATRIX lock layout in the Glass style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Стекло» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-fluent",
+   "name": "Fluent style",
+   "description": "The DOT-MATRIX lock layout in the Fluent style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Fluent» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-paper",
+   "name": "Paper style",
+   "description": "The DOT-MATRIX lock layout in the Paper style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Бумага» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-neumorph",
+   "name": "Neumorphism style",
+   "description": "The DOT-MATRIX lock layout in the Neumorphism style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Неоморфизм» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-brutal",
+   "name": "Brutalism style",
+   "description": "The DOT-MATRIX lock layout in the Brutalism style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Брутализм» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-retro",
+   "name": "Retro 9x style",
+   "description": "The DOT-MATRIX lock layout in the Retro 9x style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Ретро 9x» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  },
+  {
+   "id": "style-neon",
+   "name": "Neon style",
+   "description": "The DOT-MATRIX lock layout in the Neon style finish (Customizer style)",
+   "description_ru": "Раскладка лока DOT-MATRIX в отделке стиля «Неон» (стиль Customizer)",
+   "tags": [
+    "style"
+   ]
+  }
+ ]
+}

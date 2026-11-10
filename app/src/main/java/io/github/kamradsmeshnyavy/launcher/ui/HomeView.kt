@@ -48,6 +48,8 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
     private var dim = false
 
     var onPage: ((Int) -> Unit)? = null
+    /** После перестройки: сколько столов и какой текущий (для бара). */
+    var onRebuilt: ((Int, Int) -> Unit)? = null
 
     init {
         setWillNotDraw(false)
@@ -79,7 +81,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
             }
         }
         dots.removeAllViews()
-        if (pages.size > 1) {
+        if (pages.size > 1 && !io.github.kamradsmeshnyavy.launcher.core.BarSkin.enabled(context)) {
             dots.addView(PageDots(context, state.spaces.map { it.name }) { pager.show(it) }, lp(MATCH, WRAP))
         }
         built = Desk.version
@@ -87,6 +89,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
         replay()
         val current = state.current.coerceIn(0, pages.size - 1)
         (dots.getChildAt(0) as? PageDots)?.select(current)
+        onRebuilt?.invoke(pages.size, current)
         pager.post { pager.show(current, animate = false) }
     }
 
@@ -148,7 +151,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
     private fun applyInsets() {
         val (left, top, right, bottom) = insets.toList()
         val side = context.dp(14)
-        val dotsH = if (pages.size > 1) context.dp(22) else 0
+        val dotsH = if (dots.childCount > 0) context.dp(22) else 0
         pages.forEach { it.board.setPadding(left + side, top + side, right + side, bottom + context.dp(14) + dotsH) }
         dots.setPadding(left, 0, right, bottom + context.dp(6))
     }

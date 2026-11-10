@@ -18,4 +18,15 @@
     <string name="wg_nothing">Инструменты</string>
     <string name="wg_apps">Приложения</string>
     <string name="desk_edit_items">Виджеты на этом столе</string>
+    <string name="cz_bar">Бар</string>
+    <string name="cz_bar_sub">Свой бар лаунчера в скине бара Omarchy</string>
+    <string name="cz_bar_page_sub">Строку состояния Android перекрасить нельзя: на домашнем экране лаунчер прячет её и рисует свой бар в скине — столы, погода, время и батарея. Системная видна по свайпу от верхнего края.</string>
+    <string name="cz_bar_on">Свой бар</string>
+    <string name="cz_bar_on_sub">Выкл. — строка состояния Android, как раньше</string>
+    <string name="cz_bar_labels">Подписи столов</string>
+    <string name="cz_bar_labels_skin">Как у скина</string>
+    <string name="cz_bar_skins">Скины</string>
+    <string name="cz_bar_skins_sub">Те же скины, что у бара Omarchy.</string>
+    <string name="cz_bar_from_style">Как у стиля</string>
+    <string name="cz_bar_from_pc">Как на компьютере</string>
 </resources>

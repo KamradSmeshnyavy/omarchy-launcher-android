@@ -35,6 +35,7 @@
     "skin": "drawer-brutal",
     "backdrop": 0.75
    },
+   "barSkin": "brutal",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",
@@ -75,6 +76,30 @@
    "launcher": {
     "skin": "dotmatrix",
     "backdrop": 0.82
+   },
+   "barSkinData": {
+    "note": "DOT-MATRIX bezel frame (44px bar, 8px frame, 20px inner corners, 1px hairline border, LED workspaces); colours from the DOT-MATRIX palette — theme or mono",
+    "note_ru": "Рамка-бортик DOT-MATRIX (бар 44px, рамка 8px, скруглённые углы 20px, тонкий контур 1px, LED-воркспейсы); цвета из палитры DOT-MATRIX — тема или монохром",
+    "shape": "frame",
+    "height": 44,
+    "frameWidth": 8,
+    "radius": 20,
+    "padding": 16,
+    "spacing": 10,
+    "background": "dotmatrix.bg",
+    "backgroundAlpha": 1,
+    "border": "dotmatrix.line",
+    "borderWidth": 1,
+    "borderAlpha": 1,
+    "text": "dotmatrix.fg",
+    "active": "dotmatrix.signal",
+    "moduleStyle": "plain",
+    "wsLabelStyle": "leds",
+    "wsWindowIcons": false,
+    "wsShowEmpty": true,
+    "compact": "off",
+    "transparent": false,
+    "wsMaxIcons": 3
    },
    "widgets": {
     "widgetStyle": "dotmatrix",
@@ -117,6 +142,7 @@
     "skin": "drawer-flat",
     "backdrop": 0.75
    },
+   "barSkin": "solid-accent",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "minimal",
@@ -158,6 +184,7 @@
     "skin": "drawer-fluent",
     "backdrop": 0.75
    },
+   "barSkin": "islands",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",
@@ -199,6 +226,7 @@
     "skin": "drawer-glass",
     "backdrop": 0.6
    },
+   "barSkin": "glass",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",
@@ -240,6 +268,7 @@
     "skin": "drawer-neon",
     "backdrop": 0.75
    },
+   "barSkin": "neon",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",
@@ -281,6 +310,7 @@
     "skin": "drawer-neumorph",
     "backdrop": 0.75
    },
+   "barSkin": "soft",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "minimal",
@@ -322,6 +352,7 @@
     "skin": "drawer-paper",
     "backdrop": 0.75
    },
+   "barSkin": "paper",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",
@@ -363,6 +394,7 @@
     "skin": "drawer-retro",
     "backdrop": 0.75
    },
+   "barSkin": "bevel",
    "widgets": {
     "widgetStyle": "style",
     "clockStyle": "big",

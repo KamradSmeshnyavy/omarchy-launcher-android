@@ -73,7 +73,7 @@ EXTRA_RU = {
 }
 
 # Что из стиля нужно лаунчеру.
-STYLE_KEYS = ("name", "name_ru", "note", "note_ru", "look", "theme", "glyph", "fonts", "sounds", "launcher")
+STYLE_KEYS = ("name", "name_ru", "note", "note_ru", "look", "theme", "glyph", "fonts", "sounds", "launcher", "barSkin", "barSkinData")
 STYLE_WIDGET_KEYS = ("widgetStyle", "clockStyle", "media")
 
 # Шрифты: (файл в assets/fonts, источник). Только свободные (OFL), без Ndot/NType.
@@ -274,6 +274,28 @@ def export_styles():
     return styles
 
 
+BAR_SKINS = HOME / "dotfiles/apps/omarchy-shell/plugins/kamradsmeshnyavy.bar/skins"
+LOCK_DESIGNS = HOME / "dotfiles/apps/omarchy-shell/plugins/kamradsmeshnyavy.lock/designs/designs.json"
+
+
+def export_bars():
+    """Скины бара Omarchy (kamradsmeshnyavy.bar/skins): токены как есть, по id."""
+    skins = []
+    for f in sorted(BAR_SKINS.glob("*.json")):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        d.pop("texture", None)
+        skins.append({"id": f.stem, **d})
+    return skins
+
+
+def export_locks():
+    """Каталог дизайнов экрана блокировки (kamradsmeshnyavy.lock/designs/designs.json)."""
+    if not LOCK_DESIGNS.is_file():
+        return []
+    keep = ("id", "name", "description", "description_ru", "tags")
+    return [{k: d[k] for k in keep if k in d} for d in json.loads(LOCK_DESIGNS.read_text(encoding="utf-8"))]
+
+
 def export_settings():
     data = json.loads((CUSTOMIZER / "settings.json").read_text(encoding="utf-8"))
     tables = []
@@ -369,6 +391,8 @@ def main():
     write(out / "settings.json", settings)
     write(out / "i18n/ru.json", export_i18n(settings, styles))
     write(out / "sounds.json", {"packs": export_sounds(out)})
+    write(out / "bars.json", {"skins": export_bars()})
+    write(out / "locks.json", {"designs": export_locks()})
     export_fonts()
     export_textures()
     print(f"тем: {len(themes)}, стилей: {len(styles)}, таблиц настроек: {len(settings['tables'])}")

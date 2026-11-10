@@ -18,4 +18,15 @@
     <string name="wg_nothing">Tools</string>
     <string name="wg_apps">Apps</string>
     <string name="desk_edit_items">Widgets on this desk</string>
+    <string name="cz_bar">Bar</string>
+    <string name="cz_bar_sub">The launcher’s own bar in an Omarchy bar skin</string>
+    <string name="cz_bar_page_sub">Android’s status bar can’t be restyled: on the home screen the launcher hides it and draws its own bar in the skin — desks, weather, time and battery. Swipe from the top edge to see the system one.</string>
+    <string name="cz_bar_on">Own bar</string>
+    <string name="cz_bar_on_sub">Off — Android’s status bar, as before</string>
+    <string name="cz_bar_labels">Desk labels</string>
+    <string name="cz_bar_labels_skin">As the skin says</string>
+    <string name="cz_bar_skins">Skins</string>
+    <string name="cz_bar_skins_sub">The same skins as the Omarchy bar.</string>
+    <string name="cz_bar_from_style">As the style says</string>
+    <string name="cz_bar_from_pc">As on the computer</string>
 </resources>
