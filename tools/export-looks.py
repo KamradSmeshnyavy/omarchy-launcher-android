@@ -10,7 +10,7 @@
   стили     <customizer>/styles/*.json
   настройки <customizer>/settings.json (только таблицы, которые имеют смысл на телефоне)
   перевод   <customizer>/i18n/ru.json (только строки настроек и стилей)
-  звуки     <customizer>/sounds/<пакет>/*.ogg
+  звуки     <customizer>/sounds/<пакет>/*.ogg (+ мелодии звонка/будильника/уведомления, ffmpeg)
   шрифты    <customizer>/fonts и ~/.local/share/fonts/dotmatrix-build (только OFL)
 """
 
@@ -23,6 +23,9 @@ import subprocess
 import sys
 import tomllib
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "desktop" / "omadeck"))
+import melody  # noqa: E402  (общий с сервером: мелодии звонка и будильника из пакета)
 
 HOME = Path.home()
 ROOT = Path(__file__).resolve().parent.parent
@@ -346,7 +349,11 @@ def export_sounds(out):
         (dest / pack.name).mkdir(parents=True)
         for f in files:
             shutil.copyfile(f, dest / pack.name / f.name)
-        packs.append({"id": pack.name, "events": [f.stem for f in files]})
+        # Звонок, будильник и уведомление для «во всей системе» — узором из звуков пакета.
+        melodies = melody.build_all(dest / pack.name)
+        if len(melodies) < len(melody.KINDS):
+            print(f"  {pack.name}: мелодии собраны не все ({', '.join(melodies) or 'нет ffmpeg?'})", file=sys.stderr)
+        packs.append({"id": pack.name, "events": [f.stem for f in files], "melodies": melodies})
     return packs
 
 

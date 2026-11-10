@@ -15,6 +15,7 @@ test:
     ./gradlew --no-daemon -q test
     python3 -I desktop/tests/test_deck.py
     python3 -I desktop/tests/test_omarchy.py
+    python3 -I desktop/tests/test_melody.py
 
 # Debug-APK: app/build/outputs/apk/debug/app-debug.apk
 build:
