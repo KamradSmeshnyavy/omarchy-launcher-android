@@ -46,6 +46,10 @@ object Weather {
     class Now(
         val temperature: Double, val code: Int, val day: Boolean, val place: String, val at: Long,
         val country: String = "", val days: List<Day> = emptyList(),
+        /** Восход и закат сегодня — местное время «2026-11-10T07:42»; пусто — нет данных. */
+        val sunrise: String = "", val sunset: String = "",
+        /** Качество воздуха: европейский индекс (EAQI) и американский (US AQI); −1 — нет данных. */
+        val aqiEu: Int = -1, val aqiUs: Int = -1,
     ) {
         val kind: Kind get() = kindOf(code)
     }
@@ -100,7 +104,10 @@ object Weather {
 
     fun cached(context: Context): Now? = runCatching {
         val o = JSONObject(Look.prefs(context).getString(CACHE, null) ?: return null)
-        Now(o.getDouble("t"), o.getInt("code"), o.optBoolean("day", true), o.optString("place"), o.getLong("at"), o.optString("country"), daysFrom(o.optJSONArray("days")))
+        Now(
+            o.getDouble("t"), o.getInt("code"), o.optBoolean("day", true), o.optString("place"), o.getLong("at"), o.optString("country"),
+            daysFrom(o.optJSONArray("days")), o.optString("rise"), o.optString("set"), o.optInt("aqi", -1), o.optInt("aqiUs", -1),
+        )
     }.getOrNull()
 
     /** В фоне, если кэш старше получаса (или [force]); [done] — на главном потоке. */
@@ -109,7 +116,7 @@ object Weather {
         val sp = Look.prefs(app)
         if (!sp.getBoolean(SHOW, true)) return
         val have = cached(app)
-        if (!force && have != null && have.days.isNotEmpty() && System.currentTimeMillis() - have.at < FRESH) {
+        if (!force && have != null && have.days.isNotEmpty() && have.sunrise.isNotEmpty() && System.currentTimeMillis() - have.at < FRESH) {
             done(have)
             return
         }
@@ -119,7 +126,8 @@ object Weather {
                 sp.edit().putString(
                     CACHE,
                     JSONObject().put("t", fresh.temperature).put("code", fresh.code).put("day", fresh.day)
-                        .put("place", fresh.place).put("at", fresh.at).put("country", fresh.country).put("days", daysJson(fresh.days)).toString(),
+                        .put("place", fresh.place).put("at", fresh.at).put("country", fresh.country).put("days", daysJson(fresh.days))
+                        .put("rise", fresh.sunrise).put("set", fresh.sunset).put("aqi", fresh.aqiEu).put("aqiUs", fresh.aqiUs).toString(),
                 ).apply()
             }
             main.post { done(fresh ?: have) }
@@ -148,7 +156,7 @@ object Weather {
         val place = location(context) ?: return null
         val o = get(
             "https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}" +
-                "&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&forecast_days=4&timezone=auto",
+                "&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset&forecast_days=4&timezone=auto",
         )
         val c = o.getJSONObject("current")
         val days = o.optJSONObject("daily")?.let { d ->
@@ -157,7 +165,18 @@ object Weather {
                 Day(t.getString(i), d.getJSONArray("weather_code").optInt(i), d.getJSONArray("temperature_2m_max").optDouble(i), d.getJSONArray("temperature_2m_min").optDouble(i))
             }
         } ?: emptyList()
-        return Now(c.getDouble("temperature_2m"), c.getInt("weather_code"), c.optInt("is_day", 1) == 1, place.name, System.currentTimeMillis(), place.country, days)
+        val daily = o.optJSONObject("daily")
+        val rise = daily?.optJSONArray("sunrise")?.optString(0).orEmpty()
+        val set = daily?.optJSONArray("sunset")?.optString(0).orEmpty()
+        // Качество воздуха — отдельный сервис Open-Meteo (без ключа); не ответил — без него.
+        val air = runCatching {
+            get("https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${place.latitude}&longitude=${place.longitude}&current=european_aqi,us_aqi")
+                .getJSONObject("current")
+        }.getOrNull()
+        return Now(
+            c.getDouble("temperature_2m"), c.getInt("weather_code"), c.optInt("is_day", 1) == 1, place.name, System.currentTimeMillis(), place.country, days,
+            rise, set, air?.optInt("european_aqi", -1) ?: -1, air?.optInt("us_aqi", -1) ?: -1,
+        )
     }
 
     private fun get(url: String): JSONObject {

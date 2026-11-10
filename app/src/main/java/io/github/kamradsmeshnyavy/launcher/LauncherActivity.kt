@@ -552,6 +552,12 @@ class LauncherActivity :
         runCatching { startActivityForResult(intent, REQUEST_IMAGES) }
     }
 
+    override fun openSearch() {
+        // Ящик с клавиатурой: как свайп вверх, но поле поиска сразу в фокусе.
+        animateDrawer(true)
+        root.postDelayed({ if (drawerProgress >= 0.999f) drawer.opened(true) }, Nihil.DRAWER + 80L)
+    }
+
     override fun editOptions(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item) {
         startActivity(CustomizerActivity.intent(this, CustomizerActivity.ITEM + item.id))
     }

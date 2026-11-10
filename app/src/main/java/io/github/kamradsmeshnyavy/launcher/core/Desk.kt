@@ -120,6 +120,9 @@ object Desk {
         write(context)
     }
 
+    /** Сохранить состояние виджета (секундомер, таймер): вид не меняется, перестраивать не нужно. */
+    fun saveQuiet(context: Context) = write(context)
+
     private fun write(context: Context) {
         val s = cached ?: return
         context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit().putString(KEY, s.json().toString()).apply()

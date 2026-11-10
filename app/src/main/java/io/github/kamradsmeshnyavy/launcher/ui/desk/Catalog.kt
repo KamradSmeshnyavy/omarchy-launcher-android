@@ -70,6 +70,24 @@ object Catalog {
         register(Spec("countdown", R.string.w_countdown, R.string.wg_nothing, listOf(2 to 2, 4 to 2, 2 to 1),
             listOf(Opt("title", "text", R.string.wo_title), Opt("date", "date", R.string.wo_date))) { c, i, h -> CountdownWidget(c, i, h) })
         register(Spec("screentime", R.string.w_screen_time, R.string.wg_nothing, listOf(4 to 2, 4 to 3)) { c, i, h -> ScreenTimeWidget(c, i, h) })
+        // Ещё в духе Nothing OS (свой рисунок): время, небо, инструменты, люди и поиск.
+        register(Spec("bigclock", R.string.w_bigclock, R.string.wg_time, listOf(2 to 2, 3 to 3, 4 to 4, 2 to 3)) { c, i, h -> BigClockWidget(c, i, h) })
+        register(Spec("bigdate", R.string.w_bigdate, R.string.wg_time, listOf(2 to 2, 4 to 2, 2 to 1)) { c, i, h -> BigDateWidget(c, i, h) })
+        register(Spec("stopwatch", R.string.w_stopwatch, R.string.wg_time, listOf(2 to 1, 2 to 2, 4 to 1)) { c, i, h -> StopwatchWidget(c, i, h) })
+        register(Spec("timer", R.string.w_timer, R.string.wg_time, listOf(2 to 2, 3 to 3),
+            listOf(Opt("minutes", "num", R.string.wo_minutes, default = 5.0, min = 1.0, max = 120.0))) { c, i, h -> TimerWidget(c, i, h) })
+        register(Spec("sun", R.string.w_sun, R.string.wg_weather, listOf(4 to 2, 2 to 2)) { c, i, h -> SunWidget(c, i, h) })
+        register(Spec("air", R.string.w_air, R.string.wg_weather, listOf(2 to 2, 4 to 1),
+            listOf(Opt("scale", "enum", R.string.wo_scale, listOf("eu", "us"), "eu"))) { c, i, h -> AirWidget(c, i, h) })
+        register(Spec("moon", R.string.w_moon, R.string.wg_weather, listOf(2 to 2, 4 to 2)) { c, i, h -> MoonWidget(c, i, h) })
+        register(Spec("recorder", R.string.w_recorder, R.string.wg_nothing, listOf(2 to 2, 2 to 1, 1 to 1)) { c, i, h -> RecorderWidget(c, i, h) })
+        register(Spec("camera", R.string.w_camera, R.string.wg_nothing, listOf(2 to 2, 2 to 1, 1 to 1)) { c, i, h -> CameraWidget(c, i, h) })
+        register(Spec("torch", R.string.w_torch, R.string.wg_nothing, listOf(1 to 1, 2 to 2)) { c, i, h -> TorchWidget(c, i, h) })
+        register(Spec("ringmode", R.string.w_ring, R.string.wg_nothing, listOf(2 to 1, 2 to 2)) { c, i, h -> RingModeWidget(c, i, h) })
+        register(Spec("storage", R.string.w_storage, R.string.wg_nothing, listOf(2 to 2, 4 to 1, 2 to 1)) { c, i, h -> StorageWidget(c, i, h) })
+        register(Spec("datausage", R.string.w_data, R.string.wg_nothing, listOf(2 to 2, 4 to 1)) { c, i, h -> DataUsageWidget(c, i, h) })
+        register(Spec("contacts", R.string.w_contacts, R.string.wg_work, listOf(4 to 1, 4 to 2)) { c, i, h -> ContactsWidget(c, i, h) })
+        register(Spec("search", R.string.w_search, R.string.wg_work, listOf(4 to 1)) { c, i, h -> SearchWidget(c, i, h) })
     }
 
     /** Голос виджета — общая настройка: auto (по стилю), dots (DOT-MATRIX), style. */

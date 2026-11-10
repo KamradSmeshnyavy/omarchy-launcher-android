@@ -111,4 +111,52 @@
         <item quantity="many">%d элементов</item>
         <item quantity="other">%d элемента</item>
     </plurals>
+    <string name="w_bigclock">Большие часы</string>
+    <string name="w_bigdate">Дата крупно</string>
+    <string name="w_stopwatch">Секундомер</string>
+    <string name="w_reset">сброс</string>
+    <string name="w_timer">Таймер</string>
+    <string name="w_timer_stop">нажми — стоп</string>
+    <string name="w_sun">Восход · закат</string>
+    <string name="w_air">Качество воздуха</string>
+    <string name="w_moon">Луна</string>
+    <string name="w_recorder">Диктофон</string>
+    <string name="w_camera">Камера</string>
+    <string name="w_torch">Фонарик</string>
+    <string name="w_ring">Режим звонка</string>
+    <string name="w_ring_sound">Звук</string>
+    <string name="w_ring_vibrate">Вибрация</string>
+    <string name="w_ring_silent">Без звука</string>
+    <string name="w_storage">Память</string>
+    <string name="w_data">Трафик за месяц</string>
+    <string name="w_data_mobile">мобильный</string>
+    <string name="w_contacts">Избранные контакты</string>
+    <string name="w_contacts_allow">Нажми, чтобы разрешить контакты</string>
+    <string name="w_contacts_none">Отметь контакты звёздочкой — они появятся здесь</string>
+    <string name="w_search">Поиск</string>
+    <string name="w_search_hint">Приложения и интернет</string>
+    <string name="w_no_weather">Погоды пока нет</string>
+    <string name="w_tap_allow">Нажми, чтобы разрешить статистику</string>
+    <string name="wo_minutes">Минуты</string>
+    <string name="wo_scale">Шкала</string>
+    <string name="wv_eu">Европа (EAQI)</string>
+    <string name="wv_us">США (US AQI)</string>
+    <string-array name="w_air_levels">
+        <item>Хорошо</item>
+        <item>Нормально</item>
+        <item>Умеренно</item>
+        <item>Плохо</item>
+        <item>Очень плохо</item>
+        <item>Опасно</item>
+    </string-array>
+    <string-array name="w_moon_phases">
+        <item>Новолуние</item>
+        <item>Растущий серп</item>
+        <item>Первая четверть</item>
+        <item>Растущая луна</item>
+        <item>Полнолуние</item>
+        <item>Убывающая луна</item>
+        <item>Последняя четверть</item>
+        <item>Убывающий серп</item>
+    </string-array>
 </resources>

@@ -109,4 +109,52 @@
         <item quantity="one">%d item</item>
         <item quantity="other">%d items</item>
     </plurals>
+    <string name="w_bigclock">Big clock</string>
+    <string name="w_bigdate">Big date</string>
+    <string name="w_stopwatch">Stopwatch</string>
+    <string name="w_reset">reset</string>
+    <string name="w_timer">Timer</string>
+    <string name="w_timer_stop">tap to stop</string>
+    <string name="w_sun">Sunrise · sunset</string>
+    <string name="w_air">Air quality</string>
+    <string name="w_moon">Moon</string>
+    <string name="w_recorder">Recorder</string>
+    <string name="w_camera">Camera</string>
+    <string name="w_torch">Torch</string>
+    <string name="w_ring">Ring mode</string>
+    <string name="w_ring_sound">Sound</string>
+    <string name="w_ring_vibrate">Vibrate</string>
+    <string name="w_ring_silent">Silent</string>
+    <string name="w_storage">Storage</string>
+    <string name="w_data">Data this month</string>
+    <string name="w_data_mobile">mobile</string>
+    <string name="w_contacts">Favourite contacts</string>
+    <string name="w_contacts_allow">Tap to allow contacts</string>
+    <string name="w_contacts_none">Star contacts to see them here</string>
+    <string name="w_search">Search</string>
+    <string name="w_search_hint">Search apps and the web</string>
+    <string name="w_no_weather">No weather yet</string>
+    <string name="w_tap_allow">Tap to allow usage access</string>
+    <string name="wo_minutes">Minutes</string>
+    <string name="wo_scale">Scale</string>
+    <string name="wv_eu">Europe (EAQI)</string>
+    <string name="wv_us">US AQI</string>
+    <string-array name="w_air_levels">
+        <item>Good</item>
+        <item>Fair</item>
+        <item>Moderate</item>
+        <item>Poor</item>
+        <item>Very poor</item>
+        <item>Extremely poor</item>
+    </string-array>
+    <string-array name="w_moon_phases">
+        <item>New moon</item>
+        <item>Waxing crescent</item>
+        <item>First quarter</item>
+        <item>Waxing gibbous</item>
+        <item>Full moon</item>
+        <item>Waning gibbous</item>
+        <item>Last quarter</item>
+        <item>Waning crescent</item>
+    </string-array>
 </resources>

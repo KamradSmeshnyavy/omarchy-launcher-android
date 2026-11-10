@@ -24,6 +24,9 @@ interface DeskHost {
     fun pickImages(then: (List<android.net.Uri>) -> Unit)
     /** Настройки этого виджета (Customizer → страница виджета). */
     fun editOptions(item: Desk.Item)
+
+    /** Поиск лаунчера (ящик с клавиатурой) — виджет «Поиск». */
+    fun openSearch() {}
 }
 
 /**
