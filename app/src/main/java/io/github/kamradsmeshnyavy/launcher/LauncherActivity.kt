@@ -175,6 +175,7 @@ class LauncherActivity :
         }
 
         home.setDim(prefs.dimWallpaper)
+        if (intent?.action == CustomizerActivity.ACTION_PICK_APP_WIDGET) root.post { bindAppWidget(intent) }
         setProgress(0f)
         refreshApps()
     }
@@ -189,6 +190,7 @@ class LauncherActivity :
 
     override fun onStart() {
         super.onStart()
+        runCatching { io.github.kamradsmeshnyavy.launcher.core.AppWidgets.host(this).startListening() }
         register()
         home.updateClock(animate = false)
         bar?.tick()
@@ -239,6 +241,7 @@ class LauncherActivity :
 
     override fun onStop() {
         super.onStop()
+        runCatching { io.github.kamradsmeshnyavy.launcher.core.AppWidgets.host(this).stopListening() }
         unregister()
         Glyph.unlisten(this)
         // Coming back always lands on the home screen.
@@ -267,6 +270,60 @@ class LauncherActivity :
             popup.dismiss()
             if (drawerProgress > 0f) animateDrawer(open = false)
         }
+        if (intent.action == CustomizerActivity.ACTION_PICK_APP_WIDGET) bindAppWidget(intent)
+    }
+
+    // --- Виджеты приложений -------------------------------------------------------------
+
+    private class Pending(val space: Int, val id: Int, val provider: android.content.ComponentName)
+
+    private var pending: Pending? = null
+
+    /** Из выбора в Customizer: выделить id, получить право привязки, настройку — и на стол. */
+    private fun bindAppWidget(intent: Intent) {
+        val provider = intent.getStringExtra("provider")?.let { android.content.ComponentName.unflattenFromString(it) } ?: return
+        val space = intent.getIntExtra("space", home.page)
+        val widgets = io.github.kamradsmeshnyavy.launcher.core.AppWidgets
+        val id = widgets.host(this).allocateAppWidgetId()
+        pending = Pending(space, id, provider)
+        if (widgets.manager(this).bindAppWidgetIdIfAllowed(id, provider)) {
+            configureAppWidget()
+        } else {
+            val ask = Intent(android.appwidget.AppWidgetManager.ACTION_APPWIDGET_BIND)
+                .putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_ID, id)
+                .putExtra(android.appwidget.AppWidgetManager.EXTRA_APPWIDGET_PROVIDER, provider)
+            @Suppress("DEPRECATION")
+            runCatching { startActivityForResult(ask, REQUEST_BIND) }.onFailure { dropPending() }
+        }
+    }
+
+    private fun configureAppWidget() {
+        val p = pending ?: return
+        val widgets = io.github.kamradsmeshnyavy.launcher.core.AppWidgets
+        val info = widgets.info(this, p.id) ?: return dropPending()
+        if (info.configure != null) {
+            runCatching { widgets.host(this).startAppWidgetConfigureActivityForResult(this, p.id, 0, REQUEST_CONFIG, null) }
+                .onFailure { placeAppWidget() }
+        } else {
+            placeAppWidget()
+        }
+    }
+
+    private fun placeAppWidget() {
+        val p = pending ?: return
+        pending = null
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val widgets = io.github.kamradsmeshnyavy.launcher.core.AppWidgets
+        val info = widgets.info(this, p.id) ?: return
+        val (w, h) = widgets.cells(this, info)
+        desk.add(this, p.space, io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("aw"), "appwidget", info.provider.flattenToShortString(), appWidgetId = p.id, w = w, h = h))
+        home.rebuild()
+        home.post { home.showPage(p.space) }
+    }
+
+    private fun dropPending() {
+        pending?.let { io.github.kamradsmeshnyavy.launcher.core.AppWidgets.delete(this, it.id) }
+        pending = null
     }
 
     @Deprecated("Deprecated in Java")
@@ -547,6 +604,7 @@ class LauncherActivity :
         }
         items += AppMenu.Item(LineIcon.Shape.TRASH, getString(R.string.desk_remove), danger = true) {
             space.items.remove(item)
+            if (item.kind == "appwidget") io.github.kamradsmeshnyavy.launcher.core.AppWidgets.delete(this, item.appWidgetId)
             if (grid) io.github.kamradsmeshnyavy.launcher.core.Desk.Grid.compact(space.items)
             changed()
         }
@@ -887,6 +945,14 @@ class LauncherActivity :
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_BIND) {
+            if (resultCode == RESULT_OK) configureAppWidget() else dropPending()
+            return
+        }
+        if (requestCode == REQUEST_CONFIG) {
+            if (resultCode == RESULT_OK) placeAppWidget() else dropPending()
+            return
+        }
         if (requestCode == REQUEST_IMAGES) {
             val then = picked ?: return
             picked = null
@@ -901,6 +967,8 @@ class LauncherActivity :
 
     private companion object {
         const val REQUEST_IMAGES = 41
+        const val REQUEST_BIND = 42
+        const val REQUEST_CONFIG = 43
         const val DAY = 24L * 60 * 60 * 1000
         const val DEFAULT_WALLPAPER = "wallpapers/night.jpg"
     }

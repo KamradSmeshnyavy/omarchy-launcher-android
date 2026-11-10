@@ -71,4 +71,11 @@
     <string name="wv_dots">DOT-MATRIX</string>
     <string name="wv_style">Style</string>
     <string name="w_pc_unpaired">Pair the computer: Settings → Computer</string>
+    <string name="w_app_widgets_page_sub">Grouped by app, with their own previews. On the desk it gets the style’s card and the theme’s Material You colours; settings can tint it.</string>
+    <string name="w_app_widgets_none">No app widgets on this phone</string>
+    <string name="wo_tint">Tint</string>
+    <string name="wo_card">In the style’s card</string>
+    <string name="wv_none">As drawn</string>
+    <string name="wv_theme">Theme colours</string>
+    <string name="wv_mono">Mono</string>
 </resources>

@@ -71,4 +71,11 @@
     <string name="wv_dots">DOT-MATRIX</string>
     <string name="wv_style">Стиль</string>
     <string name="w_pc_unpaired">Сопрягите компьютер: Настройки → Компьютер</string>
+    <string name="w_app_widgets_page_sub">По приложениям, с их превью. На столе — в карточке стиля и с цветами Material You из темы; в настройках можно тонировать.</string>
+    <string name="w_app_widgets_none">На телефоне нет виджетов приложений</string>
+    <string name="wo_tint">Тонирование</string>
+    <string name="wo_card">В карточке стиля</string>
+    <string name="wv_none">Как нарисовано</string>
+    <string name="wv_theme">Цвета темы</string>
+    <string name="wv_mono">Монохром</string>
 </resources>

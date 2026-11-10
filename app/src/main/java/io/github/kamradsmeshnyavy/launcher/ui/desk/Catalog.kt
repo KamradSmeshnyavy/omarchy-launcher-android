@@ -81,6 +81,7 @@ object Catalog {
             "favourites" -> FavouritesWidget(context, item, host)
             "widget" -> spec(item.type)?.make?.invoke(context, item, host)
             "app" -> entry(context, item.type)?.let { AppCellWidget(context, item, host, it) }
+            "appwidget" -> AppWidgetItem(context, item, host)
             else -> extra?.invoke(context, item, host)
         }
 

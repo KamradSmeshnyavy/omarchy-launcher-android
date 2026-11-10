@@ -100,6 +100,7 @@ class CustomizerActivity : LookActivity() {
             page == BAR -> barPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
             page.startsWith(ADD) -> addWidget(page.removePrefix(ADD).toIntOrNull() ?: 0)
+            page.startsWith(APP_WIDGETS) -> appWidgets(page.removePrefix(APP_WIDGETS).toIntOrNull() ?: 0)
             page.startsWith(ITEM) -> itemOptions(page.removePrefix(ITEM))
         }
     }
@@ -515,10 +516,52 @@ class CustomizerActivity : LookActivity() {
         column.addView(mono(getString(R.string.wg_apps).uppercase(), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(26); bottomMargin = dp(8) })
         column.addView(settingRow(getString(R.string.w_favourites), null, chevron()) { add(io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("f"), "favourites", w = 4, h = 3)) })
         column.addView(settingRow(getString(R.string.w_app_widgets), getString(R.string.w_app_widgets_sub), chevron()) {
-            setResult(RESULT_OK, Intent().putExtra("appwidget", space))
-            startActivity(Intent(this, LauncherActivity::class.java).setAction(ACTION_PICK_APP_WIDGET).putExtra("space", space).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP))
+            startActivity(intent(this, APP_WIDGETS + space))
             finish()
         })
+    }
+
+    /** Виджеты приложений: по приложениям, с их превью; выбор — привязка в лаунчере. */
+    private fun appWidgets(space: Int) {
+        column.addView(heading(getString(R.string.w_app_widgets), getString(R.string.w_app_widgets_page_sub)))
+        val pm = packageManager
+        val density = resources.displayMetrics.densityDpi
+        val providers = io.github.kamradsmeshnyavy.launcher.core.AppWidgets.providers(this)
+            .sortedWith(compareBy({ it.loadLabel(pm).lowercase() }))
+            .groupBy { it.provider.packageName }
+            .toSortedMap(compareBy { runCatching { pm.getApplicationLabel(pm.getApplicationInfo(it, 0)).toString().lowercase() }.getOrDefault(it) })
+        if (providers.isEmpty()) column.addView(body(getString(R.string.w_app_widgets_none)))
+        providers.forEach { (pkg, list) ->
+            val app = runCatching { pm.getApplicationLabel(pm.getApplicationInfo(pkg, 0)).toString() }.getOrDefault(pkg)
+            column.addView(mono(app.uppercase(), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(22); bottomMargin = dp(6) })
+            list.forEach { info ->
+                val preview = android.widget.ImageView(this).apply {
+                    scaleType = android.widget.ImageView.ScaleType.FIT_START
+                    adjustViewBounds = true
+                    maxHeight = dp(180)
+                }
+                pool.execute {
+                    val d = runCatching { info.loadPreviewImage(this, density) ?: info.loadIcon(this, density) }.getOrNull()
+                    preview.post { preview.setImageDrawable(d) }
+                }
+                val (w, h) = io.github.kamradsmeshnyavy.launcher.core.AppWidgets.cells(this, info)
+                column.addView(LinearLayout(this).apply {
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(0, dp(8), 0, dp(12))
+                    background = io.github.kamradsmeshnyavy.launcher.ui.ripple(dp(12f))
+                    addView(preview, llp(WRAP, WRAP))
+                    addView(text(info.loadLabel(pm), 14f, Nihil.INK, Nihil.fonts(context).sans), llp(MATCH, WRAP).apply { topMargin = dp(6) })
+                    addView(mono("$w×$h", 10f, Nihil.MUTED))
+                    setOnClickListener {
+                        startActivity(Intent(context, LauncherActivity::class.java).setAction(ACTION_PICK_APP_WIDGET)
+                            .putExtra("space", space).putExtra("provider", info.provider.flattenToString())
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP))
+                        finish()
+                    }
+                }, llp(MATCH, WRAP))
+                column.addView(rule(), llp(MATCH, dp(1)))
+            }
+        }
     }
 
     private fun itemOptions(id: String) {
@@ -530,7 +573,10 @@ class CustomizerActivity : LookActivity() {
         }
         val spec = catalog.spec(item.type)
         column.addView(heading(spec?.title?.let { getString(it) } ?: getString(R.string.desk_options), getString(R.string.desk_options_sub)))
-        val opts = listOf(catalog.VOICE) + (spec?.options ?: emptyList())
+        val opts = if (item.kind == "appwidget") listOf(
+            io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog.Opt("tint", "enum", R.string.wo_tint, listOf("none", "theme", "mono"), "none"),
+            io.github.kamradsmeshnyavy.launcher.ui.desk.Catalog.Opt("card", "bool", R.string.wo_card, default = true),
+        ) else listOf(catalog.VOICE) + (spec?.options ?: emptyList())
         fun save() = desk.save(this)
         opts.forEach { opt ->
             val label = getString(opt.title)
@@ -973,6 +1019,7 @@ class CustomizerActivity : LookActivity() {
         const val WEATHER = "weather"
         const val BAR = "bar"
         const val ADD = "add:"
+        const val APP_WIDGETS = "appwidgets:"
         const val ITEM = "item:"
         const val TABLE = "table:"
         const val ACTION_PICK_APP_WIDGET = "io.github.kamradsmeshnyavy.launcher.PICK_APP_WIDGET"
