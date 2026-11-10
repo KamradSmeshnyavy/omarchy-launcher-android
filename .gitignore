@@ -13,3 +13,6 @@ result
 *.jks
 *.keystore
 keystore.properties
+
+# Миниатюры обоев тем: чужие картинки, только в локальной сборке (just export)
+app/src/main/assets/looks/thumbs/

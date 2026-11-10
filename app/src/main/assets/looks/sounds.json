@@ -1,0 +1,162 @@
+{
+ "packs": [
+  {
+   "id": "brutal",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "classic",
+   "events": [
+    "close",
+    "fullscreen",
+    "lock",
+    "menu",
+    "open",
+    "power",
+    "special",
+    "switch"
+   ]
+  },
+  {
+   "id": "dotmatrix",
+   "events": [
+    "charge",
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "flat",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "fluent",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "glass",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "neon",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "neumorph",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "paper",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  },
+  {
+   "id": "retro",
+   "events": [
+    "close",
+    "critical",
+    "fullscreen",
+    "lock",
+    "menu",
+    "notify",
+    "open",
+    "power",
+    "special",
+    "switch",
+    "volume"
+   ]
+  }
+ ]
+}

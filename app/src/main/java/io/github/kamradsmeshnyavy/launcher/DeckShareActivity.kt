@@ -22,7 +22,9 @@ import java.util.concurrent.Executors
  * paired computer, a notice says so, and this goes, over whatever was on
  * screen and in its orientation (the deck itself is landscape).
  */
-class DeckShareActivity : Activity() {
+class DeckShareActivity : LookActivity() {
+    override val paintsWindow = false
+
     private val main = Handler(Looper.getMainLooper())
     private val worker = Executors.newSingleThreadExecutor()
 

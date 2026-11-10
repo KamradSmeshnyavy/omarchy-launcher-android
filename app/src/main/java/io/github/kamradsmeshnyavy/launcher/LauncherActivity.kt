@@ -77,12 +77,14 @@ import kotlin.math.max
  *   DrawerView the drawer, which rises with the frame
  */
 class LauncherActivity :
-    Activity(),
+    LookActivity(),
     HomeView.Host,
     DrawerView.Host,
     RootLayout.Listener,
     ActionHost,
     Glyph.Listener {
+
+    override val paintsWindow = false
 
     private lateinit var prefs: Prefs
     private lateinit var root: RootLayout

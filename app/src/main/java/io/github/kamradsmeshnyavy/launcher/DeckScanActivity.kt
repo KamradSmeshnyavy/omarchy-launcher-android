@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * NIHIL's own reader (QrDecoder: no libraries, nothing leaves the phone),
  * and the phone pairs with the computer it names, trusting only its pin.
  */
-class DeckScanActivity : Activity() {
+class DeckScanActivity : LookActivity() {
 
     private lateinit var texture: TextureView
     private lateinit var status: TextView

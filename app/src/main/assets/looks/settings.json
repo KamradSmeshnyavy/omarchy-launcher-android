@@ -1,0 +1,466 @@
+{
+ "version": 1,
+ "tables": [
+  {
+   "id": "WIDGET_TWEAKS",
+   "category": "widgets",
+   "file": "widgets.json",
+   "items": [
+    {
+     "section": "General"
+    },
+    {
+     "key": "desktopWidgets",
+     "type": "bool",
+     "default": true,
+     "label": "Desktop widgets: on / off (off — none of them is drawn)"
+    },
+    {
+     "key": "widgetStyle",
+     "type": "enum",
+     "values": [
+      "style",
+      "default",
+      "dotmatrix"
+     ],
+     "label": "Widgets: look (style — follows the Customizer style)"
+    },
+    {
+     "key": "tint",
+     "type": "color",
+     "default": "accent",
+     "label": "Accent colour"
+    },
+    {
+     "section": "Clock"
+    },
+    {
+     "key": "clock",
+     "type": "bool",
+     "default": true,
+     "label": "Clock"
+    },
+    {
+     "key": "clockStyle",
+     "type": "enum",
+     "values": [
+      "big",
+      "stacked",
+      "terminal",
+      "minimal"
+     ],
+     "label": "Clock: style"
+    },
+    {
+     "key": "clock24",
+     "type": "bool",
+     "default": true,
+     "label": "Clock: 24-hour"
+    },
+    {
+     "key": "clockSeconds",
+     "type": "bool",
+     "default": false,
+     "label": "Clock: seconds"
+    },
+    {
+     "section": "Now playing"
+    },
+    {
+     "key": "media",
+     "type": "bool",
+     "default": true,
+     "label": "Now playing"
+    },
+    {
+     "section": "Todo"
+    },
+    {
+     "key": "todo",
+     "type": "bool",
+     "default": false,
+     "label": "Todo / notes (click — done, right click — delete, + — add)"
+    },
+    {
+     "key": "todoMax",
+     "type": "num",
+     "min": 1,
+     "max": 20,
+     "step": 1,
+     "default": 8,
+     "label": "Todo: items shown"
+    }
+   ]
+  },
+  {
+   "id": "SOUND_TWEAKS",
+   "category": "sounds",
+   "file": "sounds.json",
+   "items": [
+    {
+     "section": "Sounds"
+    },
+    {
+     "key": "sounds",
+     "type": "bool",
+     "default": true,
+     "label": "Sounds: on"
+    },
+    {
+     "key": "soundPack",
+     "type": "enum",
+     "values": [
+      "theme",
+      "dotmatrix",
+      "classic",
+      "flat",
+      "glass",
+      "fluent",
+      "paper",
+      "neumorph",
+      "brutal",
+      "retro",
+      "neon"
+     ],
+     "label": "Sounds: pack"
+    },
+    {
+     "key": "soundVolume",
+     "type": "num",
+     "min": 0.1,
+     "max": 1,
+     "step": 0.1,
+     "default": 0.6,
+     "label": "Sounds: volume"
+    }
+   ]
+  },
+  {
+   "id": "GLYPH_TWEAKS",
+   "category": "glyph",
+   "file": "glyph.json",
+   "items": [
+    {
+     "section": "Glyph lighting"
+    },
+    {
+     "key": "glyphEnabled",
+     "type": "bool",
+     "default": false,
+     "label": "Glyph: perimeter lighting"
+    },
+    {
+     "key": "glyphCriticalRed",
+     "type": "bool",
+     "default": true,
+     "label": "Glyph: signal red on critical alerts"
+    },
+    {
+     "key": "glyphCharger",
+     "type": "bool",
+     "default": true,
+     "label": "Glyph: rising beams on charger plug-in"
+    },
+    {
+     "key": "glyphInsetMode",
+     "type": "enum",
+     "values": [
+      "auto",
+      "frame",
+      "edge"
+     ],
+     "label": "Glyph: path around the screen"
+    },
+    {
+     "section": "Appearance"
+    },
+    {
+     "key": "glyphColor",
+     "type": "color",
+     "default": "foreground",
+     "label": "Glyph: light colour"
+    },
+    {
+     "key": "glyphCriticalColor",
+     "type": "color",
+     "default": "urgent",
+     "label": "Glyph: critical colour"
+    },
+    {
+     "key": "glyphDuration",
+     "type": "num",
+     "min": 300,
+     "max": 3000,
+     "step": 100,
+     "default": 1100,
+     "label": "Glyph: sweep duration, ms"
+    },
+    {
+     "key": "glyphThickness",
+     "type": "num",
+     "min": 1,
+     "max": 8,
+     "step": 0.5,
+     "default": 2.5,
+     "label": "Glyph: core thickness"
+    }
+   ]
+  },
+  {
+   "id": "DOTIFY_TWEAKS",
+   "category": "dotify",
+   "file": "dotify.json",
+   "items": [
+    {
+     "section": "Dot matrix"
+    },
+    {
+     "key": "dotPitch",
+     "type": "num",
+     "min": 6,
+     "max": 24,
+     "step": 1,
+     "default": 9,
+     "label": "Cell pitch, px (logical)"
+    },
+    {
+     "key": "dotGamma",
+     "type": "num",
+     "min": 0.4,
+     "max": 2.2,
+     "step": 0.05,
+     "default": 1.25,
+     "label": "Brightness gamma"
+    },
+    {
+     "key": "dotOff",
+     "type": "num",
+     "min": 0,
+     "max": 0.25,
+     "step": 0.01,
+     "default": 0.07,
+     "label": "Unlit LED grid level"
+    },
+    {
+     "key": "dotTint",
+     "type": "color",
+     "default": "foreground",
+     "label": "Lit LED colour"
+    },
+    {
+     "key": "dotBackground",
+     "type": "color",
+     "default": "background",
+     "label": "Void background colour"
+    }
+   ]
+  },
+  {
+   "id": "LAUNCHER_TWEAKS",
+   "category": "launcher",
+   "file": "menu-skin.json",
+   "items": [
+    {
+     "key": "backdrop",
+     "type": "num",
+     "min": 0.2,
+     "max": 1,
+     "step": 0.05,
+     "default": 0.94,
+     "label": "Background dim"
+    }
+   ]
+  },
+  {
+   "id": "DOTMATRIX_TWEAKS",
+   "category": "widgets",
+   "file": "dotmatrix.json",
+   "items": [
+    {
+     "section": "DOT-MATRIX palette"
+    },
+    {
+     "key": "palette",
+     "type": "enum",
+     "values": [
+      "theme",
+      "mono"
+     ],
+     "label": "DOT-MATRIX: palette (theme — omarchy colours, mono — original black & white)"
+    },
+    {
+     "section": "DOT-MATRIX colours"
+    },
+    {
+     "key": "dotmatrixBg",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: background (bar, drawers, cards)"
+    },
+    {
+     "key": "dotmatrixFg",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: text"
+    },
+    {
+     "key": "dotmatrixDim",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: secondary text"
+    },
+    {
+     "key": "dotmatrixMuted",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: labels and app names"
+    },
+    {
+     "key": "dotmatrixLine",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: hairlines and card borders"
+    },
+    {
+     "key": "dotmatrixSurface",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: raised surfaces (rows, fields)"
+    },
+    {
+     "key": "dotmatrixLit",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: lit LEDs, sliders, active toggles"
+    },
+    {
+     "key": "dotmatrixSignal",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: signal (accent marks and indicators)"
+    },
+    {
+     "key": "dotmatrixDanger",
+     "type": "color",
+     "default": "default",
+     "label": "DOT-MATRIX: danger (critical, confirmations)"
+    }
+   ]
+  },
+  {
+   "id": "PRESET_TWEAKS",
+   "category": "presets",
+   "file": "preset-apply.json",
+   "items": [
+    {
+     "section": "Apply from presets"
+    },
+    {
+     "key": "presetTheme",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply theme"
+    },
+    {
+     "key": "presetWallpaper",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply wallpaper"
+    },
+    {
+     "key": "presetLauncher",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply launcher"
+    },
+    {
+     "key": "presetWidgets",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply widgets and dashboard"
+    },
+    {
+     "key": "presetSounds",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply sounds"
+    },
+    {
+     "key": "presetGlyph",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply Glyph"
+    },
+    {
+     "key": "presetFonts",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply system fonts of the preset's style"
+    },
+    {
+     "key": "presetLook",
+     "type": "bool",
+     "default": true,
+     "label": "Presets: apply panel surfaces (shadows, motion, material, corners, typeface)"
+    }
+   ]
+  },
+  {
+   "id": "STYLE_TWEAKS",
+   "category": "styles",
+   "file": "style-apply.json",
+   "items": [
+    {
+     "section": "Apply from styles"
+    },
+    {
+     "key": "styleLauncher",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply launcher"
+    },
+    {
+     "key": "styleWidgets",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply widgets and dashboard"
+    },
+    {
+     "key": "styleSounds",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply sounds"
+    },
+    {
+     "key": "styleGlyph",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply Glyph"
+    },
+    {
+     "key": "styleFonts",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply system fonts (terminals, GTK, browser)"
+    },
+    {
+     "key": "styleLook",
+     "type": "bool",
+     "default": true,
+     "label": "Styles: apply panel surfaces (shadows, motion, material, corners, typeface)"
+    },
+    {
+     "key": "styleTheme",
+     "type": "enum",
+     "values": [
+      "current",
+      "off",
+      "dark",
+      "light"
+     ],
+     "label": "Styles: theme (current — same brightness as the theme now · off · dark · light)"
+    }
+   ]
+  }
+ ]
+}

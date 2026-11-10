@@ -45,7 +45,7 @@ import java.util.concurrent.Executors
  * change is kept here at once and sent to the computer when it answers; away from
  * it, the phone goes on, and the next sync merges what each side did (TaskBoard).
  */
-class TasksActivity : Activity() {
+class TasksActivity : LookActivity() {
     private lateinit var tasks: TasksStore
     private lateinit var status: TextView
     private lateinit var tabs: Choice

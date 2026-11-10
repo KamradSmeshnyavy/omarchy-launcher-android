@@ -23,6 +23,7 @@ import android.view.animation.PathInterpolator
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import io.github.kamradsmeshnyavy.launcher.core.Look
 
 /** The easing of every NIHIL animation (the desktop's "emphasized" curve). */
 val EASE = PathInterpolator(0.2f, 0f, 0f, 1f)
@@ -47,16 +48,39 @@ fun Context.text(
 fun Context.mono(value: CharSequence = "", size: Float = 11f, color: Int = Nihil.MUTED): TextView =
     text(value, size, color, Nihil.fonts(this).mono)
 
+/**
+ * Плашка в материале стиля Customizer: скругление × cornerScale, а дальше по material —
+ * стекло (полупрозрачная заливка, светлая кромка), брутализм (толстая рамка цвета текста),
+ * неон (кромка акцентом), мягкий неоморфизм (без кромки), ретро (рельефная кромка).
+ */
 fun rounded(color: Int, radius: Float, strokeWidth: Int = 0, strokeColor: Int = 0): GradientDrawable =
     GradientDrawable().apply {
-        setColor(color)
-        cornerRadius = radius
-        if (strokeWidth > 0) setStroke(strokeWidth, strokeColor)
+        val look = Look.now
+        var fill = color
+        var width = strokeWidth
+        var edge = strokeColor
+        val opaqueSurface = (color ushr 24) == 0xFF && color != Nihil.INK && color != Nihil.SIGNAL
+        when {
+            look.glass -> {
+                if (opaqueSurface) fill = withAlpha(color, 0.72f)
+                if (width > 0) edge = withAlpha(Nihil.INK, 0.18f)
+            }
+            look.material == "brutal" -> if (width > 0) {
+                width *= 2
+                edge = Nihil.INK
+            }
+            look.material == "glow" -> if (width > 0 && strokeColor == Nihil.LINE) edge = withAlpha(Nihil.SIGNAL, 0.7f)
+            look.material == "soft" -> if (strokeColor == Nihil.LINE) width = 0
+            look.material == "bevel" -> if (width > 0) edge = Nihil.DIM
+        }
+        setColor(fill)
+        cornerRadius = Nihil.corner(radius)
+        if (width > 0) setStroke(width, edge)
     }
 
-/** A press highlight in the shape of [radius] (no colour, only a soft white). */
+/** Подсветка нажатия в форме [radius]: мягкий оттенок цвета текста темы. */
 fun ripple(radius: Float, content: Drawable? = null): RippleDrawable =
-    RippleDrawable(ColorStateList.valueOf(0x24FFFFFF), content, rounded(Nihil.INK, radius))
+    RippleDrawable(ColorStateList.valueOf(withAlpha(Nihil.INK, 0.14f)), content, rounded(Nihil.INK, radius))
 
 fun View.pad(all: Int) = setPadding(all, all, all, all)
 

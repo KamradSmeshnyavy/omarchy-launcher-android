@@ -1,0 +1,373 @@
+{
+ "styles": [
+  {
+   "id": "brutal",
+   "name": "Brutalism",
+   "name_ru": "Брутализм",
+   "note": "Brutalism: square everything, thick ink borders, hard offset shadows without blur, no transparency, fast motion and hard clicks.",
+   "note_ru": "Брутализм: всё прямоугольное, толстые рамки цвета текста, жёсткие смещённые тени без размытия, никакой прозрачности, быстрые анимации и жёсткие клики.",
+   "look": {
+    "texture": "",
+    "elevation": 0,
+    "motion": 0.6,
+    "material": "brutal",
+    "cornerScale": 0,
+    "typeface": "shell"
+   },
+   "theme": {
+    "dark": "gruvbox-material",
+    "light": "flexoki-light"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "stock",
+   "sounds": {
+    "soundPack": "brutal",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-brutal",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "dotmatrix",
+   "name": "DOT-MATRIX",
+   "name_ru": "DOT-MATRIX",
+   "note": "Nothing-inspired hardware shell on any theme: bezel frame with windows flush against it, vertical LED bar, dot-matrix typography, signal colour strictly for alerts, perimeter Glyph lighting, LED dashboard/OSD/launcher/lock and a tactile sound pack.",
+   "note_ru": "Аппаратная оболочка в духе Nothing на любой теме: рамка-бортик с окнами вплотную, вертикальный LED-бар, матричная типографика, сигнальный цвет строго для тревог, контурная подсветка Glyph, LED-дашборд/OSD/лаунчер/локскрин и тактильный звуковой пакет.",
+   "look": {
+    "elevation": 0,
+    "motion": 1,
+    "material": "solid",
+    "cornerScale": 1,
+    "typeface": "profile",
+    "texture": ""
+   },
+   "theme": {
+    "dark": "nothing-steel",
+    "light": "nothing-ashlight"
+   },
+   "glyph": {
+    "glyphEnabled": true,
+    "glyphColor": "dotmatrix.fg",
+    "glyphCriticalColor": "dotmatrix.danger",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "pixel",
+   "sounds": {
+    "soundPack": "dotmatrix",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "dotmatrix",
+    "backdrop": 0.82
+   },
+   "widgets": {
+    "widgetStyle": "dotmatrix",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "flat",
+   "name": "Flat",
+   "name_ru": "Плоский",
+   "note": "Flat / Metro: square corners, solid surfaces, no shadows or blur, quick motion, quiet. Typography and colour do all the work.",
+   "note_ru": "Flat / Metro: прямые углы, сплошные поверхности, без теней и блюра, быстрые анимации, тихо. Всю работу делают шрифт и цвет.",
+   "look": {
+    "texture": "",
+    "elevation": 0,
+    "motion": 0.7,
+    "material": "solid",
+    "cornerScale": 0,
+    "typeface": "shell"
+   },
+   "theme": {
+    "dark": "matte-black",
+    "light": "white"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "stock",
+   "sounds": {
+    "soundPack": "flat",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-flat",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "minimal",
+    "media": true
+   }
+  },
+  {
+   "id": "fluent",
+   "name": "Fluent",
+   "name_ru": "Fluent",
+   "note": "Material / Fluent: layered surfaces with depth — gentle rounding, real shadows, a hint of translucency, island bar, card panels and the theme's own sounds.",
+   "note_ru": "Material / Fluent: слои с глубиной — умеренные скругления, настоящие тени, лёгкая полупрозрачность, бар-острова, карточки и звуки самой темы.",
+   "look": {
+    "texture": "",
+    "elevation": 2,
+    "motion": 1,
+    "material": "auto",
+    "cornerScale": 0.8,
+    "typeface": "profile"
+   },
+   "theme": {
+    "dark": "tokyo-night",
+    "light": "rose-pine"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "nothing",
+   "sounds": {
+    "soundPack": "fluent",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-fluent",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "glass",
+   "name": "Glass",
+   "name_ru": "Стекло",
+   "note": "Glassmorphism: translucent windows over a frosted wallpaper, glass bar and panels, soft round corners, smooth motion and soft clicks.",
+   "note_ru": "Глассморфизм: полупрозрачные окна над матовыми обоями, стеклянный бар и панели, мягкие скругления, плавные анимации и мягкие щелчки.",
+   "look": {
+    "texture": "",
+    "elevation": 1,
+    "motion": 1.25,
+    "material": "glass",
+    "cornerScale": 1.2,
+    "typeface": "shell"
+   },
+   "theme": {
+    "dark": "catppuccin",
+    "light": "catppuccin-latte"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "stock",
+   "sounds": {
+    "soundPack": "glass",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-glass",
+    "backdrop": 0.6
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "neon",
+   "name": "Neon / Cyber",
+   "name_ru": "Неон",
+   "note": "Neon / cyber: dark glass, borders and panels glowing in the accent colour, a light scanline shader over the screen and synth sounds with a filter sweep.",
+   "note_ru": "Неон / кибер: тёмное стекло, рамки и панели светятся цветом акцента, лёгкий шейдер строк развёртки на экране и синт-звуки с проходом фильтра.",
+   "look": {
+    "texture": "",
+    "elevation": 1,
+    "motion": 1.1,
+    "material": "glow",
+    "cornerScale": 0.8,
+    "typeface": "shell"
+   },
+   "theme": {
+    "dark": "cyber-aura",
+    "light": "cyber-aura"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "stock",
+   "sounds": {
+    "soundPack": "neon",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-neon",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "neumorph",
+   "name": "Neumorphism",
+   "name_ru": "Неоморфизм",
+   "note": "Neumorphism: soft extruded plastic — no borders, panels in the background colour with a light and a dark shadow, generous round corners, muted soft sounds.",
+   "note_ru": "Неоморфизм: мягкий выдавленный пластик — без рамок, панели цвета фона со светлой и тёмной тенью, крупные скругления, приглушённые мягкие звуки.",
+   "look": {
+    "texture": "",
+    "elevation": 1,
+    "motion": 1.0,
+    "material": "soft",
+    "cornerScale": 1.3,
+    "typeface": "profile"
+   },
+   "theme": {
+    "dark": "nord",
+    "light": "bliss"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "nothing",
+   "sounds": {
+    "soundPack": "neumorph",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-neumorph",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "minimal",
+    "media": true
+   }
+  },
+  {
+   "id": "paper",
+   "name": "Paper",
+   "name_ru": "Бумага",
+   "note": "Paper / sketchbook: panels are sheets of paper with a torn bottom edge, grain and a strip of tape, handwritten Caveat, a paper bar, a paper grain shader over the whole screen and calm motion. Colours stay the theme's: a light theme gives white paper, a dark one — kraft.",
+   "note_ru": "Бумага / скетчбук: панели — листы с рваным нижним краем, зерном и полоской скотча, рукописный Caveat, бумажный бар, шейдер бумажного зерна на весь экран и спокойные анимации. Цвета остаются от темы: светлая даёт белую бумагу, тёмная — крафт.",
+   "look": {
+    "texture": "textures/paper.png",
+    "elevation": 2,
+    "motion": 1.1,
+    "material": "paper",
+    "cornerScale": 0.5,
+    "typeface": "hand"
+   },
+   "theme": {
+    "dark": "kanagawa",
+    "light": "kanagawa-lotus"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "paper-ui",
+   "sounds": {
+    "soundPack": "paper",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-paper",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  },
+  {
+   "id": "retro",
+   "name": "Retro 9x",
+   "name_ru": "Ретро 9x",
+   "note": "Retro desktop of the nineties: grey panels with a 3D bevel, square windows, pixel interface font, no animations and chiptune sounds.",
+   "note_ru": "Ретро-десктоп девяностых: серые панели с объёмным кантом, квадратные окна, пиксельный шрифт интерфейса, без анимаций и чиптюн-звуки.",
+   "look": {
+    "texture": "",
+    "elevation": 0,
+    "motion": 0,
+    "material": "bevel",
+    "cornerScale": 0,
+    "typeface": "profile"
+   },
+   "theme": {
+    "dark": "ibm",
+    "light": "bliss"
+   },
+   "glyph": {
+    "glyphEnabled": false,
+    "glyphColor": "foreground",
+    "glyphCriticalColor": "urgent",
+    "glyphDuration": 1100,
+    "glyphThickness": 2.5,
+    "glyphInsetMode": "auto"
+   },
+   "fonts": "retro",
+   "sounds": {
+    "soundPack": "retro",
+    "windowSounds": true
+   },
+   "launcher": {
+    "skin": "drawer-retro",
+    "backdrop": 0.75
+   },
+   "widgets": {
+    "widgetStyle": "style",
+    "clockStyle": "big",
+    "media": true
+   }
+  }
+ ]
+}

@@ -11,6 +11,7 @@ import android.graphics.RectF
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.view.animation.PathInterpolator
+import io.github.kamradsmeshnyavy.launcher.core.Look
 import io.github.kamradsmeshnyavy.launcher.system.Glyph
 import kotlin.math.PI
 import kotlin.math.max
@@ -72,6 +73,11 @@ class Halo(private val view: View) {
 
     /** Runs [kind] once; [onEnd] when it has gone out (not when another one replaces it). */
     fun play(kind: Glyph.Pulse, onEnd: (() -> Unit)? = null) {
+        // Настройки Glyph из Customizer: лучи зарядки можно выключить.
+        if (kind == Glyph.Pulse.CHARGE && !Look.now.bool("glyphCharger", true)) {
+            onEnd?.invoke()
+            return
+        }
         val old = animator
         animator = null
         old?.removeAllListeners()
@@ -79,7 +85,8 @@ class Halo(private val view: View) {
         pulse = kind
         val charge = kind == Glyph.Pulse.CHARGE
         val next = ValueAnimator.ofFloat(0f, 1f).apply {
-            duration = if (charge) RISE else SWEEP
+            val sweep = Look.now.num("glyphDuration", SWEEP.toDouble()).toLong().coerceIn(300L, 3000L)
+            duration = if (charge) (sweep * RISE / SWEEP) else sweep
             repeatCount = if (kind == Glyph.Pulse.SIGNAL) 1 else 0
             interpolator = if (charge) LinearInterpolator() else IN_OUT_CUBIC
             addUpdateListener {
@@ -111,13 +118,14 @@ class Halo(private val view: View) {
     // A segment of 3.25 % of the way round (260 px of a laptop's frame),
     // entering at the corner and leaving there after a whole turn.
     private fun drawSweep(canvas: Canvas) {
-        val tint = if (pulse == Glyph.Pulse.SIGNAL) Nihil.SIGNAL else Nihil.INK
+        val tint = if (pulse == Glyph.Pulse.SIGNAL) critical() else light()
         val segment = max(perimeter * 0.0325f, 48 * density)
         val head = value * (perimeter + segment)
         val from = corner + max(0f, head - segment)
         val to = corner + min(perimeter, head)
-        stroke(canvas, from, to, withAlpha(tint, 0.22f), 7 * density)
-        stroke(canvas, from, to, tint, 2 * density)
+        val core = core()
+        stroke(canvas, from, to, withAlpha(tint, 0.22f), core * 3.5f)
+        stroke(canvas, from, to, tint, core)
     }
 
     // 70 % climbing, eased as every NIHIL motion, then 30 % going out.
@@ -130,20 +138,30 @@ class Halo(private val view: View) {
         if (reach <= 1f || fade <= 0f) return
         val long = half * 0.12f
         val short = max(half * 0.05f, 24 * density)
+        val core = core()
         for (side in intArrayOf(-1, 1)) {
-            beam(canvas, side, reach, reach, 0.14f * fade, 2 * density)
-            beam(canvas, side, reach, long, 0.26f * fade, 2 * density)
-            beam(canvas, side, reach, short, 0.22f * fade, 7 * density)
-            beam(canvas, side, reach, short, fade, 2 * density)
+            beam(canvas, side, reach, reach, 0.14f * fade, core)
+            beam(canvas, side, reach, long, 0.26f * fade, core)
+            beam(canvas, side, reach, short, 0.22f * fade, core * 3.5f)
+            beam(canvas, side, reach, short, fade, core)
         }
     }
 
     /** The stretch of one side's route that ends at [reach] and is [length] long. */
     private fun beam(canvas: Canvas, side: Int, reach: Float, length: Float, alpha: Float, width: Float) {
         val tail = max(0f, reach - length)
-        if (side < 0) stroke(canvas, tail, reach, withAlpha(Nihil.INK, alpha), width)
-        else stroke(canvas, perimeter - reach, perimeter - tail, withAlpha(Nihil.INK, alpha), width)
+        if (side < 0) stroke(canvas, tail, reach, withAlpha(light(), alpha), width)
+        else stroke(canvas, perimeter - reach, perimeter - tail, withAlpha(light(), alpha), width)
     }
+
+    // glyphColor / glyphCriticalColor — роли темы или #hex, как в Customizer.
+    private fun light(): Int = Look.now.color("glyphColor", "foreground")
+
+    private fun critical(): Int =
+        if (Look.now.bool("glyphCriticalRed", true)) Look.now.color("glyphCriticalColor", "urgent") else light()
+
+    /** glyphThickness в логических пикселях десктопа: 2.5 там — 2 dp здесь. */
+    private fun core(): Float = Look.now.num("glyphThickness", 2.5).toFloat() * 0.8f * density
 
     /** The ring from [from] to [to], distances from the middle of the bottom edge: they wrap. */
     private fun stroke(canvas: Canvas, from: Float, to: Float, color: Int, width: Float) {

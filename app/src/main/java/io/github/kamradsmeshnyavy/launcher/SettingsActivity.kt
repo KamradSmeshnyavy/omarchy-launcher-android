@@ -39,7 +39,7 @@ import io.github.kamradsmeshnyavy.launcher.ui.text
  * its control on the right, hairlines between them, the desktop's toggles,
  * choices and keys. It's also the "NIHIL" entry in the app list.
  */
-class SettingsActivity : Activity() {
+class SettingsActivity : LookActivity() {
 
     private lateinit var prefs: Prefs
     private lateinit var column: LinearLayout

@@ -43,7 +43,7 @@ import kotlin.math.abs
  * of the screen, with the same algorithm as the desktop's wallpapers. All on
  * the phone; nothing is uploaded anywhere.
  */
-class WallpaperActivity : Activity() {
+class WallpaperActivity : LookActivity() {
 
     private lateinit var prefs: Prefs
     private lateinit var preview: ImageView

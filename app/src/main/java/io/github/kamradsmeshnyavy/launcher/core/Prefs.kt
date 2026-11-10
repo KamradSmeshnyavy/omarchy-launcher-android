@@ -19,7 +19,9 @@ enum class IconStyle {
 
 /** Everything the launcher remembers, in one SharedPreferences file. */
 class Prefs private constructor(context: Context) {
+    private val appContext = context.applicationContext
     private val sp: SharedPreferences = context.getSharedPreferences("nihil", Context.MODE_PRIVATE)
+    private val look: SharedPreferences = Look.prefs(context)
 
     /** The keys of the apps and webs on the home screen (see [Entry.key]), in order. */
     var favorites: List<String>
@@ -49,9 +51,13 @@ class Prefs private constructor(context: Context) {
         get() = sp.getBoolean(KEYBOARD, true)
         set(value) = sp.edit().putBoolean(KEYBOARD, value).apply()
 
+    /** Glyph-свет: ключ glyphEnabled Customizer'а; без своей правки — как у стиля. */
     var glyph: Boolean
-        get() = sp.getBoolean(GLYPH, true)
-        set(value) = sp.edit().putBoolean(GLYPH, value).apply()
+        get() = Look.now.bool("glyphEnabled", true)
+        set(value) {
+            look.edit().putBoolean("glyphEnabled", value).apply()
+            Look.invalidate(appContext)
+        }
 
     var doubleTapLock: Boolean
         get() = sp.getBoolean(DOUBLE_TAP, false)

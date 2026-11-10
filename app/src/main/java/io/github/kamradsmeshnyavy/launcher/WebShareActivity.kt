@@ -13,7 +13,9 @@ import io.github.kamradsmeshnyavy.launcher.ui.WebDialog
  * and its title as the subject) goes to the drawer among the apps, its name looked at
  * first; over whatever was on screen.
  */
-class WebShareActivity : Activity() {
+class WebShareActivity : LookActivity() {
+    override val paintsWindow = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val text = intent?.getStringExtra(Intent.EXTRA_TEXT).orEmpty()

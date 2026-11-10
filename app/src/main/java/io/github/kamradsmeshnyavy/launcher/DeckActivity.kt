@@ -67,7 +67,7 @@ import java.util.concurrent.Executors
  * scrolling on its own, in the next; and the computer's trackpad in the
  * last. Sharing a web to "Open on the computer" is DeckShareActivity.
  */
-class DeckActivity : Activity() {
+class DeckActivity : LookActivity() {
 
     private lateinit var store: DeckStore
     private lateinit var content: FrameLayout
