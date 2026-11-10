@@ -316,9 +316,9 @@ class LauncherActivity :
         val widgets = io.github.kamradsmeshnyavy.launcher.core.AppWidgets
         val info = widgets.info(this, p.id) ?: return
         val (w, h) = widgets.cells(this, info)
-        desk.add(this, p.space, io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("aw"), "appwidget", info.provider.flattenToShortString(), appWidgetId = p.id, w = w, h = h))
+        val at = desk.add(this, p.space, io.github.kamradsmeshnyavy.launcher.core.Desk.Item(desk.newId("aw"), "appwidget", info.provider.flattenToShortString(), appWidgetId = p.id, w = w, h = h))
         home.rebuild()
-        home.post { home.showPage(p.space) }
+        home.post { home.showPage(at) }
     }
 
     private fun dropPending() {
@@ -441,7 +441,11 @@ class LauncherActivity :
 
     override fun canCloseFrom(y: Float): Boolean = drawer.canCloseFrom(y - drawer.translationY)
 
+    /** С какого положения ящика начался жест (для порога без броска). */
+    private var lastProgressOnGrab = 0f
+
     override fun onGrab() {
+        lastProgressOnGrab = drawerProgress
         settle?.cancel()
         settle = null
         popup.dismiss()
@@ -454,7 +458,9 @@ class LauncherActivity :
         val open = when {
             velocityY < -root.flingVelocity -> true
             velocityY > root.flingVelocity -> false
-            else -> drawerProgress > 0.5f
+            // Без броска: открыть, если ящик вытянут на треть (закрыть — если задвинут на треть).
+            drawerProgress > lastProgressOnGrab -> drawerProgress > 0.3f
+            else -> drawerProgress > 0.7f
         }
         animateDrawer(open, velocityY)
     }
@@ -473,14 +479,39 @@ class LauncherActivity :
             anchor = root,
             title = getString(R.string.app_name),
             point = x.toInt() to y.toInt(),
-            items = listOf(
+            items = listOfNotNull(
                 AppMenu.Item(LineIcon.Shape.PLUS, getString(R.string.desk_add_widget)) { addWidget(x, y) },
                 AppMenu.Item(LineIcon.Shape.GEAR, getString(R.string.desk_edit_items)) { editItems(x, y) },
                 AppMenu.Item(LineIcon.Shape.TASKS, getString(R.string.desk_new_space)) { newSpace() },
+                if (io.github.kamradsmeshnyavy.launcher.core.Desk.state(this).spaces.size > 1) {
+                    AppMenu.Item(LineIcon.Shape.TRASH, getString(R.string.desk_remove_space), danger = true) { root.post { removeSpace(home.page) } }
+                } else {
+                    null
+                },
                 AppMenu.Item(LineIcon.Shape.IMAGE, getString(R.string.act_wallpaper)) { openStudio() },
                 AppMenu.Item(LineIcon.Shape.WEB, getString(R.string.web_add)) { addWeb() },
                 AppMenu.Item(LineIcon.Shape.SETTINGS, getString(R.string.act_nihil)) { openSettings() },
             ),
+        )
+    }
+
+    /** Удалить стол [index]; с элементами — сначала спросить. Виджеты приложений освобождаются. */
+    private fun removeSpace(index: Int) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val space = desk.state(this).spaces.getOrNull(index) ?: return
+        val go = {
+            desk.removeSpace(this, index).forEach { if (it.kind == "appwidget") io.github.kamradsmeshnyavy.launcher.core.AppWidgets.delete(this, it.appWidgetId) }
+            home.rebuild()
+            android.widget.Toast.makeText(this, R.string.desk_removed_space, android.widget.Toast.LENGTH_SHORT).show()
+        }
+        if (space.items.isEmpty()) {
+            go()
+            return
+        }
+        popup.show(
+            anchor = root,
+            title = getString(R.string.desk_remove_space_confirm, space.name, space.items.size),
+            items = listOf(AppMenu.Item(LineIcon.Shape.TRASH, getString(R.string.desk_remove_space_yes), danger = true) { go() }),
         )
     }
 
@@ -597,8 +628,9 @@ class LauncherActivity :
             popup.show(anchor = from, title = getString(R.string.desk_to_space), items = state.spaces.indices.filter { it != spaceIndex }.map { i ->
                 AppMenu.Item(LineIcon.Shape.NEXT, state.spaces[i].name) {
                     space.items.remove(item)
-                    desk.add(this, i, item)
+                    val at = desk.add(this, i, item)
                     home.rebuild()
+                    home.post { home.showPage(at) }
                 }
             })
         }

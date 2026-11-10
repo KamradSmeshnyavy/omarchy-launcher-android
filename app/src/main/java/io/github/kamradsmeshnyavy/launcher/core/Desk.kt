@@ -135,6 +135,7 @@ object Desk {
         val s = state(context)
         if (s.spaces.size <= 1 || index !in s.spaces.indices) return emptyList()
         val gone = s.spaces.removeAt(index).items
+        if (s.current > index) s.current--
         s.current = s.current.coerceIn(0, s.spaces.size - 1)
         save(context)
         return gone
@@ -147,19 +148,58 @@ object Desk {
         save(context)
     }
 
-    /** Кладёт [item] на стол [space]: в сетке — в первое свободное место, в стопке — в конец. */
-    fun add(context: Context, space: Int, item: Item) {
-        val s = state(context).spaces.getOrNull(space) ?: return
-        Grid.firstFree(s.items, item.w, item.h)?.let { (x, y) ->
-            item.x = x
-            item.y = y
-        } ?: run {
-            item.x = 0
-            item.y = Grid.bottom(s.items)
+    /**
+     * Кладёт [item] на стол [space]: в сетке — в первое свободное место в пределах [Grid.rows]
+     * (нет места — на следующий стол, где есть, или на новый), в стопке — в конец.
+     * Возвращает номер стола, куда лёг элемент.
+     */
+    fun add(context: Context, space: Int, item: Item): Int {
+        val s = state(context)
+        if (space !in s.spaces.indices) return space
+        val rows = if (layoutMode(context) == "grid") Grid.rows else 0
+        var target = space
+        if (rows > 0) {
+            item.h = item.h.coerceAtMost(rows)
+            val order = listOf(space) + s.spaces.indices.filter { it > space }
+            target = order.firstOrNull { Grid.place(s.spaces[it].items, item.w, item.h, rows) != null } ?: run {
+                s.spaces += Space(newId("space"), (s.spaces.size + 1).toString())
+                s.spaces.size - 1
+            }
         }
-        item.order = (s.items.maxOfOrNull { it.order } ?: -1) + 1
-        s.items += item
+        val items = s.spaces[target].items
+        val spot = if (rows > 0) Grid.place(items, item.w, item.h, rows) else Grid.firstFree(items, item.w, item.h)
+        item.x = spot?.first ?: 0
+        item.y = spot?.second ?: Grid.bottom(items)
+        item.order = (items.maxOfOrNull { it.order } ?: -1) + 1
+        items += item
         save(context)
+        return target
+    }
+
+    /**
+     * Сетка не прокручивается: всё должно влезть в [rows] строк. Уплотняет столы; что не
+     * влезло — на свободное место того же стола, иначе на новый стол в конце (ничего не
+     * теряется). true — что-то поменялось.
+     */
+    fun fit(context: Context, rows: Int): Boolean {
+        val s = state(context)
+        val before = s.json().toString()
+        var i = 0
+        while (i < s.spaces.size) {
+            // Не влезло — на следующий стол, где есть место, иначе на новый в конце.
+            for (item in Grid.fit(s.spaces[i].items, rows)) {
+                val space = s.spaces.drop(i + 1).firstOrNull { Grid.place(it.items, item.w, item.h, rows) != null }
+                    ?: Space(newId("space"), (s.spaces.size + 1).toString()).also { s.spaces += it }
+                val (x, y) = Grid.place(space.items, item.w, item.h, rows) ?: (0 to 0)
+                item.x = x
+                item.y = y
+                space.items += item
+            }
+            i++
+        }
+        if (s.json().toString() == before) return false
+        save(context)
+        return true
     }
 
     fun remove(context: Context, id: String): Item? {
@@ -183,6 +223,36 @@ object Desk {
 
     object Grid {
         const val COLUMNS = 4
+
+        /** Сколько строк влезает на экран (считает страница стола; 0 — ещё неизвестно). */
+        @Volatile
+        var rows = 0
+
+        /** Свободное место [w] × [h] целиком внутри [rows] строк. */
+        fun place(items: List<Item>, w: Int, h: Int, rows: Int): Pair<Int, Int>? {
+            if (h > rows || w > COLUMNS) return null
+            for (y in 0..(rows - h)) for (x in 0..(COLUMNS - w)) if (free(items, x, y, w, h)) return x to y
+            return null
+        }
+
+        /** Уплотнить и уложить в [rows] строк; что не влезло — убрано из [items] и возвращено. */
+        fun fit(items: MutableList<Item>, rows: Int): List<Item> {
+            compact(items)
+            val out = ArrayList<Item>()
+            for (item in items.filter { it.y + it.h > rows }.sortedWith(compareBy({ it.y }, { it.x }))) {
+                items.remove(item)
+                item.h = item.h.coerceAtMost(rows)
+                val spot = place(items, item.w, item.h, rows)
+                if (spot == null) {
+                    out += item
+                } else {
+                    item.x = spot.first
+                    item.y = spot.second
+                    items += item
+                }
+            }
+            return out
+        }
 
         fun overlaps(a: Item, x: Int, y: Int, w: Int, h: Int): Boolean =
             a.x < x + w && x < a.x + a.w && a.y < y + h && y < a.y + a.h

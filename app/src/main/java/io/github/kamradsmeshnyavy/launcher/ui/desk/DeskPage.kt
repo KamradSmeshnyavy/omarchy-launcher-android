@@ -39,6 +39,19 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
 
     val widgets: List<DeskWidget> get() = List(board.childCount) { board.getChildAt(it) as DeskWidget }
 
+    /** Сетка: сколько строк влезло на экран (после измерения). */
+    var onRows: ((Int) -> Unit)? = null
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        // Высота окна — доске: в сетке строки делят её ровно, без прокрутки.
+        board.viewport = MeasureSpec.getSize(heightMeasureSpec)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    override fun canScrollVertically(direction: Int): Boolean = mode != "grid" && super.canScrollVertically(direction)
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = moving != null || (mode != "grid" && super.onInterceptTouchEvent(ev))
+
     fun scrollableAt(rawX: Float, rawY: Float, dy: Float): Boolean {
         widgets.forEach { if (it.scrollableAt(rawX, rawY, dy)) return true }
         val at = IntArray(2)
@@ -59,10 +72,8 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
     /** Куда встанет [moving], и что делать по отпусканию: (x, y) клетки. */
     var onDrop: ((Int, Int) -> Unit)? = null
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean = moving != null || super.onInterceptTouchEvent(ev)
-
     override fun onTouchEvent(ev: MotionEvent): Boolean {
-        val item = moving ?: return super.onTouchEvent(ev)
+        val item = moving ?: return mode != "grid" && super.onTouchEvent(ev)
         val (cx, cy) = board.cellAt(ev.x - board.left + scrollX, ev.y - board.top + scrollY, item)
         board.target = cx to cy
         board.invalidate()
@@ -85,9 +96,13 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
             clipChildren = false
         }
 
-        private val inner: Int get() = width - paddingLeft - paddingRight
+        /** Высота окна стола (от DeskPage): в сетке строки заполняют её. */
+        var viewport = 0
         val cell: Int get() = ((measuredWidth - paddingLeft - paddingRight) / Desk.Grid.COLUMNS).coerceAtLeast(1)
-        val cellH: Int get() = (cell * CELL_RATIO).roundToInt()
+        var cellH = 1
+            private set
+        var rows = 0
+            private set
 
         private fun item(child: View): Desk.Item = (child as DeskWidget).item
 
@@ -98,7 +113,16 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
             var content = 0
             if (mode == "grid") {
                 val c = innerW / Desk.Grid.COLUMNS
-                val ch = (c * CELL_RATIO).roundToInt()
+                // Строк — сколько влезает клеток с пропорцией CELL_RATIO; остаток делится между ними.
+                val innerH = viewport - paddingTop - paddingBottom
+                val ideal = (c * CELL_RATIO).coerceAtLeast(1f)
+                val fit = if (innerH > 0) (innerH / ideal).toInt().coerceAtLeast(MIN_ROWS) else 0
+                val ch = if (fit > 0) innerH / fit else ideal.roundToInt()
+                cellH = ch.coerceAtLeast(1)
+                if (fit > 0 && fit != rows) {
+                    rows = fit
+                    post { onRows?.invoke(fit) }
+                }
                 for (i in 0 until childCount) {
                     val child = getChildAt(i)
                     val it = item(child)
@@ -164,8 +188,8 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
             // Сетка клеток и место, куда встанет элемент.
             hint.style = Paint.Style.FILL
             hint.color = withAlpha(Nihil.INK, 0.18f)
-            val rows = (height - paddingTop - paddingBottom) / cellH
-            for (y in 0..rows) for (x in 0 until Desk.Grid.COLUMNS) {
+            val last = if (rows > 0) rows - 1 else (height - paddingTop - paddingBottom) / cellH
+            for (y in 0..last) for (x in 0 until Desk.Grid.COLUMNS) {
                 canvas.drawCircle(paddingLeft + (x + 0.5f) * cell, paddingTop + (y + 0.5f) * cellH, context.dp(2f), hint)
             }
             val (tx, ty) = target ?: (item.x to item.y)
@@ -186,5 +210,6 @@ class DeskPage(context: Context, val space: Desk.Space, val mode: String) : Scro
     private companion object {
         /** Клетка чуть выше ширины, как в лаунчерах на вытянутых экранах. */
         const val CELL_RATIO = 1.15f
+        const val MIN_ROWS = 4
     }
 }

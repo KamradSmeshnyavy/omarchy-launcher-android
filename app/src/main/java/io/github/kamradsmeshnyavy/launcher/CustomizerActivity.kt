@@ -487,8 +487,10 @@ class CustomizerActivity : LookActivity() {
         column.addView(heading(getString(R.string.desk_add_widget), getString(R.string.desk_add_widget_sub)))
         val width = resources.displayMetrics.widthPixels - dp(48)
         fun add(item: io.github.kamradsmeshnyavy.launcher.core.Desk.Item) {
-            desk.add(this, space, item)
-            toast(getString(R.string.desk_added))
+            val at = desk.add(this, space, item)
+            desk.state(this).current = at
+            desk.save(this)
+            toast(getString(if (at == space) R.string.desk_added else R.string.desk_added_elsewhere, desk.state(this).spaces[at].name))
             finish()
         }
         catalog.GROUPS.forEach { group ->

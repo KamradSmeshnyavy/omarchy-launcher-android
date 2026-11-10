@@ -74,6 +74,8 @@ class Workspaces(context: Context) : ViewGroup(context) {
         animator?.cancel()
         animator = null
         startScroll = scrollX
+        // Пока палец ведёт стол, раскладка (тикают часы) не должна возвращать его на место.
+        dragging = true
     }
 
     fun dragBy(dx: Float) {
@@ -82,6 +84,7 @@ class Workspaces(context: Context) : ViewGroup(context) {
     }
 
     fun release(vx: Float) {
+        dragging = false
         val nearest = if (width > 0) (scrollX.toFloat() / width).roundToInt() else page
         show(
             when {

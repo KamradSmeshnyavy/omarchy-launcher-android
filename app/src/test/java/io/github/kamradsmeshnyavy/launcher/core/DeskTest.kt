@@ -75,4 +75,31 @@ class DeskTest {
         val items = listOf(item("a", 0, 0, 4, 4))
         assertNull(Grid.firstFree(items, 4, 1, rows = 3))
     }
+
+    @Test
+    fun fitKeepsEverythingInsideTheRows() {
+        // Раскладка с телефона: часы 4×3, медиа 4×1, избранное 4×3 на y=5, дела 4×2 на y=8.
+        val items = mutableListOf(item("clock", 0, 0, 4, 3), item("media", 0, 3, 4, 1), item("todo", 0, 8, 4, 2), item("fav", 0, 5, 4, 3))
+        val out = Grid.fit(items, 7)
+        noOverlaps(items)
+        assertTrue(items.all { it.y + it.h <= 7 })
+        assertEquals(listOf("todo"), out.map { it.id })
+        assertEquals(listOf("clock", "media", "fav"), items.map { it.id })
+    }
+
+    @Test
+    fun fitUsesHolesFirst() {
+        val items = mutableListOf(item("a", 0, 0, 2, 2), item("b", 0, 2, 4, 4), item("c", 0, 6, 2, 2))
+        val out = Grid.fit(items, 6)
+        assertTrue(out.isEmpty())
+        assertEquals(2 to 0, items.first { it.id == "c" }.let { it.x to it.y })
+        noOverlaps(items)
+    }
+
+    @Test
+    fun placeStaysInsideTheRows() {
+        val items = listOf(item("a", 0, 0, 4, 5))
+        assertNull(Grid.place(items, 4, 2, 6))
+        assertEquals(0 to 5, Grid.place(items, 4, 1, 6))
+    }
 }

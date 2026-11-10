@@ -94,4 +94,15 @@
     <string name="cz_lock_designs">Дизайны</string>
     <string name="cz_lock_designs_sub">Нажатие — выбрать, долгое — описание. Превью — как заставка.</string>
     <string name="dream_label">Блокировка DOT-MATRIX</string>
+    <string name="desk_added_elsewhere">Здесь нет места — добавлено на стол %1$s</string>
+    <string name="desk_remove_space">Удалить этот стол</string>
+    <string name="desk_remove_space_confirm">Удалить стол %1$s и %2$d элем. на нём?</string>
+    <string name="desk_remove_space_yes">Удалить</string>
+    <string name="desk_removed_space">Стол удалён</string>
+    <string name="desk_spaces">Рабочие столы</string>
+    <string name="desk_spaces_sub">Переименовать, переставить или удалить столы</string>
+    <string name="desk_rename">Переименовать</string>
+    <string name="desk_resize">Растянуть</string>
+    <string name="desk_resize_hint">Тяни за ручки · нажми мимо, чтобы закончить</string>
+    <string name="desk_moved_overflow">Не влезло на экран — перенесено на стол %1$s</string>
 </resources>

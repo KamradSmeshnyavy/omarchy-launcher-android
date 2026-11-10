@@ -94,4 +94,15 @@
     <string name="cz_lock_designs">Designs</string>
     <string name="cz_lock_designs_sub">Tap to choose, long press to read about it. Previews show the screensaver.</string>
     <string name="dream_label">DOT-MATRIX lock screen</string>
+    <string name="desk_added_elsewhere">No room here — added to desk %1$s</string>
+    <string name="desk_remove_space">Delete this desk</string>
+    <string name="desk_remove_space_confirm">Delete desk %1$s and %2$d items on it?</string>
+    <string name="desk_remove_space_yes">Delete</string>
+    <string name="desk_removed_space">Desk deleted</string>
+    <string name="desk_spaces">Desks</string>
+    <string name="desk_spaces_sub">Rename, reorder or delete desks</string>
+    <string name="desk_rename">Rename</string>
+    <string name="desk_resize">Resize</string>
+    <string name="desk_resize_hint">Drag the handles · tap outside to finish</string>
+    <string name="desk_moved_overflow">Did not fit the screen — moved to desk %1$s</string>
 </resources>

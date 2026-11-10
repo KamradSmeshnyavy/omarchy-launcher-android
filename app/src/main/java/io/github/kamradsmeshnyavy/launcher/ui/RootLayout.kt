@@ -172,6 +172,9 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
 
     /** Whether a vertical drag from a point (raw) by dy belongs to something that scrolls there. */
     var scrollableAt: ((Float, Float, Float) -> Boolean)? = null
+
+    /** Нижняя полоса (px), откуда свайп вверх всегда открывает ящик. */
+    var drawerZone = (context.resources.displayMetrics.density * 72).toInt()
     private var downRawX = 0f
     private var downRawY = 0f
 
@@ -189,7 +192,9 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         val dy = ev.y - downY
         if (abs(dy) < slop || abs(dy) < abs(dx) * 1.2f) return false
         val p = listener.progress
-        if (p <= 0.001f && scrollableAt?.invoke(downRawX, downRawY, dy) == true) return false
+        // Снизу (полоса над системной) ящик открывается всегда, даже если стол прокручен не до конца.
+        val fromBottom = downY > height - drawerZone
+        if (p <= 0.001f && !fromBottom && scrollableAt?.invoke(downRawX, downRawY, dy) == true) return false
         return when {
             p <= 0.001f -> true
             p >= 0.999f -> dy > 0 && listener.canCloseFrom(downY)

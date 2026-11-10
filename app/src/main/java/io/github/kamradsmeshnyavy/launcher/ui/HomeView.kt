@@ -70,13 +70,16 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
 
     /** Собрать столы заново (после правки стола, смены раскладки или Look). */
     fun rebuild() {
-        val state = Desk.state(context)
         val mode = Desk.layoutMode(context)
+        // Сетка не прокручивается: после любой правки всё должно влезть в строки экрана.
+        if (mode == "grid" && Desk.Grid.rows > 0) Desk.fit(context, Desk.Grid.rows)
+        val state = Desk.state(context)
         pager.removeAllViews()
         pages = state.spaces.map { space ->
             DeskPage(context, space, mode).also { page ->
                 space.items.forEach { item -> Catalog.make(context, item, host)?.let { page.add(it) } }
                 page.onDrop = { x, y -> drop(page, x, y) }
+                page.onRows = { rows -> fitRows(rows) }
                 pager.addView(page)
             }
         }
@@ -91,6 +94,13 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
         (dots.getChildAt(0) as? PageDots)?.select(current)
         onRebuilt?.invoke(pages.size, current)
         pager.post { pager.show(current, animate = false) }
+    }
+
+    /** Сетка узнала, сколько строк влезает: всё, что ниже, — уложить (или на новый стол). */
+    private fun fitRows(rows: Int) {
+        if (Desk.Grid.rows == rows) return
+        Desk.Grid.rows = rows
+        if (Desk.layoutMode(context) == "grid" && Desk.fit(context, rows)) rebuild()
     }
 
     /** Desk поменялся где-то ещё (Customizer, меню): перестроить при возврате. */
