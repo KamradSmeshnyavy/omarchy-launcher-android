@@ -81,4 +81,5 @@
     <string name="studio_mode_recolor">Recolor</string>
     <string name="studio_mode_plain">As is</string>
     <string name="studio_colours_hint">Colours, gamma and unlit LEDs: Customizer → Dotify</string>
+    <string name="cz_follow_pc_unpaired">Pair the computer first: Settings → Deck</string>
 </resources>

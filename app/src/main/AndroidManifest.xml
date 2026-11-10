@@ -169,6 +169,12 @@
             </intent-filter>
         </activity>
 
+        <!-- «Следовать компьютеру»: проверка оформления ПК раз в 15 минут -->
+        <service
+            android:name=".core.PcLook$Job"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <activity
             android:name=".DeckScanActivity"
             android:exported="false"

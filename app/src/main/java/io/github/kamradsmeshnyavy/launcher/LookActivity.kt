@@ -13,6 +13,7 @@ class LauncherApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Look.current(this)
+        io.github.kamradsmeshnyavy.launcher.core.PcLook.schedule(this)
     }
 }
 
@@ -35,10 +36,18 @@ abstract class LookActivity : Activity() {
         window.decorView.post { lightBars() }
     }
 
+    private val external: () -> Unit = { recreate() }
+
     override fun onResume() {
         super.onResume()
         Look.current(this)
         if (seen != Look.version) recreate()
+        Look.listen(external)
+    }
+
+    override fun onPause() {
+        Look.unlisten(external)
+        super.onPause()
     }
 
     /** Значки статус-бара и жестов тёмные на светлой теме. */

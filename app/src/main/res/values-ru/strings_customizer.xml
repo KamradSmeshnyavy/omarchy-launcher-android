@@ -81,4 +81,5 @@
     <string name="studio_mode_recolor">Recolor</string>
     <string name="studio_mode_plain">Как есть</string>
     <string name="studio_colours_hint">Цвета, гамма и незажжённые диоды: Customizer → Dotify</string>
+    <string name="cz_follow_pc_unpaired">Сначала сопрягите компьютер: Настройки → Deck</string>
 </resources>

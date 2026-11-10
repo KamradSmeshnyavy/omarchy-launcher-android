@@ -178,9 +178,14 @@ class CustomizerActivity : LookActivity() {
         )
         groups.addView(heading(getString(R.string.cz_pc), getString(R.string.cz_pc_sub)))
         val sp = Look.prefs(this)
-        groups.addView(switchRow(getString(R.string.cz_follow_pc), getString(R.string.cz_follow_pc_sub), sp.getBoolean(Look.FOLLOW_PC, false)) { on ->
-            sp.edit().putBoolean(Look.FOLLOW_PC, on).apply()
-            applyLook()
+        val paired = io.github.kamradsmeshnyavy.launcher.deck.DeckStore.get(this).computer
+        groups.addView(switchRow(
+            getString(R.string.cz_follow_pc),
+            getString(R.string.cz_follow_pc_sub) + if (paired == null) "\n" + getString(R.string.cz_follow_pc_unpaired) else "\n" + paired.name,
+            sp.getBoolean(Look.FOLLOW_PC, false),
+        ) { on ->
+            io.github.kamradsmeshnyavy.launcher.core.PcLook.setEnabled(this, on)
+            if (!on) applyLook()
         })
         groups.addView(switchRow(getString(R.string.cz_follow_system), getString(R.string.cz_follow_system_sub), sp.getBoolean(Look.FOLLOW_SYSTEM, true)) { on ->
             sp.edit().putBoolean(Look.FOLLOW_SYSTEM, on).apply()

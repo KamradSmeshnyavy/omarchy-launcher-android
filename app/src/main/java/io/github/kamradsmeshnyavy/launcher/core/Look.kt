@@ -204,6 +204,11 @@ object Look {
             resolved = resolve(context.applicationContext)
             version++
         }
+    }
+
+    /** Look поменялся не на этом экране (снимок с ПК): открытые экраны перерисовываются сразу. */
+    fun external(context: Context) {
+        invalidate(context)
         synchronized(listeners) { listeners.toList() }.forEach { it() }
     }
 
