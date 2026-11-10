@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Inicio -->
+    <string name="battery_percent">%1$d %%</string>
+    <string name="battery_charging">cargando</string>
+    <string name="alarm_next">Alarma %1$s</string>
+    <string name="favorites_empty">Desliza hacia arriba y mantén pulsada una app para añadirla aquí.</string>
+
+    <!-- Cajón -->
+    <string name="search_hint">Buscar</string>
+    <string name="apps_count">%1$d apps</string>
+    <string name="mode_actions">Acciones</string>
+    <string name="mode_calculator">Calculadora</string>
+    <string name="drawer_hint">Enter abre, &gt; acciones, = calcula</string>
+    <string name="calc_hint">Enter copia el resultado</string>
+    <string name="calc_type">Escribe una operación</string>
+    <string name="calc_copied">Copiado</string>
+    <string name="no_results">Nada encontrado</string>
+
+    <!-- Acciones -->
+    <string name="act_torch">Linterna</string>
+    <string name="act_wifi">Wi-Fi</string>
+    <string name="act_bluetooth">Bluetooth</string>
+    <string name="act_sound">Sonido</string>
+    <string name="act_battery">Batería</string>
+    <string name="act_alarms">Alarmas</string>
+    <string name="act_lock">Bloquear</string>
+    <string name="act_wallpaper">Fondo NIHIL</string>
+    <string name="act_nihil">Ajustes de NIHIL</string>
+    <string name="act_system">Ajustes del sistema</string>
+    <string name="hint_on">Encendida</string>
+    <string name="hint_off">Apagada</string>
+    <string name="hint_panel">Panel</string>
+    <string name="hint_system">Sistema</string>
+    <string name="hint_screen">Pantalla</string>
+    <string name="hint_studio">Estudio</string>
+
+    <!-- Menú de apps -->
+    <string name="menu_add_home">Añadir a inicio</string>
+    <string name="menu_remove_home">Quitar de inicio</string>
+    <string name="menu_move_up">Subir</string>
+    <string name="menu_move_down">Bajar</string>
+    <string name="menu_hide">Ocultar</string>
+    <string name="menu_info">Información</string>
+    <string name="menu_uninstall">Desinstalar</string>
+
+    <!-- Ajustes -->
+    <string name="settings_title">Ajustes</string>
+    <string name="set_default">App de inicio</string>
+    <string name="set_default_on">NIHIL es tu pantalla de inicio</string>
+    <string name="set_default_off">Toca para usar NIHIL como pantalla de inicio</string>
+    <string name="section_look">Aspecto</string>
+    <string name="set_icons">Iconos</string>
+    <string name="icons_mono">Mono</string>
+    <string name="icons_grey">Gris</string>
+    <string name="icons_color">Color</string>
+    <string name="set_icons_sub">Mono usa el icono temático cuando la app lo tiene.</string>
+    <string name="set_fav_icons">Iconos en favoritos</string>
+    <string name="set_dim">Atenuar el fondo</string>
+    <string name="set_wallpaper">Fondo NIHIL</string>
+    <string name="set_wallpaper_sub">Convierte una foto en LEDs</string>
+    <string name="section_behaviour">Comportamiento</string>
+    <string name="set_keyboard">Teclado al abrir el cajón</string>
+    <string name="set_glyph">Luz Glyph</string>
+    <string name="set_glyph_sub">Luz alrededor de la pantalla y LEDs con cada notificación. Necesita acceso a las notificaciones; sobre otras apps, también el servicio de accesibilidad del doble toque.</string>
+    <string name="set_lock">Doble toque para bloquear</string>
+    <string name="set_lock_sub">Usa un servicio de accesibilidad que bloquea la pantalla y dibuja la luz Glyph sobre otras apps. No lee nada.</string>
+    <string name="section_apps">Apps</string>
+    <string name="set_hidden_none">No hay apps ocultas</string>
+    <string name="set_unhide">Mostrar</string>
+    <string name="section_about">Acerca de</string>
+    <string name="about_text">NIHIL para Android %1$s. Sin anuncios, sin rastreo y sin cuentas: solo habla con tu ordenador, y solo como su deck.</string>
+    <string name="about_fonts">Doto, Space Grotesk y Space Mono, con licencia SIL Open Font License 1.1.</string>
+
+    <!-- Estudio de fondos -->
+    <string name="studio_title">Fondo NIHIL</string>
+    <string name="studio_empty">Elige una foto: se convertirá en una matriz de LEDs a la resolución exacta de tu pantalla.</string>
+    <string name="studio_pick">Elegir foto</string>
+    <string name="studio_dots">Puntos</string>
+    <string name="dots_fine">Fino</string>
+    <string name="dots_normal">Normal</string>
+    <string name="dots_coarse">Grueso</string>
+    <string name="studio_apply">Aplicar a</string>
+    <string name="apply_home">Inicio</string>
+    <string name="apply_lock">Pantalla de bloqueo</string>
+    <string name="apply_both">Ambas</string>
+    <string name="studio_rendering">Renderizando…</string>
+    <string name="studio_done">Listo</string>
+    <string name="studio_failed">No se pudo leer la imagen</string>
+
+    <!-- Servicios -->
+    <string name="glyph_service_label">Luz Glyph de NIHIL</string>
+    <string name="lock_service_label">NIHIL: bloqueo y luz Glyph</string>
+    <string name="lock_service_description">Bloquea la pantalla cuando tocas dos veces el inicio de NIHIL y dibuja la luz Glyph alrededor de la pantalla mientras estás en otras apps. No lee nada de la pantalla.</string>
+
+    <!-- Avisos y etiquetas extra -->
+    <string name="menu_unhide">Mostrar en la lista</string>
+    <string name="launch_failed">No se puede abrir %1$s</string>
+    <string name="open_failed">Nada en este móvil puede abrir eso</string>
+    <string name="shade_failed">No se pudieron abrir las notificaciones</string>
+    <string name="lock_needs_service">Activa «NIHIL: bloqueo y luz Glyph» en Accesibilidad.</string>
+    <string name="glyph_needs_access">Permite el acceso a las notificaciones para la luz Glyph.</string>
+    <string name="restricted_hint">Si Android dice «Ajuste restringido»: Información de la app → ⋮ → Permitir ajustes restringidos.</string>
+    <string name="web_search">Buscar «%1$s» en la web</string>
+    <string name="hint_hidden">Oculta</string>
+    <string name="torch_unavailable">Linterna no disponible</string>
+    <string name="set_hidden_sub">Las apps ocultas salen de la lista, pero la búsqueda las sigue encontrando.</string>
+    <plurals name="results">
+        <item quantity="one">%d resultado</item>
+        <item quantity="many">%d resultados</item>
+        <item quantity="other">%d resultados</item>
+    </plurals>
+    <string name="wallpaper_seeded">Fondo de NIHIL puesto: el estudio lo cambia</string>
+    <string name="keys_actions">Acciones</string>
+    <string name="keys_calc">Calcular</string>
+    <string name="keys_open">Abrir</string>
+    <string name="prefs_title">Preferencias</string>
+    <string name="section_look_sub">Cómo se ven el inicio y los iconos.</string>
+    <string name="section_behaviour_sub">Qué hace NIHIL cuando lo tocas, y la luz Glyph.</string>
+    <string name="section_apps_sub">Las apps que has escondido del cajón.</string>
+    <string name="section_about_sub">NIHIL en el móvil, como en el escritorio.</string>
+    <string name="deck_title">Ordenador</string>
+    <string name="deck_pair_title">Emparejar con el ordenador</string>
+    <string name="deck_scan_hint">En el ordenador: Preferencias → Móvil → Emparejar un móvil. Apunta la cámara a su QR.</string>
+    <string name="deck_scan_waiting">Buscando el QR…</string>
+    <string name="deck_camera_denied">Sin la cámara, NIHIL no puede leer el QR.</string>
+    <string name="deck_camera_none">La cámara no está disponible.</string>
+    <string name="deck_not_qr">Ese QR no es de un ordenador NIHIL.</string>
+    <string name="deck_pairing">Emparejando con %1$s…</string>
+    <string name="deck_error_wrong">%1$s no ha aceptado el código: vuelve a mostrar el QR.</string>
+    <string name="deck_error_expired">El código ha caducado: muestra un QR nuevo en %1$s.</string>
+    <string name="deck_error_wait">Demasiados intentos: espera un minuto.</string>
+    <string name="deck_error_unreachable">%1$s no responde: ¿estáis en la misma red?</string>
+    <string name="deck_unpaired_sub">Empareja este móvil con NIHIL en tu ordenador para abrir sus apps y webs, poner su música, subir y bajar el volumen, bloquearlo y hacerle de trackpad desde aquí.</string>
+    <string name="deck_pair">Emparejar</string>
+    <string name="deck_connected">Conectado: %1$s</string>
+    <string name="deck_looking">Buscando %1$s…</string>
+    <string name="deck_unreachable_status">%1$s no responde</string>
+    <string name="deck_forgotten">%1$s ha olvidado este móvil: vuelve a emparejarlo.</string>
+    <string name="deck_busy">%1$s no puede ahora mismo</string>
+    <string name="deck_refused">%1$s no lo ha aceptado</string>
+    <string name="deck_music">Música</string>
+    <string name="deck_nothing_playing">Nada sonando</string>
+    <string name="deck_previous">Anterior</string>
+    <string name="deck_toggle">Reproducir o pausar</string>
+    <string name="deck_next">Siguiente</string>
+    <string name="deck_volume_down">Bajar volumen</string>
+    <string name="deck_volume_up">Subir volumen</string>
+    <string name="deck_muted">Silencio</string>
+    <string name="deck_apps">Apps</string>
+    <string name="deck_webs">Webs</string>
+    <string name="deck_add_web">Añadir web</string>
+    <string name="deck_add_web_hint">nihilshell.com</string>
+    <string name="deck_remove_web">¿Quitar %1$s?</string>
+    <string name="deck_remove">Quitar</string>
+    <string name="deck_opened">Abierto en %1$s</string>
+    <string name="deck_lock">Bloquear</string>
+    <string name="deck_locked">%1$s está bloqueado</string>
+    <string name="deck_forget">Olvidar este ordenador</string>
+    <string name="deck_forget_confirm">¿Olvidar %1$s? Para volver a ser su deck tendrá que mostrar su QR.</string>
+    <string name="deck_open_on">Abrir en el ordenador</string>
+    <string name="deck_no_url">No hay ninguna web en lo que has compartido.</string>
+    <string name="deck_paired">Emparejado con %1$s</string>
+    <string name="deck_settings_sub">Este móvil como deck de NIHIL en el ordenador.</string>
+    <string name="hint_deck">Deck</string>
+    <string name="deck_apps_webs">Apps y webs</string>
+    <string name="deck_volume_title">Volumen</string>
+    <string name="set_language">Idioma</string>
+    <string name="set_language_sub">NIHIL habla el idioma del móvil; aquí puede tener uno propio, inglés o español.</string>
+    <string name="about_robot">El robot de Android del icono está modificado a partir de un trabajo creado y compartido por Google, con licencia Creative Commons 3.0 Atribución.</string>
+    <string name="glyph_try">Probar la luz</string>
+    <string name="glyph_listening">Escuchando las notificaciones.</string>
+    <string name="glyph_not_connected">El acceso a notificaciones está activado, pero Android no ha conectado NIHIL a las notificaciones: desactívalo y vuelve a activarlo, o reinicia el móvil.</string>
+    <string name="tasks_title">Tareas</string>
+    <string name="tasks_todo">Por hacer</string>
+    <string name="tasks_doing">Haciendo</string>
+    <string name="tasks_done">Hecho</string>
+    <string name="tasks_new">Nueva tarea</string>
+    <string name="tasks_move">Pasar a %1$s</string>
+    <string name="tasks_edit">Editar</string>
+    <string name="tasks_delete">Borrar</string>
+    <string name="tasks_clear_done">Borrar las hechas</string>
+    <string name="tasks_empty">Nada por aquí</string>
+    <string name="tasks_syncing">Sincronizando…</string>
+    <string name="tasks_synced">Sincronizado con %1$s</string>
+    <string name="tasks_offline">%1$s no responde: los cambios irán cuando vuelva</string>
+    <string name="tasks_local">Sin emparejar: solo en este móvil</string>
+    <string name="deck_caffeine">Cafeína</string>
+    <string name="deck_caffeine_on">Cafeína encendida: %1$s no se dormirá</string>
+    <string name="deck_caffeine_off">Cafeína apagada en %1$s</string>
+    <string name="deck_cover">Portada</string>
+    <string name="studio_apply_button">Aplicar</string>
+    <string name="studio_where">¿Dónde?</string>
+    <string name="deck_night">Luz nocturna</string>
+    <string name="deck_night_on">Luz nocturna encendida en %1$s</string>
+    <string name="deck_night_off">Luz nocturna apagada en %1$s</string>
+    <string name="deck_older">El NIHIL de %1$s aún no sabe hacer esto: actualízalo</string>
+    <string name="set_deck_screen">Pantalla encendida en el deck</string>
+    <string name="set_deck_screen_sub">La pantalla del móvil no se apaga mientras el deck está abierto</string>
+    <string name="about_icons">La cafeína, la luz nocturna y el bloqueo del deck son los del escritorio, de Material Design Icons, con la Pictogrammers Free License.</string>
+    <string name="web_add">Añadir web</string>
+    <string name="web_edit">Editar la web</string>
+    <string name="web_name_hint">Nombre (opcional)</string>
+    <string name="web_invalid">Eso no es una dirección web</string>
+    <string name="web_added">Añadida: %1$s</string>
+    <string name="web_share">Añadir a NIHIL</string>
+    <string name="deck_trackpad">Trackpad</string>
+    <string name="deck_trackpad_hint">Toca para hacer clic, con dos dedos para el botón derecho y con tres para el central</string>
+    <string name="deck_trackpad_connecting">Conectando…</string>
+    <string name="deck_trackpad_access">Cierra sesión en %1$s y vuelve a entrar para usar el trackpad</string>
+    <string name="deck_trackpad_refused">%1$s no puede usar el trackpad ahora mismo</string>
+</resources>
