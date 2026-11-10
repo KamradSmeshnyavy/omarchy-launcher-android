@@ -21,6 +21,10 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import io.github.kamradsmeshnyavy.launcher.core.DotRender
+import io.github.kamradsmeshnyavy.launcher.core.Look
+import io.github.kamradsmeshnyavy.launcher.core.LookEdit
+import io.github.kamradsmeshnyavy.launcher.core.Recolor
+import io.github.kamradsmeshnyavy.launcher.ui.LedSlider
 import io.github.kamradsmeshnyavy.launcher.core.Prefs
 import io.github.kamradsmeshnyavy.launcher.ui.MATCH
 import io.github.kamradsmeshnyavy.launcher.ui.Nihil
@@ -36,7 +40,6 @@ import io.github.kamradsmeshnyavy.launcher.ui.mono
 import io.github.kamradsmeshnyavy.launcher.ui.rounded
 import io.github.kamradsmeshnyavy.launcher.ui.text
 import java.util.concurrent.Executors
-import kotlin.math.abs
 
 /**
  * The wallpaper studio: a photo becomes an LED matrix at the exact resolution
@@ -50,7 +53,7 @@ class WallpaperActivity : LookActivity() {
     private lateinit var empty: LinearLayout
     private lateinit var status: TextView
     private lateinit var controls: LinearLayout
-    private lateinit var dots: Choice
+    private lateinit var mode: Choice
 
     private val worker = Executors.newSingleThreadExecutor()
     private val main = Handler(Looper.getMainLooper())
@@ -60,7 +63,8 @@ class WallpaperActivity : LookActivity() {
     private var result: Bitmap? = null
     private var generation = 0
 
-    private val pitches by lazy { intArrayOf(dp(5), dp(7), dp(10)) }
+    /** Шаг сетки Dotify в пикселях: dotPitch Customizer'а (логические px десктопа) ≈ 0.75 dp. */
+    private fun pitchPx(): Int = dp((Look.current(this).num("dotPitch", 9.0) * 0.75).toFloat()).toInt().coerceAtLeast(3)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,16 +130,20 @@ class WallpaperActivity : LookActivity() {
 
         // Controls.
         controls = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        val chosen = pitches.indices.minByOrNull { abs(pitches[it] - prefs.dotPitch) } ?: 1
-        dots = Choice(
+        // Dotify (LED-матрица), Recolor (в цвета темы) или как есть.
+        mode = Choice(
             this,
-            listOf(getString(R.string.dots_fine), getString(R.string.dots_normal), getString(R.string.dots_coarse)),
-            chosen,
-        ) { index ->
-            prefs.dotPitch = pitches[index]
+            listOf(getString(R.string.studio_mode_dotify), getString(R.string.studio_mode_recolor), getString(R.string.studio_mode_plain)),
+            0,
+        ) { render() }
+        controls.addView(labelled(R.string.studio_mode, mode))
+        val look = Look.current(this)
+        val pitch = LedSlider(this, 6.0, 24.0, 1.0, look.num("dotPitch", 9.0)) { value ->
+            LookEdit.set(this, "dotPitch", value)
             render()
         }
-        controls.addView(labelled(R.string.studio_dots, dots))
+        controls.addView(labelled(R.string.studio_dots, pitch), llp(MATCH, WRAP))
+        controls.addView(mono(getString(R.string.studio_colours_hint), 10f, Nihil.MUTED), llp(MATCH, WRAP).apply { topMargin = dp(4) })
 
         // One key to apply; then where: the home screen, the lock screen or both.
         val apply = KeyButton(this, getString(R.string.studio_apply_button), accent = true)
@@ -167,7 +175,7 @@ class WallpaperActivity : LookActivity() {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
         addView(mono(getString(label), 11f, Nihil.MUTED), llp(dp(92), WRAP))
-        addView(control, llp(WRAP, WRAP))
+        addView(control, if (control is LedSlider) llp(0, WRAP, 1f) else llp(WRAP, WRAP))
     }
 
     private fun showControls(on: Boolean) {
@@ -219,10 +227,23 @@ class WallpaperActivity : LookActivity() {
     private fun render() {
         val photo = cover ?: return
         val job = ++generation
-        val pitch = pitches[dots.selected]
+        val look = Look.current(this)
+        val pitch = pitchPx()
+        val gamma = look.num("dotGamma", 1.25).toFloat()
+        val off = look.num("dotOff", 0.07).toFloat()
+        val tint = look.color("dotTint", "foreground")
+        val background = look.color("dotBackground", "background")
+        val palette = look.theme?.let { Recolor.palette(it) }
+        val which = mode.selected
         status.text = getString(R.string.studio_rendering)
         worker.execute {
-            val bitmap = runCatching { DotRender.render(DotRender.grid(photo, pitch), screenW, screenH) }.getOrNull()
+            val bitmap = runCatching {
+                when {
+                    which == 0 -> DotRender.render(DotRender.grid(photo, pitch, gamma, off), screenW, screenH, tint, background)
+                    which == 1 && palette != null && palette.isNotEmpty() -> DotRender.recolor(photo, palette)
+                    else -> photo
+                }
+            }.getOrNull()
             main.post {
                 if (job != generation) return@post
                 if (bitmap == null) {

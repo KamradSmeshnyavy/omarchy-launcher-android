@@ -74,4 +74,11 @@
     <string name="font_dots_all">dots-all — каждая буква точками</string>
     <string name="font_paper">paper — рукописный (Pangolin, Caveat)</string>
     <string name="font_retro">retro — Pixelify Sans</string>
+
+    <!-- Студия обоев -->
+    <string name="studio_mode">Режим</string>
+    <string name="studio_mode_dotify">Dotify</string>
+    <string name="studio_mode_recolor">Recolor</string>
+    <string name="studio_mode_plain">Как есть</string>
+    <string name="studio_colours_hint">Цвета, гамма и незажжённые диоды: Customizer → Dotify</string>
 </resources>

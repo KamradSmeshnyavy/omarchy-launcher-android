@@ -77,7 +77,7 @@
     <string name="about_site" translatable="false">github.com/KamradSmeshnyavy/omarchy-launcher-android</string>
 
     <!-- Wallpaper studio -->
-    <string name="studio_title">NIHIL wallpaper</string>
+    <string name="studio_title">Wallpaper studio</string>
     <string name="studio_empty">Pick a photo: it becomes a matrix of LEDs at the exact resolution of your screen.</string>
     <string name="studio_pick">Choose a photo</string>
     <string name="studio_dots">Dots</string>

@@ -74,4 +74,11 @@
     <string name="font_dots_all">dots-all — every letter in dots</string>
     <string name="font_paper">paper — handwritten (Pangolin, Caveat)</string>
     <string name="font_retro">retro — Pixelify Sans</string>
+
+    <!-- Студия обоев -->
+    <string name="studio_mode">Mode</string>
+    <string name="studio_mode_dotify">Dotify</string>
+    <string name="studio_mode_recolor">Recolor</string>
+    <string name="studio_mode_plain">As is</string>
+    <string name="studio_colours_hint">Colours, gamma and unlit LEDs: Customizer → Dotify</string>
 </resources>

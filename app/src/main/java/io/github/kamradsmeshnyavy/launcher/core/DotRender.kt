@@ -35,30 +35,43 @@ object DotRender {
         return Bitmap.createBitmap(scaled, dx, dy, width, height)
     }
 
-    fun grid(photo: Bitmap, pitch: Int): DotMatrix.Grid {
+    fun grid(photo: Bitmap, pitch: Int, gamma: Float = 1.25f, offLevel: Float = 0.07f): DotMatrix.Grid {
         val pixels = IntArray(photo.width * photo.height)
         photo.getPixels(pixels, 0, photo.width, 0, 0, photo.width, photo.height)
-        return DotMatrix.grid(pixels, photo.width, photo.height, DotMatrix.Params(pitch))
+        return DotMatrix.grid(pixels, photo.width, photo.height, DotMatrix.Params(pitch, gamma = gamma, offLevel = offLevel))
     }
 
-    fun render(grid: DotMatrix.Grid, width: Int, height: Int): Bitmap {
+    /**
+     * Светодиоды на [background]; горящий на полную — цвета [tint], как dotify.py Customizer'а
+     * (маска яркости между фоном и тинтом). По умолчанию — белое на чёрном, как в NIHIL.
+     */
+    fun render(grid: DotMatrix.Grid, width: Int, height: Int, tint: Int = Color.WHITE, background: Int = Color.BLACK): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.BLACK)
+        canvas.drawColor(background or 0xFF000000.toInt())
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        val off = grid.offGrey
-        val offColor = Color.rgb(off, off, off)
+        val offColor = Look.mix(background, tint, grid.offGrey / 255f)
         val offRadius = grid.offRadius
         for (row in 0 until grid.rows) {
             for (col in 0 until grid.cols) {
                 val (x, y) = grid.center(col, row)
-                paint.color = offColor
-                canvas.drawCircle(x, y, offRadius, paint)
+                if (grid.offGrey > 0) {
+                    paint.color = offColor
+                    canvas.drawCircle(x, y, offRadius, paint)
+                }
                 val led = grid.lit(col, row) ?: continue
-                paint.color = Color.rgb(led.grey, led.grey, led.grey)
+                paint.color = Look.mix(background, tint, led.grey / 255f)
                 canvas.drawCircle(led.x, led.y, led.radius, paint)
             }
         }
         return bitmap
+    }
+
+    /** Recolor целого кадра в палитру темы. */
+    fun recolor(photo: Bitmap, palette: IntArray): Bitmap {
+        val pixels = IntArray(photo.width * photo.height)
+        photo.getPixels(pixels, 0, photo.width, 0, 0, photo.width, photo.height)
+        val out = Recolor.recolor(pixels, palette)
+        return Bitmap.createBitmap(out, photo.width, photo.height, Bitmap.Config.ARGB_8888)
     }
 }

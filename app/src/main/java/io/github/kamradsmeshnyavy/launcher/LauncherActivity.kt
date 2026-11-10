@@ -691,10 +691,16 @@ class LauncherActivity :
         val height = maxOf(bounds.width(), bounds.height())
         val pitch = prefs.dotPitch
         val app = applicationContext
+        // Ночное небо в цветах темы и с параметрами Dotify стиля.
+        val look = io.github.kamradsmeshnyavy.launcher.core.Look.current(this)
+        val tint = look.color("dotTint", "foreground")
+        val background = look.color("dotBackground", "background")
+        val gamma = look.num("dotGamma", 1.25).toFloat()
+        val off = look.num("dotOff", 0.07).toFloat()
         Thread {
             val done = runCatching {
                 val photo = DotRender.decodeCover(ImageDecoder.createSource(app.assets, DEFAULT_WALLPAPER), width, height)
-                val dots = DotRender.render(DotRender.grid(photo, pitch), width, height)
+                val dots = DotRender.render(DotRender.grid(photo, pitch, gamma, off), width, height, tint, background)
                 WallpaperManager.getInstance(app).setBitmap(dots, null, true, WallpaperManager.FLAG_SYSTEM)
             }.isSuccess
             if (done) runOnUiThread { if (!isDestroyed) notice(getString(R.string.wallpaper_seeded)) }
