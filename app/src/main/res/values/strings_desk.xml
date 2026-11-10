@@ -105,4 +105,8 @@
     <string name="desk_resize">Resize</string>
     <string name="desk_resize_hint">Drag the handles · tap outside to finish</string>
     <string name="desk_moved_overflow">Did not fit the screen — moved to desk %1$s</string>
+    <plurals name="desk_items">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
 </resources>

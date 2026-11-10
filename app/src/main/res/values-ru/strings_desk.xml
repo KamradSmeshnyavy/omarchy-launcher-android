@@ -105,4 +105,10 @@
     <string name="desk_resize">Растянуть</string>
     <string name="desk_resize_hint">Тяни за ручки · нажми мимо, чтобы закончить</string>
     <string name="desk_moved_overflow">Не влезло на экран — перенесено на стол %1$s</string>
+    <plurals name="desk_items">
+        <item quantity="one">%d элемент</item>
+        <item quantity="few">%d элемента</item>
+        <item quantity="many">%d элементов</item>
+        <item quantity="other">%d элемента</item>
+    </plurals>
 </resources>

@@ -99,6 +99,7 @@ class CustomizerActivity : LookActivity() {
             page == WEATHER -> weather()
             page == BAR -> barPage()
             page == LOCK -> lockPage()
+            page == SPACES -> spacesPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
             page.startsWith(ADD) -> addWidget(page.removePrefix(ADD).toIntOrNull() ?: 0)
             page.startsWith(APP_WIDGETS) -> appWidgets(page.removePrefix(APP_WIDGETS).toIntOrNull() ?: 0)
@@ -184,6 +185,7 @@ class CustomizerActivity : LookActivity() {
             listOf(
                 Triple(R.string.cz_fonts, R.string.cz_fonts_sub, FONTS),
                 Triple(R.string.cz_bar, R.string.cz_bar_sub, BAR),
+                Triple(R.string.desk_spaces, R.string.desk_spaces_sub, SPACES),
                 Triple(R.string.cz_launcher, R.string.cz_launcher_sub, TABLE + "LAUNCHER_TWEAKS"),
             ),
         )
@@ -566,6 +568,84 @@ class CustomizerActivity : LookActivity() {
                 column.addView(rule(), llp(MATCH, dp(1)))
             }
         }
+    }
+
+    // --- Рабочие столы -----------------------------------------------------------------
+
+    private val menu by lazy { io.github.kamradsmeshnyavy.launcher.ui.AppMenu(this) }
+
+    /** Столы списком: нажатие — переименовать, выше/ниже, удалить (с элементами — спросить). */
+    private fun spacesPage() {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        column.removeAllViews()
+        column.addView(heading(getString(R.string.desk_spaces), getString(R.string.desk_spaces_sub)))
+        val spaces = desk.state(this).spaces
+        spaces.forEachIndexed { index, space ->
+            val count = resources.getQuantityString(R.plurals.desk_items, space.items.size, space.items.size)
+            lateinit var row: View
+            row = settingRow(space.name, count, chevron()) {
+                val items = ArrayList<io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item>()
+                items += io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item(io.github.kamradsmeshnyavy.launcher.ui.LineIcon.Shape.GEAR, getString(R.string.desk_rename)) { renameSpace(index) }
+                if (index > 0) items += io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item(io.github.kamradsmeshnyavy.launcher.ui.LineIcon.Shape.UP, getString(R.string.menu_move_up)) {
+                    desk.moveSpace(this, index, index - 1)
+                    spacesPage()
+                }
+                if (index < spaces.size - 1) items += io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item(io.github.kamradsmeshnyavy.launcher.ui.LineIcon.Shape.DOWN, getString(R.string.menu_move_down)) {
+                    desk.moveSpace(this, index, index + 1)
+                    spacesPage()
+                }
+                if (spaces.size > 1) items += io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item(io.github.kamradsmeshnyavy.launcher.ui.LineIcon.Shape.TRASH, getString(R.string.desk_remove_space), danger = true) {
+                    val go = {
+                        desk.removeSpace(this, index).forEach { if (it.kind == "appwidget") io.github.kamradsmeshnyavy.launcher.core.AppWidgets.delete(this, it.appWidgetId) }
+                        toast(getString(R.string.desk_removed_space))
+                        spacesPage()
+                    }
+                    if (space.items.isEmpty()) {
+                        go()
+                    } else {
+                        row.post {
+                            menu.show(row, getString(R.string.desk_remove_space_confirm, space.name, space.items.size), listOf(
+                                io.github.kamradsmeshnyavy.launcher.ui.AppMenu.Item(io.github.kamradsmeshnyavy.launcher.ui.LineIcon.Shape.TRASH, getString(R.string.desk_remove_space_yes), danger = true) { go() },
+                            ))
+                        }
+                    }
+                }
+                menu.show(row, space.name, items)
+            }
+            column.addView(row)
+        }
+        column.addView(settingRow(getString(R.string.desk_new_space), null, chevron()) {
+            desk.addSpace(this, (spaces.size + 1).toString())
+            spacesPage()
+        })
+    }
+
+    private fun renameSpace(index: Int) {
+        val desk = io.github.kamradsmeshnyavy.launcher.core.Desk
+        val space = desk.state(this).spaces.getOrNull(index) ?: return
+        val field = EditText(this).apply {
+            setText(space.name)
+            setSelection(space.name.length)
+            setSingleLine()
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        }
+        val box = LinearLayout(this).apply {
+            setPadding(dp(22), dp(8), dp(22), 0)
+            addView(field, llp(MATCH, WRAP))
+        }
+        android.app.AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+            .setTitle(R.string.desk_rename)
+            .setView(box)
+            .setPositiveButton(android.R.string.ok) { _, _ ->
+                val name = field.text.toString().trim().take(16)
+                if (name.isNotEmpty()) {
+                    space.name = name
+                    desk.save(this)
+                    spacesPage()
+                }
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun itemOptions(id: String) {
@@ -1161,6 +1241,7 @@ class CustomizerActivity : LookActivity() {
         const val WEATHER = "weather"
         const val BAR = "bar"
         const val LOCK = "lock"
+        const val SPACES = "spaces"
         const val ADD = "add:"
         const val APP_WIDGETS = "appwidgets:"
         const val ITEM = "item:"
