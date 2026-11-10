@@ -119,4 +119,30 @@
         <item quantity="one">%d wallpaper</item>
         <item quantity="other">%d wallpapers</item>
     </plurals>
+    <string name="snd_system">Across the phone</string>
+    <string name="snd_system_sub">The pack’s ringtone, notification and alarm become the phone’s defaults — in every app that uses the default sound. Touch, keyboard, charging and lock sounds belong to Android and can’t be replaced without root.</string>
+    <string name="snd_permission">Allow changing system settings</string>
+    <string name="snd_permission_sub">Android asks once: Modify system settings → DOT-MATRIX. Needed to set the default sounds.</string>
+    <string name="snd_ringtone">Ringtone</string>
+    <string name="snd_notification">Notifications</string>
+    <string name="snd_alarm">Alarm</string>
+    <string name="snd_now">Now: %1$s</string>
+    <string name="snd_listen">Listen</string>
+    <string name="snd_listen_sub">Pack %1$s</string>
+    <string name="snd_apply">Apply to the phone</string>
+    <string name="snd_apply_sub">Pack %1$s; follows the pack (and the computer) from then on</string>
+    <string name="snd_choose">Turn on a ringtone, notifications or the alarm first</string>
+    <string name="snd_applied">Done: %1$d sounds set</string>
+    <string name="snd_failed">Couldn’t change the system sounds</string>
+    <string name="snd_restore">Put back the previous sounds</string>
+    <string name="snd_restore_sub">The phone’s own sounds, as they were before; our files are removed</string>
+    <string name="snd_restored">The previous sounds are back</string>
+    <string name="snd_events">System events</string>
+    <string name="snd_events_sub">The pack plays on these, like omarchy-sound on the computer. Android’s own sound for the event, if it has one, plays too.</string>
+    <string name="snd_ev_charge">Charger connected / disconnected</string>
+    <string name="snd_ev_battery">Battery low</string>
+    <string name="snd_ev_unlock">Unlock</string>
+    <string name="snd_ev_volume">Volume keys</string>
+    <string name="snd_ev_bluetooth">Bluetooth device connected</string>
+    <string name="snd_off_hint">Sounds are off: turn on “Sounds: on” above for the events to play.</string>
 </resources>

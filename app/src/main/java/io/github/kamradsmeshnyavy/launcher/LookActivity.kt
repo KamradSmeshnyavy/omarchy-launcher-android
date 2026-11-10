@@ -14,6 +14,11 @@ class LauncherApp : Application() {
         super.onCreate()
         Look.current(this)
         io.github.kamradsmeshnyavy.launcher.core.PcLook.schedule(this)
+        // Звуки системы: события — пока жив процесс; звонок/уведомления/будильник — за пакетом.
+        io.github.kamradsmeshnyavy.launcher.system.SoundEvents.start(this)
+        Look.onChange = { ctx ->
+            io.github.kamradsmeshnyavy.launcher.core.SystemSounds.follow(ctx, io.github.kamradsmeshnyavy.launcher.core.Sounds.pack(Look.now))
+        }
     }
 }
 

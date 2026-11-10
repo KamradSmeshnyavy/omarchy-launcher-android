@@ -204,7 +204,12 @@ object Look {
             resolved = resolve(context.applicationContext)
             version++
         }
+        onChange?.invoke(context.applicationContext)
     }
+
+    /** Любой пересчёт (своя правка, стиль, снимок с ПК) — для того, что живёт вне экранов (звуки системы). */
+    @Volatile
+    var onChange: ((Context) -> Unit)? = null
 
     /** Look поменялся не на этом экране (снимок с ПК): открытые экраны перерисовываются сразу. */
     fun external(context: Context) {

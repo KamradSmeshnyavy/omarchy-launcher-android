@@ -121,4 +121,30 @@
         <item quantity="many">Обоев: %d</item>
         <item quantity="other">Обоев: %d</item>
     </plurals>
+    <string name="snd_system">Во всей системе</string>
+    <string name="snd_system_sub">Звонок, уведомление и будильник пакета становятся звуками телефона по умолчанию — во всех приложениях, где стоит звук по умолчанию. Звуки касаний, клавиатуры, зарядки и блокировки принадлежат Android, без root их не заменить.</string>
+    <string name="snd_permission">Разрешить изменение системных настроек</string>
+    <string name="snd_permission_sub">Android спросит один раз: «Изменение системных настроек» → DOT-MATRIX. Нужно, чтобы поставить звуки по умолчанию.</string>
+    <string name="snd_ringtone">Звонок</string>
+    <string name="snd_notification">Уведомления</string>
+    <string name="snd_alarm">Будильник</string>
+    <string name="snd_now">Сейчас: %1$s</string>
+    <string name="snd_listen">Прослушать</string>
+    <string name="snd_listen_sub">Пакет %1$s</string>
+    <string name="snd_apply">Поставить на телефон</string>
+    <string name="snd_apply_sub">Пакет %1$s; дальше звуки следуют за пакетом (и за компьютером)</string>
+    <string name="snd_choose">Сначала включи звонок, уведомления или будильник</string>
+    <string name="snd_applied">Готово: поставлено звуков — %1$d</string>
+    <string name="snd_failed">Не получилось изменить звуки системы</string>
+    <string name="snd_restore">Вернуть прежние звуки</string>
+    <string name="snd_restore_sub">Звуки телефона, как были до этого; свои файлы удаляются</string>
+    <string name="snd_restored">Прежние звуки возвращены</string>
+    <string name="snd_events">События системы</string>
+    <string name="snd_events_sub">На них играет пакет, как omarchy-sound на компьютере. Собственный звук Android на это событие, если он есть, тоже прозвучит.</string>
+    <string name="snd_ev_charge">Зарядка подключена / отключена</string>
+    <string name="snd_ev_battery">Батарея садится</string>
+    <string name="snd_ev_unlock">Разблокировка</string>
+    <string name="snd_ev_volume">Клавиши громкости</string>
+    <string name="snd_ev_bluetooth">Подключено Bluetooth-устройство</string>
+    <string name="snd_off_hint">Звуки выключены: включи «Звуки: вкл.» выше, чтобы события звучали.</string>
 </resources>

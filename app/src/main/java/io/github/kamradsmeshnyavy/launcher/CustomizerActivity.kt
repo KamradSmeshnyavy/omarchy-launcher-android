@@ -100,6 +100,7 @@ class CustomizerActivity : LookActivity() {
             page == BAR -> barPage()
             page == LOCK -> lockPage()
             page == SPACES -> spacesPage()
+            page == SOUNDS -> soundsPage()
             page.startsWith(TABLE) -> table(page.removePrefix(TABLE))
             page.startsWith(ADD) -> addWidget(page.removePrefix(ADD).toIntOrNull() ?: 0)
             page.startsWith(APP_WIDGETS) -> appWidgets(page.removePrefix(APP_WIDGETS).toIntOrNull() ?: 0)
@@ -177,7 +178,7 @@ class CustomizerActivity : LookActivity() {
             R.string.cz_light_sound, R.string.cz_light_sound_sub,
             listOf(
                 Triple(R.string.cz_glyph, R.string.cz_glyph_sub, TABLE + "GLYPH_TWEAKS"),
-                Triple(R.string.cz_sounds, R.string.cz_sounds_sub, TABLE + "SOUND_TWEAKS"),
+                Triple(R.string.cz_sounds, R.string.cz_sounds_sub, SOUNDS),
             ),
         )
         group(
@@ -568,6 +569,130 @@ class CustomizerActivity : LookActivity() {
                 column.addView(rule(), llp(MATCH, dp(1)))
             }
         }
+    }
+
+    // --- Звуки -------------------------------------------------------------------------
+
+    /** Вернулись с экрана разрешения — перерисовать страницу звуков (статус и кнопки). */
+    private var redrawOnResume = false
+
+    override fun onResume() {
+        super.onResume()
+        if (redrawOnResume && page == SOUNDS) {
+            redrawOnResume = false
+            soundsPage()
+        }
+    }
+
+    private var preview: android.media.MediaPlayer? = null
+
+    /** Прослушать мелодию [kind] пакета [pack] (через временный файл: MediaPlayer читает путь). */
+    private fun listen(pack: String, kind: String) {
+        preview?.release()
+        preview = null
+        val input = io.github.kamradsmeshnyavy.launcher.core.Sounds.open(this, pack, kind) ?: return
+        val file = java.io.File(cacheDir, "preview-$kind.ogg")
+        runCatching {
+            input.use { i -> file.outputStream().use { i.copyTo(it) } }
+            preview = android.media.MediaPlayer().apply {
+                setDataSource(file.path)
+                setOnCompletionListener { it.release(); if (preview === it) preview = null }
+                prepare()
+                start()
+            }
+        }
+    }
+
+    override fun onPause() {
+        preview?.release()
+        preview = null
+        super.onPause()
+    }
+
+    /**
+     * Звуки: пакет (таблица Customizer), «Во всей системе» — звонок, уведомления, будильник
+     * мелодиями пакета, и «События системы» — звуки пакета на зарядку, батарею, Bluetooth….
+     */
+    private fun soundsPage() {
+        val sys = io.github.kamradsmeshnyavy.launcher.core.SystemSounds
+        val events = io.github.kamradsmeshnyavy.launcher.system.SoundEvents
+        val sounds = io.github.kamradsmeshnyavy.launcher.core.Sounds
+        column.removeAllViews()
+        table("SOUND_TWEAKS")
+        val pack = sounds.pack(Look.current(this))
+        val sp = Look.prefs(this)
+
+        column.addView(heading(getString(R.string.snd_system), getString(R.string.snd_system_sub)))
+        val allowed = sys.canWrite(this)
+        if (!allowed) {
+            column.addView(settingRow(getString(R.string.snd_permission), getString(R.string.snd_permission_sub), chevron()) {
+                redrawOnResume = true
+                runCatching { startActivity(sys.permissionIntent(this)) }
+            })
+        }
+        val names = mapOf(
+            io.github.kamradsmeshnyavy.launcher.core.SystemSounds.Kind.RINGTONE to R.string.snd_ringtone,
+            io.github.kamradsmeshnyavy.launcher.core.SystemSounds.Kind.NOTIFICATION to R.string.snd_notification,
+            io.github.kamradsmeshnyavy.launcher.core.SystemSounds.Kind.ALARM to R.string.snd_alarm,
+        )
+        io.github.kamradsmeshnyavy.launcher.core.SystemSounds.Kind.entries.forEach { kind ->
+            val now = sys.current(this, kind)
+            column.addView(switchRow(getString(names.getValue(kind)), getString(R.string.snd_now, now.ifEmpty { "—" }), sys.enabled(this, kind)) { on ->
+                sp.edit().putBoolean(kind.key, on).apply()
+            })
+            column.addView(settingRow(getString(R.string.snd_listen), getString(R.string.snd_listen_sub, pack), null) { listen(pack, kind.file) })
+        }
+        column.addView(settingRow(getString(R.string.snd_apply), getString(R.string.snd_apply_sub, pack), chevron()) {
+            if (!sys.canWrite(this)) {
+                redrawOnResume = true
+                runCatching { startActivity(sys.permissionIntent(this)) }
+                return@settingRow
+            }
+            if (!sys.anyEnabled(this)) {
+                toast(getString(R.string.snd_choose))
+                return@settingRow
+            }
+            sys.apply(this, pack) { n ->
+                toast(if (n > 0) getString(R.string.snd_applied, n) else getString(R.string.snd_failed))
+                soundsPage()
+            }
+        })
+        if (sys.applied(this) != null) {
+            column.addView(settingRow(getString(R.string.snd_restore), getString(R.string.snd_restore_sub), chevron()) {
+                sys.restore(this) { ok ->
+                    toast(getString(if (ok) R.string.snd_restored else R.string.snd_failed))
+                    soundsPage()
+                }
+            })
+        }
+
+        column.addView(heading(getString(R.string.snd_events), getString(R.string.snd_events_sub)))
+        val eventNames = mapOf(
+            io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.CHARGE to R.string.snd_ev_charge,
+            io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.BATTERY to R.string.snd_ev_battery,
+            io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.UNLOCK to R.string.snd_ev_unlock,
+            io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.VOLUME to R.string.snd_ev_volume,
+            io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.BLUETOOTH to R.string.snd_ev_bluetooth,
+        )
+        io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.entries.forEach { kind ->
+            column.addView(switchRow(getString(eventNames.getValue(kind)), null, events.enabled(this, kind)) { on ->
+                sp.edit().putBoolean(kind.key, on).apply()
+                // Bluetooth-события приходят только с разрешением «Устройства поблизости».
+                if (on && kind == io.github.kamradsmeshnyavy.launcher.system.SoundEvents.Kind.BLUETOOTH &&
+                    checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) != android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    requestPermissions(arrayOf(android.Manifest.permission.BLUETOOTH_CONNECT), REQUEST_BT)
+                }
+            })
+        }
+        if (!Look.current(this).bool("sounds", false)) {
+            column.addView(mono(getString(R.string.snd_off_hint), 11f, Nihil.SIGNAL), llp(MATCH, WRAP).apply { topMargin = dp(12) })
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_BT) io.github.kamradsmeshnyavy.launcher.system.SoundEvents.restart(this)
     }
 
     // --- Рабочие столы -----------------------------------------------------------------
@@ -1242,11 +1367,13 @@ class CustomizerActivity : LookActivity() {
         const val BAR = "bar"
         const val LOCK = "lock"
         const val SPACES = "spaces"
+        const val SOUNDS = "sounds"
         const val ADD = "add:"
         const val APP_WIDGETS = "appwidgets:"
         const val ITEM = "item:"
         const val TABLE = "table:"
         const val REQUEST_LOCK_PHOTO = 51
+        const val REQUEST_BT = 52
         const val ACTION_PICK_APP_WIDGET = "io.github.kamradsmeshnyavy.launcher.PICK_APP_WIDGET"
 
         fun intent(context: Context, page: String = HOME): Intent =
