@@ -102,13 +102,16 @@ object PcLook {
             return
         }
         if (jobs.getPendingJob(JOB) != null) return
-        jobs.schedule(
-            JobInfo.Builder(JOB, ComponentName(context, Job::class.java))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
-                .setPeriodic(TimeUnit.MINUTES.toMillis(15))
-                .setPersisted(false)
-                .build(),
-        )
+        // Планирование не должно ронять запуск приложения (он идёт из Application.onCreate).
+        runCatching {
+            jobs.schedule(
+                JobInfo.Builder(JOB, ComponentName(context, Job::class.java))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_UNMETERED)
+                    .setPeriodic(TimeUnit.MINUTES.toMillis(15))
+                    .setPersisted(false)
+                    .build(),
+            )
+        }.onFailure { android.util.Log.w("PcLook", "schedule", it) }
     }
 
     /** Фоновая проверка раз в 15 минут (только в Wi-Fi/безлимитной сети). */
