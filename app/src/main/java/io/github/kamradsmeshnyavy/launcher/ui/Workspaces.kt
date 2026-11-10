@@ -85,12 +85,15 @@ class Workspaces(context: Context) : ViewGroup(context) {
 
     fun release(vx: Float) {
         dragging = false
-        val nearest = if (width > 0) (scrollX.toFloat() / width).roundToInt() else page
+        // Без броска хватает трети ширины в сторону свайпа.
+        val moved = if (width > 0) (scrollX - page * width).toFloat() / width else 0f
         show(
             when {
                 vx < -fling -> page + 1
                 vx > fling -> page - 1
-                else -> nearest
+                moved > 0.3f -> page + 1
+                moved < -0.3f -> page - 1
+                else -> page
             },
         )
     }

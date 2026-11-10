@@ -110,9 +110,19 @@ object Desk {
         }
 
     fun save(context: Context) {
+        write(context)
+        version++
+    }
+
+    /** Запомнить текущий стол: это не правка, перестраивать столы не нужно. */
+    fun saveCurrent(context: Context, index: Int) {
+        state(context).current = index
+        write(context)
+    }
+
+    private fun write(context: Context) {
         val s = cached ?: return
         context.applicationContext.getSharedPreferences(FILE, Context.MODE_PRIVATE).edit().putString(KEY, s.json().toString()).apply()
-        version++
     }
 
     /** Растёт при каждой правке: дом перестраивается, если его версия старше. */

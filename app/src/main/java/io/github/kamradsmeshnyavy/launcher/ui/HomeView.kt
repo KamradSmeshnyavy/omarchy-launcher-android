@@ -57,8 +57,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
         addView(pager, lp(MATCH, MATCH))
         addView(dots, lp(MATCH, WRAP, Gravity.BOTTOM))
         pager.onPage = { index ->
-            Desk.state(context).current = index
-            Desk.save(context)
+            Desk.saveCurrent(context, index)
             (dots.getChildAt(0) as? PageDots)?.select(index)
             onPage?.invoke(index)
         }

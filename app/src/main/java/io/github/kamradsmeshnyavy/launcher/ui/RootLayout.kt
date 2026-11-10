@@ -139,6 +139,8 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
             when (ev.actionMasked) {
                 MotionEvent.ACTION_MOVE -> pager?.dragBy(ev.x - downX)
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    // Отпускание тоже двигает: последнее положение пальца бывает только в нём.
+                    if (ev.actionMasked == MotionEvent.ACTION_UP) pager?.dragBy(ev.x - downX)
                     val t = tracker
                     t?.computeCurrentVelocity(1000)
                     pager?.release(t?.xVelocity ?: 0f)
@@ -160,6 +162,9 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (dragging) {
+                    if (ev.actionMasked == MotionEvent.ACTION_UP) {
+                        listener.onDrag((startProgress - (ev.y - startY) / listener.travel).coerceIn(0f, 1f))
+                    }
                     val t = tracker
                     t?.computeCurrentVelocity(1000)
                     listener.onRelease(t?.yVelocity ?: 0f)
