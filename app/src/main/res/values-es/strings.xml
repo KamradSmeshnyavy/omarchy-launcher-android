@@ -25,8 +25,8 @@
     <string name="act_battery">Batería</string>
     <string name="act_alarms">Alarmas</string>
     <string name="act_lock">Bloquear</string>
-    <string name="act_wallpaper">Fondo NIHIL</string>
-    <string name="act_nihil">Ajustes de NIHIL</string>
+    <string name="act_wallpaper">Fondo DOT-MATRIX</string>
+    <string name="act_nihil">Ajustes de DOT-MATRIX</string>
     <string name="act_system">Ajustes del sistema</string>
     <string name="hint_on">Encendida</string>
     <string name="hint_off">Apagada</string>
@@ -47,8 +47,8 @@
     <!-- Ajustes -->
     <string name="settings_title">Ajustes</string>
     <string name="set_default">App de inicio</string>
-    <string name="set_default_on">NIHIL es tu pantalla de inicio</string>
-    <string name="set_default_off">Toca para usar NIHIL como pantalla de inicio</string>
+    <string name="set_default_on">DOT-MATRIX es tu pantalla de inicio</string>
+    <string name="set_default_off">Toca para usar DOT-MATRIX como pantalla de inicio</string>
     <string name="section_look">Aspecto</string>
     <string name="set_icons">Iconos</string>
     <string name="icons_mono">Mono</string>
@@ -57,7 +57,7 @@
     <string name="set_icons_sub">Mono usa el icono temático cuando la app lo tiene.</string>
     <string name="set_fav_icons">Iconos en favoritos</string>
     <string name="set_dim">Atenuar el fondo</string>
-    <string name="set_wallpaper">Fondo NIHIL</string>
+    <string name="set_wallpaper">Fondo DOT-MATRIX</string>
     <string name="set_wallpaper_sub">Convierte una foto en LEDs</string>
     <string name="section_behaviour">Comportamiento</string>
     <string name="set_keyboard">Teclado al abrir el cajón</string>
@@ -69,11 +69,11 @@
     <string name="set_hidden_none">No hay apps ocultas</string>
     <string name="set_unhide">Mostrar</string>
     <string name="section_about">Acerca de</string>
-    <string name="about_text">NIHIL para Android %1$s. Sin anuncios, sin rastreo y sin cuentas: solo habla con tu ordenador, y solo como su deck.</string>
+    <string name="about_text">DOT-MATRIX para Android %1$s. Sin anuncios, sin rastreo y sin cuentas: solo habla con tu ordenador, y solo como su deck.</string>
     <string name="about_fonts">Doto, Space Grotesk y Space Mono, con licencia SIL Open Font License 1.1.</string>
 
     <!-- Estudio de fondos -->
-    <string name="studio_title">Fondo NIHIL</string>
+    <string name="studio_title">Fondo DOT-MATRIX</string>
     <string name="studio_empty">Elige una foto: se convertirá en una matriz de LEDs a la resolución exacta de tu pantalla.</string>
     <string name="studio_pick">Elegir foto</string>
     <string name="studio_dots">Puntos</string>
@@ -89,16 +89,16 @@
     <string name="studio_failed">No se pudo leer la imagen</string>
 
     <!-- Servicios -->
-    <string name="glyph_service_label">Luz Glyph de NIHIL</string>
-    <string name="lock_service_label">NIHIL: bloqueo y luz Glyph</string>
-    <string name="lock_service_description">Bloquea la pantalla cuando tocas dos veces el inicio de NIHIL y dibuja la luz Glyph alrededor de la pantalla mientras estás en otras apps. No lee nada de la pantalla.</string>
+    <string name="glyph_service_label">Luz Glyph de DOT-MATRIX</string>
+    <string name="lock_service_label">DOT-MATRIX: bloqueo y luz Glyph</string>
+    <string name="lock_service_description">Bloquea la pantalla cuando tocas dos veces el inicio de DOT-MATRIX y dibuja la luz Glyph alrededor de la pantalla mientras estás en otras apps. No lee nada de la pantalla.</string>
 
     <!-- Avisos y etiquetas extra -->
     <string name="menu_unhide">Mostrar en la lista</string>
     <string name="launch_failed">No se puede abrir %1$s</string>
     <string name="open_failed">Nada en este móvil puede abrir eso</string>
     <string name="shade_failed">No se pudieron abrir las notificaciones</string>
-    <string name="lock_needs_service">Activa «NIHIL: bloqueo y luz Glyph» en Accesibilidad.</string>
+    <string name="lock_needs_service">Activa «DOT-MATRIX: bloqueo y luz Glyph» en Accesibilidad.</string>
     <string name="glyph_needs_access">Permite el acceso a las notificaciones para la luz Glyph.</string>
     <string name="restricted_hint">Si Android dice «Ajuste restringido»: Información de la app → ⋮ → Permitir ajustes restringidos.</string>
     <string name="web_search">Buscar «%1$s» en la web</string>
@@ -110,28 +110,28 @@
         <item quantity="many">%d resultados</item>
         <item quantity="other">%d resultados</item>
     </plurals>
-    <string name="wallpaper_seeded">Fondo de NIHIL puesto: el estudio lo cambia</string>
+    <string name="wallpaper_seeded">Fondo de DOT-MATRIX puesto: el estudio lo cambia</string>
     <string name="keys_actions">Acciones</string>
     <string name="keys_calc">Calcular</string>
     <string name="keys_open">Abrir</string>
     <string name="prefs_title">Preferencias</string>
     <string name="section_look_sub">Cómo se ven el inicio y los iconos.</string>
-    <string name="section_behaviour_sub">Qué hace NIHIL cuando lo tocas, y la luz Glyph.</string>
+    <string name="section_behaviour_sub">Qué hace DOT-MATRIX cuando lo tocas, y la luz Glyph.</string>
     <string name="section_apps_sub">Las apps que has escondido del cajón.</string>
-    <string name="section_about_sub">NIHIL en el móvil, como en el escritorio.</string>
+    <string name="section_about_sub">DOT-MATRIX en el móvil, como en el escritorio.</string>
     <string name="deck_title">Ordenador</string>
     <string name="deck_pair_title">Emparejar con el ordenador</string>
-    <string name="deck_scan_hint">En el ordenador: Preferencias → Móvil → Emparejar un móvil. Apunta la cámara a su QR.</string>
+    <string name="deck_scan_hint">En el ordenador: omadeck pair (o just server-pair). Apunta la cámara a su QR.</string>
     <string name="deck_scan_waiting">Buscando el QR…</string>
-    <string name="deck_camera_denied">Sin la cámara, NIHIL no puede leer el QR.</string>
+    <string name="deck_camera_denied">Sin la cámara, DOT-MATRIX no puede leer el QR.</string>
     <string name="deck_camera_none">La cámara no está disponible.</string>
-    <string name="deck_not_qr">Ese QR no es de un ordenador NIHIL.</string>
+    <string name="deck_not_qr">Ese QR no es de un ordenador DOT-MATRIX.</string>
     <string name="deck_pairing">Emparejando con %1$s…</string>
     <string name="deck_error_wrong">%1$s no ha aceptado el código: vuelve a mostrar el QR.</string>
     <string name="deck_error_expired">El código ha caducado: muestra un QR nuevo en %1$s.</string>
     <string name="deck_error_wait">Demasiados intentos: espera un minuto.</string>
     <string name="deck_error_unreachable">%1$s no responde: ¿estáis en la misma red?</string>
-    <string name="deck_unpaired_sub">Empareja este móvil con NIHIL en tu ordenador para abrir sus apps y webs, poner su música, subir y bajar el volumen, bloquearlo y hacerle de trackpad desde aquí.</string>
+    <string name="deck_unpaired_sub">Empareja este móvil con DOT-MATRIX en tu ordenador para abrir sus apps y webs, poner su música, subir y bajar el volumen, bloquearlo y hacerle de trackpad desde aquí.</string>
     <string name="deck_pair">Emparejar</string>
     <string name="deck_connected">Conectado: %1$s</string>
     <string name="deck_looking">Buscando %1$s…</string>
@@ -150,7 +150,7 @@
     <string name="deck_apps">Apps</string>
     <string name="deck_webs">Webs</string>
     <string name="deck_add_web">Añadir web</string>
-    <string name="deck_add_web_hint">nihilshell.com</string>
+    <string name="deck_add_web_hint">omarchy.org</string>
     <string name="deck_remove_web">¿Quitar %1$s?</string>
     <string name="deck_remove">Quitar</string>
     <string name="deck_opened">Abierto en %1$s</string>
@@ -161,16 +161,16 @@
     <string name="deck_open_on">Abrir en el ordenador</string>
     <string name="deck_no_url">No hay ninguna web en lo que has compartido.</string>
     <string name="deck_paired">Emparejado con %1$s</string>
-    <string name="deck_settings_sub">Este móvil como deck de NIHIL en el ordenador.</string>
+    <string name="deck_settings_sub">Este móvil como deck de DOT-MATRIX en el ordenador.</string>
     <string name="hint_deck">Deck</string>
     <string name="deck_apps_webs">Apps y webs</string>
     <string name="deck_volume_title">Volumen</string>
     <string name="set_language">Idioma</string>
-    <string name="set_language_sub">NIHIL habla el idioma del móvil; aquí puede tener uno propio, inglés o español.</string>
+    <string name="set_language_sub">DOT-MATRIX habla el idioma del móvil; aquí puede tener uno propio, inglés o español.</string>
     <string name="about_robot">El robot de Android del icono está modificado a partir de un trabajo creado y compartido por Google, con licencia Creative Commons 3.0 Atribución.</string>
     <string name="glyph_try">Probar la luz</string>
     <string name="glyph_listening">Escuchando las notificaciones.</string>
-    <string name="glyph_not_connected">El acceso a notificaciones está activado, pero Android no ha conectado NIHIL a las notificaciones: desactívalo y vuelve a activarlo, o reinicia el móvil.</string>
+    <string name="glyph_not_connected">El acceso a notificaciones está activado, pero Android no ha conectado DOT-MATRIX a las notificaciones: desactívalo y vuelve a activarlo, o reinicia el móvil.</string>
     <string name="tasks_title">Tareas</string>
     <string name="tasks_todo">Por hacer</string>
     <string name="tasks_doing">Haciendo</string>
@@ -194,7 +194,7 @@
     <string name="deck_night">Luz nocturna</string>
     <string name="deck_night_on">Luz nocturna encendida en %1$s</string>
     <string name="deck_night_off">Luz nocturna apagada en %1$s</string>
-    <string name="deck_older">El NIHIL de %1$s aún no sabe hacer esto: actualízalo</string>
+    <string name="deck_older">El DOT-MATRIX de %1$s aún no sabe hacer esto: actualízalo</string>
     <string name="set_deck_screen">Pantalla encendida en el deck</string>
     <string name="set_deck_screen_sub">La pantalla del móvil no se apaga mientras el deck está abierto</string>
     <string name="about_icons">La cafeína, la luz nocturna y el bloqueo del deck son los del escritorio, de Material Design Icons, con la Pictogrammers Free License.</string>
@@ -203,7 +203,7 @@
     <string name="web_name_hint">Nombre (opcional)</string>
     <string name="web_invalid">Eso no es una dirección web</string>
     <string name="web_added">Añadida: %1$s</string>
-    <string name="web_share">Añadir a NIHIL</string>
+    <string name="web_share">Añadir a DOT-MATRIX</string>
     <string name="deck_trackpad">Trackpad</string>
     <string name="deck_trackpad_hint">Toca para hacer clic, con dos dedos para el botón derecho y con tres para el central</string>
     <string name="deck_trackpad_connecting">Conectando…</string>

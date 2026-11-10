@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Домашний экран -->
+    <string name="battery_percent">%1$d%%</string>
+    <string name="battery_charging">заряжается</string>
+    <string name="alarm_next">Будильник %1$s</string>
+    <string name="favorites_empty">Смахните вверх и удерживайте приложение, чтобы добавить его сюда.</string>
+
+    <!-- Ящик -->
+    <string name="search_hint">Поиск</string>
+    <string name="apps_count">Приложений: %1$d</string>
+    <string name="mode_actions">Действия</string>
+    <string name="mode_calculator">Калькулятор</string>
+    <string name="drawer_hint">Enter открывает, &gt; действия, = считает</string>
+    <string name="calc_hint">Enter копирует результат</string>
+    <string name="calc_type">Введите выражение</string>
+    <string name="calc_copied">Скопировано</string>
+    <string name="no_results">Ничего не найдено</string>
+
+    <!-- Действия -->
+    <string name="act_torch">Фонарик</string>
+    <string name="act_wifi">Wi-Fi</string>
+    <string name="act_bluetooth">Bluetooth</string>
+    <string name="act_sound">Звук</string>
+    <string name="act_battery">Батарея</string>
+    <string name="act_alarms">Будильники</string>
+    <string name="act_lock">Заблокировать</string>
+    <string name="act_wallpaper">Обои DOT-MATRIX</string>
+    <string name="act_nihil">Настройки DOT-MATRIX</string>
+    <string name="act_system">Настройки системы</string>
+    <string name="hint_on">Вкл</string>
+    <string name="hint_off">Выкл</string>
+    <string name="hint_panel">Панель</string>
+    <string name="hint_system">Система</string>
+    <string name="hint_screen">Экран</string>
+    <string name="hint_studio">Студия</string>
+
+    <!-- Меню приложения -->
+    <string name="menu_add_home">На домашний экран</string>
+    <string name="menu_remove_home">Убрать с домашнего экрана</string>
+    <string name="menu_move_up">Выше</string>
+    <string name="menu_move_down">Ниже</string>
+    <string name="menu_hide">Скрыть</string>
+    <string name="menu_info">О приложении</string>
+    <string name="menu_uninstall">Удалить</string>
+
+    <!-- Настройки -->
+    <string name="settings_title">Настройки</string>
+    <string name="set_default">Домашний экран</string>
+    <string name="set_default_on">DOT-MATRIX — ваш домашний экран</string>
+    <string name="set_default_off">Нажмите, чтобы сделать DOT-MATRIX домашним экраном</string>
+    <string name="section_look">Вид</string>
+    <string name="set_icons">Значки</string>
+    <string name="icons_mono">Моно</string>
+    <string name="icons_grey">Серые</string>
+    <string name="icons_color">Цветные</string>
+    <string name="set_icons_sub">Моно берёт тематический значок, если он есть у приложения.</string>
+    <string name="set_fav_icons">Значки в избранном</string>
+    <string name="set_dim">Затемнить обои</string>
+    <string name="set_wallpaper">Студия обоев</string>
+    <string name="set_wallpaper_sub">Dotify и Recolor из фотографии</string>
+    <string name="section_behaviour">Поведение</string>
+    <string name="set_keyboard">Клавиатура при открытии ящика</string>
+    <string name="set_glyph">Glyph-свет</string>
+    <string name="set_glyph_sub">Свет по краю экрана и светодиоды на каждое уведомление. Нужен доступ к уведомлениям; поверх других приложений — ещё и служба спецвозможностей двойного касания.</string>
+    <string name="set_lock">Двойное касание — блокировка</string>
+    <string name="set_lock_sub">Использует службу спецвозможностей: она блокирует экран и рисует Glyph-свет поверх других приложений. Ничего не читает.</string>
+    <string name="section_apps">Приложения</string>
+    <string name="set_hidden_none">Скрытых приложений нет</string>
+    <string name="set_unhide">Показать</string>
+    <string name="section_about">О лаунчере</string>
+    <string name="about_text">DOT-MATRIX для Android %1$s, сделан из NIHIL Launcher автора poligle (MIT). Без рекламы, слежки и аккаунта: говорит только с вашим компьютером и только как его пульт.</string>
+    <string name="about_fonts">Doto, Space Grotesk, Space Mono, Geist, DotMatrix и шрифты стилей — под SIL Open Font License 1.1.</string>
+
+    <!-- Студия обоев -->
+    <string name="studio_title">Студия обоев</string>
+    <string name="studio_empty">Выберите фото: оно станет матрицей светодиодов точно под разрешение экрана — или перекрасится в цвета темы.</string>
+    <string name="studio_pick">Выбрать фото</string>
+    <string name="studio_dots">Точки</string>
+    <string name="dots_fine">Мелкие</string>
+    <string name="dots_normal">Обычные</string>
+    <string name="dots_coarse">Крупные</string>
+    <string name="studio_apply">Поставить на</string>
+    <string name="apply_home">Домашний экран</string>
+    <string name="apply_lock">Экран блокировки</string>
+    <string name="apply_both">Оба</string>
+    <string name="studio_rendering">Рисую…</string>
+    <string name="studio_done">Готово</string>
+    <string name="studio_failed">Не удалось прочитать картинку</string>
+
+    <!-- Службы -->
+    <string name="glyph_service_label">Glyph-свет DOT-MATRIX</string>
+    <string name="lock_service_label">Блокировка и Glyph-свет DOT-MATRIX</string>
+    <string name="lock_service_description">Блокирует экран по двойному касанию домашнего экрана DOT-MATRIX и рисует Glyph-свет по краю экрана, пока вы в других приложениях. Ничего на экране не читает.</string>
+
+    <!-- Сообщения и подписи -->
+    <string name="menu_unhide">Показывать в списке</string>
+    <string name="launch_failed">Не удалось открыть %1$s</string>
+    <string name="open_failed">На телефоне нечем это открыть</string>
+    <string name="shade_failed">Не удалось открыть уведомления</string>
+    <string name="lock_needs_service">Включите «Блокировка и Glyph-свет DOT-MATRIX» в спецвозможностях.</string>
+    <string name="glyph_needs_access">Разрешите доступ к уведомлениям для Glyph-света.</string>
+    <string name="restricted_hint">Если Android пишет «Ограниченная настройка»: О приложении → ⋮ → Разрешить ограниченные настройки.</string>
+    <string name="web_search">Искать в сети «%1$s»</string>
+    <string name="hint_hidden">Скрыто</string>
+    <string name="torch_unavailable">Фонарика нет</string>
+    <string name="set_hidden_sub">Скрытые приложения уходят из списка, но поиск их находит.</string>
+    <plurals name="results">
+        <item quantity="one">%d результат</item>
+        <item quantity="few">%d результата</item>
+        <item quantity="many">%d результатов</item>
+        <item quantity="other">%d результата</item>
+    </plurals>
+    <string name="wallpaper_seeded">Стоят обои DOT-MATRIX: их меняет студия</string>
+    <string name="keys_actions">Действия</string>
+    <string name="keys_calc">Считать</string>
+    <string name="keys_open">Открыть</string>
+    <string name="prefs_title">Настройки</string>
+    <string name="section_look_sub">Тема, стиль и всё, что настраивает Customizer.</string>
+    <string name="section_behaviour_sub">Что делает лаунчер на касания, и Glyph-свет.</string>
+    <string name="section_apps_sub">Приложения, скрытые из ящика.</string>
+    <string name="section_about_sub">DOT-MATRIX на телефоне, как на десктопе.</string>
+    <string name="deck_title">Компьютер</string>
+    <string name="deck_pair_title">Сопряжение с компьютером</string>
+    <string name="deck_scan_hint">На компьютере: omadeck pair (или just server-pair). Наведите камеру на QR.</string>
+    <string name="deck_scan_waiting">Ищу QR…</string>
+    <string name="deck_camera_denied">Без камеры QR не прочитать.</string>
+    <string name="deck_camera_none">Камера недоступна.</string>
+    <string name="deck_not_qr">Это не QR компьютера с omadeck.</string>
+    <string name="deck_pairing">Сопрягаюсь с %1$s…</string>
+    <string name="deck_error_wrong">%1$s не принял код: покажите QR заново.</string>
+    <string name="deck_error_expired">Код истёк: покажите новый QR на %1$s.</string>
+    <string name="deck_error_wait">Слишком много попыток: подождите минуту.</string>
+    <string name="deck_error_unreachable">%1$s не отвечает: вы в одной сети?</string>
+    <string name="deck_unpaired_sub">Сопрягите телефон с omadeck на компьютере с Omarchy — и отсюда можно открывать его приложения и сайты, управлять музыкой и громкостью, блокировать его и быть его трекпадом.</string>
+    <string name="deck_pair">Сопрячь</string>
+    <string name="deck_connected">Подключено: %1$s</string>
+    <string name="deck_looking">Ищу %1$s…</string>
+    <string name="deck_unreachable_status">%1$s не отвечает</string>
+    <string name="deck_forgotten">%1$s забыл этот телефон: сопрягите заново.</string>
+    <string name="deck_busy">%1$s сейчас не может</string>
+    <string name="deck_refused">%1$s не принял</string>
+    <string name="deck_music">Музыка</string>
+    <string name="deck_nothing_playing">Ничего не играет</string>
+    <string name="deck_previous">Назад</string>
+    <string name="deck_toggle">Пуск или пауза</string>
+    <string name="deck_next">Дальше</string>
+    <string name="deck_volume_down">Тише</string>
+    <string name="deck_volume_up">Громче</string>
+    <string name="deck_muted">Без звука</string>
+    <string name="deck_apps">Приложения</string>
+    <string name="deck_webs">Сайты</string>
+    <string name="deck_add_web">Добавить сайт</string>
+    <string name="deck_add_web_hint">omarchy.org</string>
+    <string name="deck_remove_web">Убрать %1$s?</string>
+    <string name="deck_remove">Убрать</string>
+    <string name="deck_opened">Открыто на %1$s</string>
+    <string name="deck_lock">Заблокировать</string>
+    <string name="deck_locked">%1$s заблокирован</string>
+    <string name="deck_forget">Забыть этот компьютер</string>
+    <string name="deck_forget_confirm">Забыть %1$s? Чтобы снова быть его пультом, он должен будет показать QR.</string>
+    <string name="deck_open_on">Открыть на компьютере</string>
+    <string name="deck_no_url">В том, чем вы поделились, нет ссылки.</string>
+    <string name="deck_paired">Сопряжено с %1$s</string>
+    <string name="deck_settings_sub">Телефон как пульт для Omarchy на компьютере (omadeck).</string>
+    <string name="hint_deck">Пульт</string>
+    <string name="deck_apps_webs">Приложения и сайты</string>
+    <string name="deck_volume_title">Громкость</string>
+    <string name="set_language">Язык</string>
+    <string name="set_language_sub">DOT-MATRIX говорит на языке телефона; здесь можно выбрать свой: английский, русский или испанский.</string>
+    <string name="about_robot">Робот Android на значке — изменённая работа Google, по лицензии Creative Commons 3.0 Attribution.</string>
+    <string name="glyph_try">Попробовать свет</string>
+    <string name="glyph_listening">Слушаю уведомления.</string>
+    <string name="glyph_not_connected">Доступ к уведомлениям включён, но Android не подключил лаунчер к уведомлениям: выключите и включите доступ или перезагрузите телефон.</string>
+    <string name="tasks_title">Задачи</string>
+    <string name="tasks_todo">Сделать</string>
+    <string name="tasks_doing">В работе</string>
+    <string name="tasks_done">Готово</string>
+    <string name="tasks_new">Новая задача</string>
+    <string name="tasks_move">В «%1$s»</string>
+    <string name="tasks_edit">Изменить</string>
+    <string name="tasks_delete">Удалить</string>
+    <string name="tasks_clear_done">Убрать готовые</string>
+    <string name="tasks_empty">Пусто</string>
+    <string name="tasks_syncing">Синхронизирую…</string>
+    <string name="tasks_synced">Синхронизировано с %1$s</string>
+    <string name="tasks_offline">%1$s не отвечает: изменения уйдут, когда ответит</string>
+    <string name="tasks_local">Нет сопряжения: только на этом телефоне</string>
+    <string name="deck_caffeine">Кофеин</string>
+    <string name="deck_caffeine_on">Кофеин включён: %1$s не засыпает</string>
+    <string name="deck_caffeine_off">Кофеин на %1$s выключен</string>
+    <string name="deck_cover">Обложка</string>
+    <string name="studio_apply_button">Поставить</string>
+    <string name="studio_where">Куда</string>
+    <string name="deck_night">Ночной свет</string>
+    <string name="deck_night_on">Ночной свет на %1$s включён</string>
+    <string name="deck_night_off">Ночной свет на %1$s выключен</string>
+    <string name="deck_older">omadeck на %1$s этого ещё не умеет: обновите его</string>
+    <string name="set_deck_screen">Экран не гаснет в пульте</string>
+    <string name="set_deck_screen_sub">Пока открыт пульт, экран телефона не выключается</string>
+    <string name="about_icons">Кофеин, ночной свет и замок в пульте — значки Material Design Icons по лицензии Pictogrammers Free License.</string>
+    <string name="web_add">Добавить сайт</string>
+    <string name="web_edit">Изменить сайт</string>
+    <string name="web_name_hint">Название (необязательно)</string>
+    <string name="web_invalid">Это не адрес сайта</string>
+    <string name="web_added">Добавлено: %1$s</string>
+    <string name="web_share">Добавить в DOT-MATRIX</string>
+    <string name="deck_trackpad">Трекпад</string>
+    <string name="deck_trackpad_hint">Касание — щелчок, двумя пальцами — правая кнопка, тремя — средняя</string>
+    <string name="deck_trackpad_connecting">Подключаюсь…</string>
+    <string name="deck_trackpad_access">Выйдите и снова войдите в сессию на %1$s, чтобы заработал трекпад</string>
+    <string name="deck_trackpad_refused">%1$s сейчас не может принять трекпад</string>
+</resources>

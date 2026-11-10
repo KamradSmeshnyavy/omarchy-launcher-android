@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Испанский перевод — из апстрима (NIHIL); новые экраны (Customizer, студия) на нём
+     показываются по-английски, поэтому их отсутствие — предупреждение, а не ошибка. -->
+<lint>
+    <issue id="MissingTranslation" severity="warning" />
+</lint>
