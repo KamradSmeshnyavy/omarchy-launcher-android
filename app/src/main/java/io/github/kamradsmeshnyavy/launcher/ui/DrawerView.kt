@@ -438,7 +438,7 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
         private val icon = ImageView(context)
         private val name = when (skin) {
             "list" -> context.text("", 17f, Nihil.MUTED, Nihil.fonts(context).sans)
-            "dotmatrix" -> context.text("", 13f, Nihil.MUTED, Nihil.fonts(context).dot)
+            "dotmatrix" -> context.text("", 12f, Nihil.MUTED, Nihil.fonts(context).dot).apply { isAllCaps = true; letterSpacing = 0.06f }
             else -> context.mono(size = if (skin == "compact") 10f else 11f, color = Nihil.MUTED)
         }.apply {
             gravity = if (skin == "list") Gravity.START else Gravity.CENTER_HORIZONTAL
@@ -487,7 +487,8 @@ class DrawerView(context: Context, private val host: Host) : FrameLayout(context
             name.setTextColor(if (selected) Nihil.INK else Nihil.MUTED)
             contentDescription = entry.label
             key = entry.key
-            icon.bindIcon(entry, iconSize, if (selected) IconStyle.COLOR else if (skin == "dotmatrix") IconStyle.MONO else style)
+            val dots = skin == "dotmatrix" && !selected
+            icon.bindIcon(entry, iconSize, if (selected) IconStyle.COLOR else if (dots) IconStyle.MONO else style, dots, Nihil.INK)
             setOnClickListener { host.launch(entry, this) }
             setOnLongClickListener {
                 host.menu(entry, this)

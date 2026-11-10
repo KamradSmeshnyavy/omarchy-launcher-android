@@ -281,7 +281,7 @@
       "list",
       "dotmatrix"
      ],
-     "label": "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)"
+     "label": "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)"
     }
    ]
   },

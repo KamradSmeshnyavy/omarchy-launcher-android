@@ -61,12 +61,12 @@ EXTRA_ITEMS = {
         {"key": "deskLayout", "type": "enum", "values": ["stack", "grid"],
          "label": "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)"},
         {"key": "drawerSkin", "type": "enum", "values": ["grid", "compact", "list", "dotmatrix"],
-         "label": "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)"},
+         "label": "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)"},
     ],
 }
 EXTRA_RU = {
-    "Drawer skin (grid — as in NIHIL, compact, list, dotmatrix — mono icons, dot names)":
-        "Скин ящика (grid — как в NIHIL, compact — плотнее, list — списком, dotmatrix — моно-значки и имена точками)",
+    "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)":
+        "Вид списка приложений (grid — значки как в NIHIL, compact — мельче, по 5 в ряд, list — списком, dotmatrix — значки и имена светодиодными точками)",
     "grid": "сетка", "compact": "плотно", "list": "список", "stack": "стопка",
     "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)":
         "Раскладка столов (стопка — карточки сверху вниз, сетка — клетки, как в лаунчерах Android)",
