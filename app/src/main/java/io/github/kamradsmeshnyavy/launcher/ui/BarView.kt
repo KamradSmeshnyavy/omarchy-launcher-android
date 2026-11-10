@@ -139,7 +139,9 @@ class BarView(context: Context, private val preview: BarSkin.Skin? = null, priva
         val cy = bandTop + bandH / 2 + text.textSize * 0.35f
         val right = listOf(weather, clock, battery + if (charging) " ↯" else "").filter { it.isNotEmpty() }.joinToString("   ")
         val rightW = text.measureText(right)
-        val labelStyle = Look.prefs(context).getString(BarSkin.LABELS, null)?.takeIf { it != "skin" } ?: skin.str("wsLabelStyle")
+        var labelStyle = Look.prefs(context).getString(BarSkin.LABELS, null)?.takeIf { it != "skin" } ?: skin.str("wsLabelStyle")
+        // Много столов — подписи не влезают до часов: тогда точками (как leds).
+        if (labelStyle != "none" && labelStyle != "leds" && spacesWidth(labelStyle, d) > w - rightW - pad * 4) labelStyle = "leds"
         val leftW = spacesWidth(labelStyle, d)
 
         // Подложка.

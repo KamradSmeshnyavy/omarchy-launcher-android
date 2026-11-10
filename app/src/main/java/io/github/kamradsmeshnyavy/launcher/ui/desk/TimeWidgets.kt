@@ -174,6 +174,15 @@ class MonthWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidge
         val cal = Calendar.getInstance()
         val today = cal.get(Calendar.DAY_OF_MONTH)
         val title = SimpleDateFormat("LLLL yyyy", locale).format(cal.time).replaceFirstChar { it.titlecase(locale) }
+            .let { full ->
+                // Узкий виджет: месяц без года, а если и так не влезает — коротко.
+                paint.textSize = h * 0.18f * 0.7f
+                when {
+                    paint.measureText(full) <= w -> full
+                    paint.measureText(full.substringBefore(' ')) <= w -> full.substringBefore(' ')
+                    else -> SimpleDateFormat("LLL", locale).format(cal.time).replaceFirstChar { it.titlecase(locale) }
+                }
+            }
         val days = cal.getActualMaximum(Calendar.DAY_OF_MONTH)
         cal.set(Calendar.DAY_OF_MONTH, 1)
         val first = (cal.get(Calendar.DAY_OF_WEEK) - cal.firstDayOfWeek + 7) % 7

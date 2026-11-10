@@ -33,6 +33,18 @@ interface DeskHost {
  */
 abstract class DeskWidget(context: Context, val item: Desk.Item, protected val host: DeskHost) : FrameLayout(context) {
     var fixedHeight = false
+        set(value) {
+            field = value
+            onFixed(value)
+        }
+
+    /** Сетка (true): карточка заполняет клетки целиком; стопка — своя высота. */
+    protected open fun onFixed(fixed: Boolean) {}
+
+    /** Карточку [card] — во всю высоту клеток в сетке, иначе по содержимому с [gravity]. */
+    protected fun fill(card: View, fixed: Boolean, gravity: Int = android.view.Gravity.TOP) {
+        card.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, if (fixed) LayoutParams.MATCH_PARENT else LayoutParams.WRAP_CONTENT, gravity)
+    }
 
     init {
         isLongClickable = true

@@ -48,6 +48,17 @@ import java.util.Locale
  */
 class ClockWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidget(context, item, host) {
     private val fonts = Nihil.fonts(context)
+    private var baseClockSize = 0f
+
+    override fun onFixed(fixed: Boolean) {
+        // В сетке: карточка во все клетки, содержимое по центру, цифры крупнее на высоких.
+        fill(card, fixed)
+        card.gravity = (if (clockLook.style == "big") Gravity.CENTER_HORIZONTAL else Gravity.START) or
+            (if (fixed) Gravity.CENTER_VERTICAL else Gravity.TOP)
+        val grow = if (fixed) (item.h / 2.4f).coerceIn(1f, 1.7f) else 1f
+        if (baseClockSize > 0f) clock.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, baseClockSize * grow)
+    }
+
     private val clockLook = ClockLook(Look.now, DateFormat.is24HourFormat(context))
     private val ticker = object : Runnable {
         override fun run() {
@@ -138,6 +149,7 @@ class ClockWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidge
         addView(card, lp(MATCH, WRAP, Gravity.TOP))
         onClock(animate = false)
         unread.visibility = View.GONE
+        baseClockSize = clock.textSize
     }
 
     override fun onAttachedToWindow() {
@@ -223,11 +235,17 @@ class ClockWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidge
 
 /** «Сейчас играет» (MediaCard) как элемент стола; без сессии — пустое место не занимает в стопке. */
 class MediaWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidget(context, item, host) {
+    private val card = MediaCard(context)
+
     init {
-        val card = MediaCard(context)
         card.isLongClickable = true
         card.setOnLongClickListener { performLongClick() }
         addView(card, lp(MATCH, WRAP, Gravity.CENTER_VERTICAL))
+    }
+
+    override fun onFixed(fixed: Boolean) {
+        fill(card, fixed, Gravity.CENTER_VERTICAL)
+        if (fixed) card.gravity = Gravity.CENTER_VERTICAL
     }
 }
 
@@ -240,6 +258,8 @@ class TodoWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidget
         card.setOnLongClickListener { performLongClick() }
         addView(card, lp(MATCH, WRAP, Gravity.TOP))
     }
+
+    override fun onFixed(fixed: Boolean) = fill(card, fixed)
 
     override fun refresh() = card.refresh()
 }
