@@ -107,6 +107,27 @@ abstract class CardWidget(context: Context, item: Desk.Item, host: DeskHost, car
         body.setOnLongClickListener { performLongClick() }
     }
 
+    /**
+     * Холст с зонами: короткое касание — [onTap] с точкой (px холста), долгое — меню правки
+     * элемента, как у остальных карточек. Сдвиг пальца или удержание — не нажатие.
+     */
+    @android.annotation.SuppressLint("ClickableViewAccessibility")
+    protected fun tapZones(view: android.view.View, onTap: (Float, Float) -> Unit) {
+        val detector = android.view.GestureDetector(context, object : android.view.GestureDetector.SimpleOnGestureListener() {
+            override fun onDown(e: android.view.MotionEvent) = true
+
+            override fun onSingleTapUp(e: android.view.MotionEvent): Boolean {
+                runCatching { onTap(e.x, e.y) }
+                return true
+            }
+
+            override fun onLongPress(e: android.view.MotionEvent) {
+                performLongClick()
+            }
+        })
+        view.setOnTouchListener { _, ev -> detector.onTouchEvent(ev) }
+    }
+
     /** Нажатие на карточку. */
     protected fun onTap(action: () -> Unit) {
         body.setOnClickListener { runCatching(action) }

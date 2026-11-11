@@ -17,6 +17,14 @@ import kotlin.math.abs
 class ReorderList(context: Context, private val gap: Int) : ViewGroup(context) {
     var onReorder: ((from: Int, to: Int) -> Unit)? = null
 
+    /** Ряд держат, ведут или он встаёт на место: перестраивать список сейчас нельзя. */
+    val busy: Boolean get() = armed != null || dragged != null || settling
+
+    /** Список снова свободен (после [busy]): для отложенной перестройки. */
+    var onIdle: (() -> Unit)? = null
+
+    private var settling = false
+
     private val slop = ViewConfiguration.get(context).scaledTouchSlop
     private var armed: View? = null
     private var dragged: View? = null
@@ -70,7 +78,10 @@ class ReorderList(context: Context, private val gap: Int) : ViewGroup(context) {
         if (armed == null && dragged == null) return false
         when (ev.actionMasked) {
             MotionEvent.ACTION_MOVE -> if (dragged == null && abs(ev.y - downY) > slop) begin()
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> if (dragged == null) armed = null
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> if (dragged == null && armed != null) {
+                armed = null
+                onIdle?.invoke()
+            }
         }
         return dragged != null
     }
@@ -148,6 +159,7 @@ class ReorderList(context: Context, private val gap: Int) : ViewGroup(context) {
         val start = from
         dragged = null
         armed = null
+        settling = true
         val tops = tops(order(to))
         for (i in 0 until childCount) {
             val c = getChildAt(i)
@@ -162,11 +174,13 @@ class ReorderList(context: Context, private val gap: Int) : ViewGroup(context) {
                     c.translationY = 0f
                     c.translationZ = 0f
                 }
+                settling = false
                 if (to != start) {
                     removeViewAt(start)
                     addView(child, to)
                     onReorder?.invoke(start, to)
                 }
+                onIdle?.invoke()
             }.start()
     }
 }

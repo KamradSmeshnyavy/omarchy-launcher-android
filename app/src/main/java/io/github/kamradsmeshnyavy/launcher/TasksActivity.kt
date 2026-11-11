@@ -57,6 +57,11 @@ class TasksActivity : LookActivity() {
     private val syncSoon = Runnable { sync() }
     private var column = 0
     private var syncing = false
+    /** Правка пришла во время синхронизации: отправить ещё раз, когда та закончится. */
+    private var dirty = false
+    /** Список текущей колонки: пока в нём тянут карточку, ответ синхронизации ждёт. */
+    private var rows: ReorderList? = null
+    private var refreshWhenIdle = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -138,6 +143,13 @@ class TasksActivity : LookActivity() {
         }
         // Held and moved, a card goes where it is let go, and so it is on the desktop.
         val rows = ReorderList(this, dp(8))
+        this.rows = rows
+        rows.onIdle = {
+            if (refreshWhenIdle) {
+                refreshWhenIdle = false
+                main.post { if (!isDestroyed) refresh() }
+            }
+        }
         rows.onReorder = { from, to ->
             tasks.place(cards[from].id, index, to)
             changed()
@@ -254,14 +266,18 @@ class TasksActivity : LookActivity() {
             status.text = getString(R.string.tasks_local)
             return
         }
-        if (syncing) return
+        if (syncing) {
+            dirty = true
+            return
+        }
         syncing = true
+        dirty = false
         status.text = getString(R.string.tasks_syncing)
         val client = DeckClient(computer, store.token())
         val body = tasks.json()
         worker.execute {
             val reply = client.call("POST", "/v1/tasks", body, this)
-            store.save(computer)
+            store.touch(computer)
             main.post {
                 syncing = false
                 if (isDestroyed) return@post
@@ -272,10 +288,12 @@ class TasksActivity : LookActivity() {
                     reply.status == 200 && json != null -> {
                         tasks.received(json)
                         status.text = getString(R.string.tasks_synced, computer.name)
-                        refresh()
+                        // Карточку тянут прямо сейчас: перестроить, когда отпустят.
+                        if (rows?.busy == true) refreshWhenIdle = true else refresh()
                     }
                     else -> status.text = getString(R.string.tasks_offline, computer.name)
                 }
+                if (dirty) sync()
             }
         }
     }

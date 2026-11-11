@@ -229,9 +229,13 @@ class BarView(context: Context, private val preview: BarSkin.Skin? = null, priva
             }
         }
 
+        // Края плашки — до того, как rect займут пилюли модулей.
+        val plateLeft = rect.left
+        val plateRight = rect.right
+
         // Столы.
         var x = pad + if (shape == "floating" || shape == "islands") g else 0f
-        if (shape == "pill" || shape == "notch") x = maxOf(x, rect.left + pad)
+        if (shape == "pill" || shape == "notch") x = maxOf(x, plateLeft + pad)
         spaceHits.clear()
         val moduleStyle = skin.str("moduleStyle")
         val moduleBg = withAlpha(role(skin.str("moduleBackground"), p.fg), skin.num("moduleAlpha").toFloat())
@@ -263,7 +267,7 @@ class BarView(context: Context, private val preview: BarSkin.Skin? = null, priva
         // Справа.
         text.color = ink
         var rx = w - pad - rightW - if (shape == "floating" || shape == "islands") g else 0f
-        if (shape == "pill" || shape == "notch") rx = minOf(rx, rect.right - pad - rightW)
+        if (shape == "pill" || shape == "notch") rx = minOf(rx, plateRight - pad - rightW)
         if (moduleStyle == "pills" && right.isNotEmpty()) {
             paint.color = moduleBg
             rect.set(rx - d * 8, bandTop + d * 5, rx + rightW + d * 8, bandTop + bandH - d * 5)

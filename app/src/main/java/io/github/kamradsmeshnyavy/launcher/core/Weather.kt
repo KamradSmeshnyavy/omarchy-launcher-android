@@ -122,7 +122,7 @@ object Weather {
         }
         pool.execute {
             val fresh = runCatching { fetch(app) }.getOrNull()
-            if (fresh != null) {
+            if (fresh != null) runCatching {
                 sp.edit().putString(
                     CACHE,
                     JSONObject().put("t", fresh.temperature).put("code", fresh.code).put("day", fresh.day)
@@ -161,9 +161,10 @@ object Weather {
         val c = o.getJSONObject("current")
         val days = o.optJSONObject("daily")?.let { d ->
             val t = d.getJSONArray("time")
+            // Пустые значения (null → NaN) — без такого дня: JSONObject не хранит NaN.
             List(t.length()) { i ->
                 Day(t.getString(i), d.getJSONArray("weather_code").optInt(i), d.getJSONArray("temperature_2m_max").optDouble(i), d.getJSONArray("temperature_2m_min").optDouble(i))
-            }
+            }.filter { !it.max.isNaN() && !it.min.isNaN() }
         } ?: emptyList()
         val daily = o.optJSONObject("daily")
         val rise = daily?.optJSONArray("sunrise")?.optString(0).orEmpty()

@@ -16,6 +16,17 @@ class DeskTest {
     }
 
     @Test
+    fun movingASpaceKeepsTheCurrentOne() {
+        val s = Desk.State(mutableListOf(Desk.Space("a", "1"), Desk.Space("b", "2"), Desk.Space("c", "3")), current = 0)
+        assertTrue(Desk.moveSpace(s, 0, 2))
+        assertEquals(listOf("b", "c", "a"), s.spaces.map { it.id })
+        assertEquals(2, s.current)
+        assertTrue(Desk.moveSpace(s, 0, 1))
+        assertEquals(2, s.current)
+        assertFalse(Desk.moveSpace(s, 0, 5))
+    }
+
+    @Test
     fun firstFreeFillsLeftToRightTopToBottom() {
         val items = listOf(item("a", 0, 0, 2, 2))
         assertEquals(2 to 0, Grid.firstFree(items, 2, 2))

@@ -23,6 +23,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import android.view.Gravity
 import android.view.MotionEvent
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import io.github.kamradsmeshnyavy.launcher.R
@@ -166,7 +167,7 @@ class StopwatchWidget(context: Context, item: Desk.Item, host: DeskHost) : Canva
     private val tick = object : Runnable {
         override fun run() {
             canvasView.invalidate()
-            if (running) postDelayed(this, 100)
+            if (running && windowVisibility == View.VISIBLE) postDelayed(this, 100)
         }
     }
     private val running get() = item.options.optLong("start", 0L) > 0L
@@ -187,9 +188,10 @@ class StopwatchWidget(context: Context, item: Desk.Item, host: DeskHost) : Canva
         }
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        if (running) post(tick)
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        removeCallbacks(tick)
+        if (running && visibility == View.VISIBLE && isAttachedToWindow) post(tick)
     }
 
     override fun onDetachedFromWindow() {

@@ -56,7 +56,7 @@ class DeckShareActivity : LookActivity() {
         val client = DeckClient(computer, store.token())
         worker.execute {
             val reply = client.call("POST", "/v1/open", JSONObject().put("url", url), this)
-            store.save(computer)
+            store.touch(computer)
             main.post {
                 if (isDestroyed) return@post
                 notice.show(

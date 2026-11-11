@@ -48,6 +48,7 @@ class DeckStore private constructor(context: Context) {
         String(cipher.doFinal(data), Charsets.UTF_8)
     }.getOrNull()
 
+    @Synchronized
     fun save(computer: Computer, token: String? = null) {
         val o = JSONObject()
             .put("name", computer.name)
@@ -66,7 +67,18 @@ class DeckStore private constructor(context: Context) {
         edit.apply()
     }
 
+    /**
+     * After a call: remember the address that answered, but only if this computer is still the
+     * paired one — a call that was in flight while it was forgotten must not bring it back.
+     */
+    @Synchronized
+    fun touch(computer: Computer) {
+        if (this.computer?.pin != computer.pin || token() == null) return
+        save(computer)
+    }
+
     /** The computer and its token go; the webs stay for the next one. */
+    @Synchronized
     fun forget() {
         sp.edit().remove(COMPUTER).remove(TOKEN).apply()
     }

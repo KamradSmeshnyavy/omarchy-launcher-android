@@ -58,13 +58,13 @@ object PcLook {
         val sp = Look.prefs(context)
 
         val state = client.call("GET", "/v1/state", null, context)?.takeIf { it.status == 200 }?.json ?: return false
-        store.save(computer)
+        store.touch(computer)
         val stamp = state.optString("look")
         if (!force && stamp.isNotEmpty() && stamp == sp.getString(STAMP, null)) return false
 
         val look = client.call("GET", "/v1/look", null, context)?.takeIf { it.status == 200 }?.json ?: return false
         val changedLook = look.toString() != sp.getString(Look.PC_SNAPSHOT, null)
-        sp.edit().putString(Look.PC_SNAPSHOT, look.toString()).putString(STAMP, look.optString("stamp", stamp)).apply()
+        sp.edit().putString(Look.PC_SNAPSHOT, look.toString()).apply()
 
         // Обои — только когда они другие: картинка тяжёлая.
         val wall = look.optString("wallpaper")
@@ -82,7 +82,11 @@ object PcLook {
                 if (changedWall) sp.edit().putString(WALL, wall).apply()
             }
         }
-        val changedSounds = runCatching { syncSounds(context, client, look) }.getOrDefault(false)
+        val sounds = runCatching { syncSounds(context, client, look) }.getOrNull()
+        val changedSounds = sounds == true
+        // Штамп — только когда всё дошло: иначе не скачанные обои или звуки не догрузятся никогда.
+        val wallDone = wall.isEmpty() || wall == sp.getString(WALL, null)
+        if (wallDone && sounds != null) sp.edit().putString(STAMP, look.optString("stamp", stamp)).apply()
         if (changedLook || changedSounds) main.post { Look.external(context) }
         return changedLook || changedWall || changedSounds
     }
@@ -90,15 +94,16 @@ object PcLook {
     /**
      * На компьютере пакет «theme» — звуки темы Omarchy: скачать их (и собранные сервером
      * звонок, будильник, уведомление) в пакет [Sounds.PC]. Только если они другие (штамп).
+     * true — обновились, false — не нужно, null — не вышло (повторить в следующий раз).
      */
-    private fun syncSounds(context: Context, client: DeckClient, look: org.json.JSONObject): Boolean {
+    private fun syncSounds(context: Context, client: DeckClient, look: org.json.JSONObject): Boolean? {
         if (look.optJSONObject("sounds")?.optString("soundPack") != "theme") return false
-        val list = client.call("GET", "/v1/sounds", null, context)?.takeIf { it.status == 200 }?.json ?: return false
+        val list = client.call("GET", "/v1/sounds", null, context)?.takeIf { it.status == 200 }?.json ?: return null
         val sp = Look.prefs(context)
         val stamp = list.optString("stamp")
         val dir = Sounds.pcDir(context)
         if (stamp.isNotEmpty() && stamp == sp.getString(SOUNDS_STAMP, null) && dir.isDirectory) return false
-        val names = list.optJSONArray("items") ?: return false
+        val names = list.optJSONArray("items") ?: return null
         val fresh = java.io.File(dir.parentFile, "pc.new").apply { deleteRecursively(); mkdirs() }
         for (i in 0 until names.length()) {
             val name = names.optString(i)
@@ -107,9 +112,9 @@ object PcLook {
             val bytes = client.call("GET", "/v1/sounds/file?name=$name")?.takeIf { it.status == 200 }?.bytes ?: continue
             java.io.File(fresh, "$name.ogg").writeBytes(bytes)
         }
-        if (fresh.list().isNullOrEmpty()) return false
+        if (fresh.list().isNullOrEmpty()) return null
         dir.deleteRecursively()
-        if (!fresh.renameTo(dir)) return false
+        if (!fresh.renameTo(dir)) return null
         sp.edit().putString(SOUNDS_STAMP, stamp).apply()
         Sounds.reload()
         return true

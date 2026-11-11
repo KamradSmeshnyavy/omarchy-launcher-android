@@ -15,6 +15,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.Process
 import android.provider.Settings
+import android.view.View
 import io.github.kamradsmeshnyavy.launcher.R
 import io.github.kamradsmeshnyavy.launcher.core.Desk
 import io.github.kamradsmeshnyavy.launcher.core.Torch
@@ -42,10 +43,7 @@ class TogglesWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWid
 
     init {
         body.addView(canvasView)
-        canvasView.setOnTouchListener { _, ev ->
-            if (ev.actionMasked == android.view.MotionEvent.ACTION_UP) hits.firstOrNull { it.first.contains(ev.x, ev.y) }?.second?.invoke()
-            true
-        }
+        tapZones(canvasView) { x, y -> hits.firstOrNull { it.first.contains(x, y) }?.second?.invoke() }
     }
 
     override fun onAttachedToWindow() {
@@ -102,9 +100,13 @@ class CompassWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWid
         body.addView(canvasView)
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        sensors?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.let { sensors.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
+    /** Датчик — только пока лаунчер на экране (onWindowVisibilityChanged зовётся и при показе). */
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        sensors?.unregisterListener(this)
+        if (visibility == View.VISIBLE && isAttachedToWindow) {
+            sensors?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR)?.let { sensors.registerListener(this, it, SensorManager.SENSOR_DELAY_UI) }
+        }
     }
 
     override fun onDetachedFromWindow() {

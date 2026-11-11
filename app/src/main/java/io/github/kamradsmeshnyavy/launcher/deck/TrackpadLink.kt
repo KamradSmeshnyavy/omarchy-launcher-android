@@ -74,7 +74,7 @@ class TrackpadLink(private val store: DeckStore, private val onState: (State) ->
             post(id, State.CONNECTING)
             val (opened, answer) = DeckClient(computer, store.token())
                 .upgrade("/v1/trackpad?w=${size.width}&h=${size.height}&r=${size.resolution}", PROTOCOL)
-            store.save(computer)
+            store.touch(computer)
             if (opened == null) {
                 val state = when {
                     answer == null -> State.UNREACHABLE

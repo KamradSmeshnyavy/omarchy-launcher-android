@@ -354,6 +354,7 @@ class DeckActivity : LookActivity() {
     /** The second workspace: the computer's apps and the webs kept here, each scrolling on its own. */
     private fun appsPage(): View {
         val page = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        shownApps = null
         appsGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         page.addView(panel(R.string.deck_apps, appsGrid!!), llp(0, MATCH, 3f).apply { marginEnd = dp(14) })
         websGrid = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
@@ -385,7 +386,7 @@ class DeckActivity : LookActivity() {
         pool.execute {
             val apps = client.call("GET", "/v1/apps", null, this)
             val state = if (apps != null && apps.status == 200) client.call("GET", "/v1/state", null, this) else null
-            store.save(computer)
+            store.touch(computer)
             main.post {
                 if (isDestroyed) return@post
                 if (apps == null) {
@@ -452,7 +453,12 @@ class DeckActivity : LookActivity() {
     // --- Tiles ---------------------------------------------------------------------
 
     // The apps in the order put here (held and moved), the ones new on the computer at the end.
+    /** Что показано в сетке приложений: тот же список — не перестраивать (там могут тянуть ячейку). */
+    private var shownApps: List<Pair<String, String>>? = null
+
     private fun showApps(apps: List<Pair<String, String>>, computer: Computer) {
+        if (apps == shownApps) return
+        shownApps = apps
         val holder = appsGrid ?: return
         val order = store.appsOrder
         val sorted = apps.sortedWith(compareBy({ order.indexOf(it.first).let { i -> if (i < 0) Int.MAX_VALUE else i } }, { it.second.lowercase() }))
@@ -620,7 +626,7 @@ class DeckActivity : LookActivity() {
         val client = DeckClient(computer, store.token())
         pool.execute {
             val reply = client.call("POST", path, body, this)
-            store.save(computer)
+            store.touch(computer)
             main.post {
                 if (isDestroyed) return@post
                 when {

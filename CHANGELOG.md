@@ -22,6 +22,14 @@ Forked from NIHIL Launcher 0.3.3.
 - Sounds across the phone: ringtones, notifications and alarms from each pack, set as the
   phone's defaults and put back on request; the pack on system events; the computer's theme
   sounds with its pack set to `theme` (omadeck `/v1/sounds`).
+- Fixes: the desk menu and an app widget's edit menu no longer open by themselves (a tap on an
+  app widget, a scrolled list); the first sound after a start or a pack change is heard; sounds
+  follow the ring or the media volume (Customizer → Sounds); paging desks sounds; a missing
+  forecast value no longer crashes the launcher; a forgotten computer stays forgotten; the
+  computer's wallpaper and sounds retry after a failed download; reordering desks keeps the
+  current one; sliders let the page scroll; the bar's right modules stay in place with pill
+  modules; the toggles and PC widgets take a long press to edit; widgets rest while the
+  launcher is hidden; Customizer no longer reopens itself; tasks keep a drag through a sync.
 
 ---
 

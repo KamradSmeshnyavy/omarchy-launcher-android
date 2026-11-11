@@ -14,6 +14,7 @@ import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import io.github.kamradsmeshnyavy.launcher.R
 import io.github.kamradsmeshnyavy.launcher.core.Desk
 import io.github.kamradsmeshnyavy.launcher.core.DotRender
@@ -39,6 +40,7 @@ class CoverWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidge
     private val main = Handler(Looper.getMainLooper())
     private var controller: MediaController? = null
     private var art: Bitmap? = null
+    private var artKey: String? = null
     private var dotted: Bitmap? = null
     private var title = ""
     private var playing = false
@@ -48,7 +50,7 @@ class CoverWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidge
         override fun run() {
             phase += 0.35f
             canvasView.invalidate()
-            if (playing && isAttachedToWindow) main.postDelayed(this, 90)
+            if (playing && isAttachedToWindow && windowVisibility == View.VISIBLE) main.postDelayed(this, 90)
         }
     }
     private val callback = object : MediaController.Callback() {
@@ -80,6 +82,13 @@ class CoverWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidge
         super.onDetachedFromWindow()
     }
 
+    /** Анимация — только пока лаунчер на экране. */
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        main.removeCallbacks(frame)
+        if (visibility == View.VISIBLE && playing) main.post(frame)
+    }
+
     private fun pick() {
         val list = runCatching { manager()?.getActiveSessions(listener()) }.getOrNull().orEmpty()
         val next = list.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING } ?: list.firstOrNull()
@@ -91,7 +100,14 @@ class CoverWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidge
         val meta = next?.metadata
         title = listOfNotNull(meta?.getString(MediaMetadata.METADATA_KEY_TITLE), meta?.getString(MediaMetadata.METADATA_KEY_ARTIST)).joinToString(" · ")
         val bmp = meta?.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART) ?: meta?.getBitmap(MediaMetadata.METADATA_KEY_ART)
-        if (bmp !== art) {
+        // MediaMetadata каждый раз новая (с новым Bitmap): сравнивать по содержимому, а не ссылке,
+        // иначе обложка точками пересчитывается на главном потоке на каждом колбэке плеера.
+        val key = bmp?.let { b ->
+            val probe = runCatching { b.getPixel(b.width / 2, b.height / 2).toString() + b.getPixel(b.width / 4, b.height / 4) }.getOrDefault("")
+            "${b.width}x${b.height}:$probe:$title"
+        }
+        if (key != artKey) {
+            artKey = key
             art = bmp
             dotted = null
         }

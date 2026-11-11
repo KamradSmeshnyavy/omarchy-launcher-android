@@ -961,7 +961,11 @@ class CustomizerActivity : LookActivity() {
                 val bmp = walls.image(this, theme, name, w, h) ?: error("none")
                 io.github.kamradsmeshnyavy.launcher.core.LockArt.baseFile(this).outputStream().use { bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, it) }
             }.isSuccess
-            runOnUiThread { if (ok) restart() else status.text = getString(R.string.cz_walls_offline) }
+            runOnUiThread {
+                // Ушли с экрана, пока грузилось: не открывать Customizer заново поверх всего.
+                if (isDestroyed || isFinishing) return@runOnUiThread
+                if (ok) restart() else status.text = getString(R.string.cz_walls_offline)
+            }
         }
     }
 
@@ -976,7 +980,7 @@ class CustomizerActivity : LookActivity() {
                         io.github.kamradsmeshnyavy.launcher.core.LockArt.baseFile(this).outputStream().use { input.copyTo(it) }
                     }
                 }
-                runOnUiThread { restart() }
+                runOnUiThread { if (!isDestroyed && !isFinishing) restart() }
             }
         }
     }

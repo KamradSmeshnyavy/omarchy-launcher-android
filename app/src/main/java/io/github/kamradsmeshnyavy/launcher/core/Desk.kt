@@ -155,10 +155,16 @@ object Desk {
     }
 
     fun moveSpace(context: Context, from: Int, to: Int) {
-        val s = state(context)
-        if (from !in s.spaces.indices || to !in s.spaces.indices) return
+        if (moveSpace(state(context), from, to)) save(context)
+    }
+
+    /** Переставить стол [from] на место [to]; текущий — тот же самый, где бы он ни оказался. */
+    internal fun moveSpace(s: State, from: Int, to: Int): Boolean {
+        if (from !in s.spaces.indices || to !in s.spaces.indices) return false
+        val current = s.spaces.getOrNull(s.current)
         s.spaces.add(to, s.spaces.removeAt(from))
-        save(context)
+        s.current = s.spaces.indexOf(current).coerceAtLeast(0)
+        return true
     }
 
     /**

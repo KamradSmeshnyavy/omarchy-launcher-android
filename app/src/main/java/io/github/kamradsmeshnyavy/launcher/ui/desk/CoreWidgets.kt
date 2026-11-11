@@ -152,9 +152,11 @@ class ClockWidget(context: Context, item: Desk.Item, host: DeskHost) : DeskWidge
         baseClockSize = clock.textSize
     }
 
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        if (clockLook.seconds) post(ticker)
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        // Секунды тикают, только пока лаунчер на экране.
+        removeCallbacks(ticker)
+        if (clockLook.seconds && visibility == View.VISIBLE && isAttachedToWindow) post(ticker)
     }
 
     override fun onDetachedFromWindow() {

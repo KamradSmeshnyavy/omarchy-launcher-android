@@ -154,23 +154,57 @@ class LedSlider(
         canvas.drawText(format(value), width.toFloat(), height / 2f + label.textSize / 3, label)
     }
 
+    private val slop = android.view.ViewConfiguration.get(context).scaledTouchSlop
+    private var downX = 0f
+    private var downY = 0f
+    private var startValue = 0.0
+    private var dragging = false
+
+    private fun moveTo(x: Float) {
+        val t = (x / trackEnd).coerceIn(0f, 1f)
+        val next = snap(min + (max - min) * t)
+        if (next != value) {
+            value = next
+            contentDescription = format(next)
+            invalidate()
+        }
+    }
+
+    private fun commit() {
+        if (value != startValue) onChange(value)
+    }
+
+    /**
+     * Тянуть — только вбок: вертикальный жест с ползунка остаётся прокрутке страницы (раньше
+     * он менял значение и перезапускал Customizer). Касание без движения ставит значение.
+     */
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.actionMasked) {
-            MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                parent?.requestDisallowInterceptTouchEvent(true)
-                val t = (event.x / trackEnd).coerceIn(0f, 1f)
-                val next = snap(min + (max - min) * t)
-                if (next != value) {
-                    value = next
-                    contentDescription = format(next)
-                    invalidate()
+            MotionEvent.ACTION_DOWN -> {
+                downX = event.x
+                downY = event.y
+                startValue = value
+                dragging = false
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val dx = kotlin.math.abs(event.x - downX)
+                val dy = kotlin.math.abs(event.y - downY)
+                if (!dragging && dx > slop && dx > dy) {
+                    dragging = true
+                    parent?.requestDisallowInterceptTouchEvent(true)
                 }
+                if (dragging) moveTo(event.x)
             }
             MotionEvent.ACTION_UP -> {
-                onChange(value)
+                if (!dragging && kotlin.math.abs(event.y - downY) <= slop) moveTo(event.x)
+                dragging = false
+                commit()
                 performClick()
             }
-            MotionEvent.ACTION_CANCEL -> onChange(value)
+            MotionEvent.ACTION_CANCEL -> {
+                if (dragging) commit()
+                dragging = false
+            }
         }
         return true
     }

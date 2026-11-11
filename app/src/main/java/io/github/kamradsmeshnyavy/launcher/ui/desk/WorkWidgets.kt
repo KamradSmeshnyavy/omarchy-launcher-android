@@ -10,6 +10,7 @@ import android.graphics.Paint
 import android.os.Handler
 import android.os.Looper
 import android.provider.CalendarContract
+import android.view.View
 import io.github.kamradsmeshnyavy.launcher.DeckActivity
 import io.github.kamradsmeshnyavy.launcher.R
 import io.github.kamradsmeshnyavy.launcher.core.Desk
@@ -145,19 +146,16 @@ class PcWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidget(c
     private val poll = object : Runnable {
         override fun run() {
             fetch()
-            if (isAttachedToWindow) main.postDelayed(this, 15_000)
+            if (isAttachedToWindow && windowVisibility == View.VISIBLE) main.postDelayed(this, 15_000)
         }
     }
     private var buttons: List<Pair<android.graphics.RectF, String>> = emptyList()
 
     init {
         body.addView(canvasView)
-        canvasView.setOnTouchListener { _, ev ->
-            if (ev.actionMasked == android.view.MotionEvent.ACTION_UP) {
-                val hit = buttons.firstOrNull { it.first.contains(ev.x, ev.y) }
-                if (hit != null) send(hit.second) else context.startActivity(Intent(context, DeckActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-            true
+        tapZones(canvasView) { x, y ->
+            val hit = buttons.firstOrNull { it.first.contains(x, y) }
+            if (hit != null) send(hit.second) else context.startActivity(Intent(context, DeckActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
     }
 
@@ -175,6 +173,13 @@ class PcWidget(context: Context, item: Desk.Item, host: DeskHost) : CardWidget(c
     override fun onDetachedFromWindow() {
         main.removeCallbacks(poll)
         super.onDetachedFromWindow()
+    }
+
+    /** Лаунчер скрыт (открыто приложение): компьютер не опрашивать, вернулись — сразу обновить. */
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        main.removeCallbacks(poll)
+        if (visibility == View.VISIBLE && isAttachedToWindow) main.post(poll)
     }
 
     override fun refresh() = fetch()
