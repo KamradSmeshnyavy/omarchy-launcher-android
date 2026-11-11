@@ -1,5 +1,6 @@
 {
  "Accent colour": "Цвет акцента",
+ "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)": "Вид списка приложений (grid — значки как в NIHIL, compact — мельче, по 5 в ряд, list — списком, dotmatrix — значки и имена светодиодными точками)",
  "Appearance": "Внешний вид",
  "Apply from presets": "Что применять из пресетов",
  "Apply from styles": "Что применять из стилей",
@@ -24,7 +25,6 @@
  "DOT-MATRIX: text": "DOT-MATRIX: текст",
  "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)": "Раскладка столов (стопка — карточки сверху вниз, сетка — клетки, как в лаунчерах Android)",
  "Dot matrix": "Светодиодная матрица",
- "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)": "Вид списка приложений (grid — значки как в NIHIL, compact — мельче, по 5 в ряд, list — списком, dotmatrix — значки и имена светодиодными точками)",
  "General": "Общее",
  "Glyph lighting": "Подсветка Glyph",
  "Glyph: core thickness": "Glyph: толщина луча",
@@ -49,6 +49,7 @@
  "Sounds: on": "Звуки: включены",
  "Sounds: pack": "Звуки: пакет",
  "Sounds: volume": "Звуки: громкость",
+ "Sounds: volume follows (ring — ring/system volume, silent mode mutes them; media — media volume)": "Громкость звуков (ring — как звонок, тихий режим глушит; media — как музыка)",
  "Styles: apply Glyph": "Стили: Glyph",
  "Styles: apply launcher": "Стили: лаунчер",
  "Styles: apply panel surfaces (shadows, motion, material, corners, typeface)": "Стили: поверхности панелей (тени, анимации, материал, углы, шрифт)",
@@ -67,6 +68,8 @@
  "default": "по умолчанию",
  "grid": "сетка",
  "list": "список",
+ "media": "медиа",
  "off": "выкл",
+ "ring": "звонок",
  "stack": "стопка"
 }

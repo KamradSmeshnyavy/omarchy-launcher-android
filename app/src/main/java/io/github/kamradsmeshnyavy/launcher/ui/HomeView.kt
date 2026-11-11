@@ -84,7 +84,7 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
         }
         dots.removeAllViews()
         if (pages.size > 1 && !io.github.kamradsmeshnyavy.launcher.core.BarSkin.enabled(context)) {
-            dots.addView(PageDots(context, state.spaces.map { it.name }) { pager.show(it) }, lp(MATCH, WRAP))
+            dots.addView(PageDots(context, state.spaces.map { it.name }) { pickPage(it) }, lp(MATCH, WRAP))
         }
         built = Desk.version
         applyInsets()
@@ -109,6 +109,16 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
 
     fun showPage(index: Int) = pager.show(index)
 
+    /** Стол выбрали сами (точки, бар): перейти со звуком переключения. */
+    fun pickPage(index: Int) {
+        val before = pager.page
+        pager.show(index)
+        if (pager.page != before) switched()
+    }
+
+    private fun switched() =
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.play(context, io.github.kamradsmeshnyavy.launcher.core.Sounds.Event.SWITCH)
+
     private fun replay() {
         widgets.forEach { w ->
             w.onClock(false)
@@ -125,7 +135,11 @@ class HomeView(context: Context, private val host: Host) : FrameLayout(context),
     override val pageCount: Int get() = pages.size
     override fun beginDrag() = pager.beginDrag()
     override fun dragBy(dx: Float) = pager.dragBy(dx)
-    override fun release(vx: Float) = pager.release(vx)
+    override fun release(vx: Float) {
+        val before = pager.page
+        pager.release(vx)
+        if (pager.page != before) switched()
+    }
 
     // --- Перенос в сетке ---------------------------------------------------------------
 

@@ -126,6 +126,15 @@
      "step": 0.1,
      "default": 0.6,
      "label": "Sounds: volume"
+    },
+    {
+     "key": "soundStream",
+     "type": "enum",
+     "values": [
+      "ring",
+      "media"
+     ],
+     "label": "Sounds: volume follows (ring — ring/system volume, silent mode mutes them; media — media volume)"
     }
    ]
   },

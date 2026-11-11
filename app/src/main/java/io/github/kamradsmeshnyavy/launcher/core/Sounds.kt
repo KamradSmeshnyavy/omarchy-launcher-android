@@ -11,7 +11,7 @@ import java.io.InputStream
  * soundPack — пакет (theme — пакет стиля), soundVolume — громкость. Пакет [PC] — звуки темы
  * Omarchy с компьютера (filesDir/sounds/pc, их скачивает PcLook). Чего в пакете нет —
  * берётся ближайшее ([FALLBACK]), иначе молчит. Звучит как системные клики (sonification):
- * тихий режим телефона их глушит.
+ * тихий режим телефона их глушит; soundStream = media — звучат громкостью музыки.
  */
 object Sounds {
     const val PC = "pc"
@@ -34,8 +34,16 @@ object Sounds {
     )
 
     private var pool: SoundPool? = null
-    private var loadedPack: String? = null
+    /** Что загружено: пакет и поток ([stream]) — сменился любой, пул собирается заново. */
+    private var loadedKey: String? = null
     private val ids = HashMap<Event, Int>()
+    /** Звуки, которые SoundPool уже раскодировал (load асинхронный: до этого play молчит). */
+    private val ready = HashSet<Int>()
+    /** Звук, который попросили до готовности: сыграть, как только загрузится (если не поздно). */
+    private var pending: Triple<Int, Float, Long>? = null
+
+    /** Громкостью чего звучат звуки: ring — звонка/системы (тихий режим глушит), media — музыки. */
+    fun stream(look: Look.Resolved): String = if (look.str("soundStream", "ring") == "media") "media" else "ring"
 
     /** Пакет, который звучит сейчас: свой выбор, пакет стиля (theme) или звуки компьютера. */
     fun pack(look: Look.Resolved): String {
@@ -67,31 +75,60 @@ object Sounds {
         val look = Look.now
         if (!look.bool("sounds", false)) return
         val app = context.applicationContext
-        val pack = pack(look)
-        if (pack != loadedPack) load(app, pack)
+        ensure(app, look)
         val id = ids[event] ?: return
         val volume = look.num("soundVolume", 0.6).toFloat().coerceIn(0f, 1f)
+        synchronized(this) {
+            if (id !in ready) {
+                pending = Triple(id, volume, android.os.SystemClock.uptimeMillis())
+                return
+            }
+        }
         pool?.play(id, volume, volume, 1, 0, 1f)
+    }
+
+    /** Загрузить пакет заранее (старт, смена Look), чтобы первый звук не молчал. */
+    fun preload(context: Context) {
+        val look = Look.now
+        if (look.bool("sounds", false)) ensure(context.applicationContext, look)
+    }
+
+    private fun ensure(context: Context, look: Look.Resolved) {
+        val pack = pack(look)
+        val stream = stream(look)
+        if ("$pack|$stream" != loadedKey) load(context, pack, stream)
     }
 
     /** Звуки компьютера обновились (те же имена, новые файлы): перечитать при следующем звуке. */
     fun reload() {
-        loadedPack = null
+        loadedKey = null
     }
 
     @Synchronized
-    private fun load(context: Context, pack: String) {
+    private fun load(context: Context, pack: String, stream: String) {
         pool?.release()
         ids.clear()
+        ready.clear()
+        pending = null
         val next = SoundPool.Builder()
             .setMaxStreams(3)
             .setAudioAttributes(
                 AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                    .setUsage(if (stream == "media") AudioAttributes.USAGE_MEDIA else AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                     .build(),
             )
             .build()
+        next.setOnLoadCompleteListener { sp, sampleId, status ->
+            if (status != 0) return@setOnLoadCompleteListener
+            val late = synchronized(this) {
+                if (sp !== pool) return@setOnLoadCompleteListener
+                ready += sampleId
+                pending?.takeIf { it.first == sampleId }?.also { pending = null }
+            }
+            // Опоздавший звук — только если он ещё к месту (полсекунды после нажатия).
+            if (late != null && android.os.SystemClock.uptimeMillis() - late.third < 600) sp.play(sampleId, late.second, late.second, 1, 0, 1f)
+        }
         for (event in Event.entries) {
             val name = (FALLBACK[event.file] ?: listOf(event.file)).firstOrNull { has(context, pack, it) } ?: continue
             runCatching {
@@ -103,6 +140,6 @@ object Sounds {
             }
         }
         pool = next
-        loadedPack = pack
+        loadedKey = "$pack|$stream"
     }
 }

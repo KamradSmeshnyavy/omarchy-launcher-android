@@ -129,7 +129,7 @@ class LauncherActivity :
         frame = FrameView(this)
         drawer = DrawerView(this, this)
         noticeView = Notice(this)
-        if (io.github.kamradsmeshnyavy.launcher.core.BarSkin.enabled(this)) bar = BarView(this) { home.showPage(it) }
+        if (io.github.kamradsmeshnyavy.launcher.core.BarSkin.enabled(this)) bar = BarView(this) { home.pickPage(it) }
         root = RootLayout(this, this).apply {
             addView(home, lp(MATCH, MATCH))
             addView(frame, lp(MATCH, MATCH))

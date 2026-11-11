@@ -60,6 +60,10 @@ TABLES = {
 
 # Строки, которых нет в Customizer, но есть у телефона: (таблица, строка, перевод подписи и значений).
 EXTRA_ITEMS = {
+    "SOUND_TWEAKS": [
+        {"key": "soundStream", "type": "enum", "values": ["ring", "media"],
+         "label": "Sounds: volume follows (ring — ring/system volume, silent mode mutes them; media — media volume)"},
+    ],
     "LAUNCHER_TWEAKS": [
         {"key": "deskLayout", "type": "enum", "values": ["stack", "grid"],
          "label": "Desk layout (stack — cards top to bottom, grid — cells as in Android launchers)"},
@@ -68,6 +72,9 @@ EXTRA_ITEMS = {
     ],
 }
 EXTRA_RU = {
+    "Sounds: volume follows (ring — ring/system volume, silent mode mutes them; media — media volume)":
+        "Громкость звуков (ring — как звонок, тихий режим глушит; media — как музыка)",
+    "ring": "звонок", "media": "медиа",
     "App list look (grid — icons as in NIHIL, compact — smaller, 5 across, list — one per row, dotmatrix — icons and names in LED dots)":
         "Вид списка приложений (grid — значки как в NIHIL, compact — мельче, по 5 в ряд, list — списком, dotmatrix — значки и имена светодиодными точками)",
     "grid": "сетка", "compact": "плотно", "list": "список", "stack": "стопка",

@@ -16,8 +16,11 @@ class LauncherApp : Application() {
         io.github.kamradsmeshnyavy.launcher.core.PcLook.schedule(this)
         // Звуки системы: события — пока жив процесс; звонок/уведомления/будильник — за пакетом.
         io.github.kamradsmeshnyavy.launcher.system.SoundEvents.start(this)
+        // Звуки интерфейса — загрузить сразу: SoundPool грузит их не мгновенно.
+        io.github.kamradsmeshnyavy.launcher.core.Sounds.preload(this)
         Look.onChange = { ctx ->
             io.github.kamradsmeshnyavy.launcher.core.SystemSounds.follow(ctx, io.github.kamradsmeshnyavy.launcher.core.Sounds.pack(Look.now))
+            io.github.kamradsmeshnyavy.launcher.core.Sounds.preload(ctx)
         }
     }
 }
