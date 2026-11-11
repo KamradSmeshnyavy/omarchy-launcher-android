@@ -55,7 +55,8 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         }
 
         override fun onLongPress(e: MotionEvent) {
-            if (!dragging && !spent) listener.onLongPress(e.x, e.y)
+            // Палец ещё на экране и жест не забрал потомок: иначе это запоздалое срабатывание.
+            if (fingerDown && !locked && !dragging && !spent) listener.onLongPress(e.x, e.y)
         }
     })
 
@@ -81,6 +82,48 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
     var blankAt: ((Float, Float) -> Boolean)? = null
     private var blankDown = false
     private var fedDown = false
+    /** Палец на экране (между DOWN и UP/CANCEL), по dispatchTouchEvent. */
+    private var fingerDown = false
+    /** Детектор получил DOWN и ещё не получил конец жеста (UP/CANCEL). */
+    private var detectorLive = false
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> fingerDown = true
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> fingerDown = false
+        }
+        val handled = super.dispatchTouchEvent(ev)
+        // Конец жеста мог не дойти до детектора (потомок запретил перехват): снять долгое нажатие.
+        if ((ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL) && detectorLive) {
+            cancelDetector(ev)
+        }
+        return handled
+    }
+
+    /**
+     * Потомок забрал жест себе (прокрутка, перетаскивание, список виджета): дальше
+     * onInterceptTouchEvent не зовётся, и детектор не увидел бы UP — долгое нажатие
+     * сработало бы само через полсекунды. Отменить его сразу.
+     */
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+        if (disallowIntercept && detectorLive) {
+            val now = android.os.SystemClock.uptimeMillis()
+            val cancel = MotionEvent.obtain(now, now, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+            detector.onTouchEvent(cancel)
+            cancel.recycle()
+            detectorLive = false
+            blankDown = false
+        }
+        super.requestDisallowInterceptTouchEvent(disallowIntercept)
+    }
+
+    private fun feed(ev: MotionEvent) {
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> detectorLive = true
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> detectorLive = false
+        }
+        detector.onTouchEvent(ev)
+    }
 
     /** Minimum fling speed, in px/s, for a release to decide the direction. */
     val flingVelocity: Float get() = fling
@@ -92,9 +135,9 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         if (ev.actionMasked == MotionEvent.ACTION_DOWN) {
             blankDown = onHomeNow && (blankAt?.invoke(ev.rawX, ev.rawY) ?: false)
             fedDown = blankDown
-            if (blankDown) detector.onTouchEvent(ev)
+            if (blankDown) feed(ev)
         } else if (blankDown && onHomeNow && !dragging && !spent && !paging) {
-            detector.onTouchEvent(ev)
+            feed(ev)
         }
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
@@ -152,7 +195,7 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         }
         val onHome = listener.progress <= 0.001f
         val already = ev.actionMasked == MotionEvent.ACTION_DOWN && fedDown
-        if (onHome && !dragging && !spent && !already) detector.onTouchEvent(ev)
+        if (onHome && !dragging && !spent && !already) feed(ev)
         when (ev.actionMasked) {
             // Already dragging if the down caught an animation in onInterceptTouchEvent.
             MotionEvent.ACTION_DOWN -> if (!dragging) begin(ev)
@@ -232,6 +275,7 @@ class RootLayout(context: Context, private val listener: Listener) : FrameLayout
         val cancel = MotionEvent.obtain(ev).apply { action = MotionEvent.ACTION_CANCEL }
         detector.onTouchEvent(cancel)
         cancel.recycle()
+        detectorLive = false
     }
 
     private fun track(ev: MotionEvent) {

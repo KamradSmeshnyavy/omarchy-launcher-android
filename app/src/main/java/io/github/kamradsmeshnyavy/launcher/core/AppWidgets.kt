@@ -52,6 +52,28 @@ object AppWidgets {
             return fired
         }
 
+        override fun dispatchTouchEvent(ev: android.view.MotionEvent): Boolean {
+            val handled = super.dispatchTouchEvent(ev)
+            when (ev.actionMasked) {
+                // Касание не взял ни виджет, ни его кнопки: остальное (и UP) уйдёт родителю мимо
+                // перехвата — ждать долгое нажатие здесь нельзя, его ловит сама карточка стола.
+                android.view.MotionEvent.ACTION_DOWN -> if (!handled) removeCallbacks(longPress)
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> removeCallbacks(longPress)
+            }
+            return handled
+        }
+
+        /** Список виджета начал прокрутку: перехват больше не зовётся — долгое нажатие снять. */
+        override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+            if (disallowIntercept) removeCallbacks(longPress)
+            super.requestDisallowInterceptTouchEvent(disallowIntercept)
+        }
+
+        override fun onDetachedFromWindow() {
+            removeCallbacks(longPress)
+            super.onDetachedFromWindow()
+        }
+
         override fun onTouchEvent(event: android.view.MotionEvent): Boolean {
             if (event.actionMasked == android.view.MotionEvent.ACTION_UP || event.actionMasked == android.view.MotionEvent.ACTION_CANCEL) {
                 removeCallbacks(longPress)

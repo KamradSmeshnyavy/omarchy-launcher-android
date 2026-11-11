@@ -474,6 +474,7 @@ class LauncherActivity :
     }
 
     override fun onLongPress(x: Float, y: Float) {
+        if (popup.showing || drawerProgress > 0f) return
         root.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS)
         popup.show(
             anchor = root,
